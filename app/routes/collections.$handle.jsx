@@ -123,6 +123,8 @@ export default function Collection() {
       activeType === 'all'
         ? [...products]
         : products.filter((p) => p.type === activeType);
+    // 'featured' keeps the loader's order (Shopify collection order, or mock
+    // order); no explicit merchandised-position field is fetched.
     if (sort === 'price-asc') list.sort((a, b) => a.price - b.price);
     else if (sort === 'price-desc') list.sort((a, b) => b.price - a.price);
     else if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
@@ -174,6 +176,9 @@ function CollectionHead({title, description}) {
 
 /** Men / Women / Accessories switcher. Each pill is a real route link. */
 function CategoryTabs({current}) {
+  // Active state matches the category id (men/women/accessories). A live
+  // Shopify collection with a different handle intentionally shows no active
+  // tab — by design, not a bug.
   return (
     <nav className="col-tabs" aria-label="Categories">
       {CATEGORIES.map((c) => (
@@ -226,6 +231,10 @@ function CollectionToolbar({types, activeType, onType, sort, onSort, count}) {
 
 /** Reveal-on-scroll product grid. */
 function ProductGrid({products}) {
+  // useReveal fires once: it adds `.in` when the grid scrolls into view, then
+  // stops observing. Reveal is initial-scroll only — when client filtering
+  // swaps cards, they render immediately via the already-applied `.in .reveal`
+  // rule (no per-filter replay, by design).
   const ref = useReveal();
   return (
     <div className="grid-4 col-grid" ref={ref}>
