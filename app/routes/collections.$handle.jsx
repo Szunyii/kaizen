@@ -38,6 +38,11 @@ async function loadCriticalData({context, params, request}) {
   });
   const category = CATEGORIES.find((c) => c.id === handle);
 
+  // A live collection's handle may be localized — redirect to the canonical one.
+  if (collection) {
+    redirectIfHandleIsLocalized(request, {handle, data: collection});
+  }
+
   // Unknown handle with no live collection → 404.
   if (!collection && !category) {
     throw new Response(`Collection ${handle} not found`, {status: 404});
@@ -47,7 +52,6 @@ async function loadCriticalData({context, params, request}) {
 
   // Live collection with products wins.
   if (liveNodes.length) {
-    redirectIfHandleIsLocalized(request, {handle, data: collection});
     return {
       id: collection.id,
       handle,
