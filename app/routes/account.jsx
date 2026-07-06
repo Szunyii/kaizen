@@ -40,56 +40,50 @@ export default function AccountLayout() {
   /** @type {LoaderReturnData} */
   const {customer} = useLoaderData();
 
-  const heading = customer
-    ? customer.firstName
-      ? `Welcome, ${customer.firstName}`
-      : `Welcome to your account.`
-    : 'Account Details';
+  const heading = customer.firstName
+    ? `Welcome, ${customer.firstName}`
+    : 'Your account';
 
   return (
-    <div className="account">
-      <h1>{heading}</h1>
-      <br />
-      <AccountMenu />
-      <br />
-      <br />
-      <Outlet context={{customer}} />
+    <div className="acct view-enter">
+      <div className="wrap">
+        <header className="acct-head">
+          <p className="kicker">会員 — Member</p>
+          <h1 className="acct-h display">{heading}</h1>
+        </header>
+        <AccountMenu />
+        <div className="acct-body">
+          <Outlet context={{customer}} />
+        </div>
+      </div>
     </div>
   );
 }
 
 function AccountMenu() {
-  function isActiveStyle({isActive, isPending}) {
-    return {
-      fontWeight: isActive ? 'bold' : undefined,
-      color: isPending ? 'grey' : 'black',
-    };
-  }
+  const tabClass = ({isActive}) =>
+    isActive ? 'acct-tab is-active' : 'acct-tab';
 
   return (
-    <nav role="navigation">
-      <NavLink to="/account/orders" style={isActiveStyle}>
-        Orders &nbsp;
+    <nav className="acct-nav" role="navigation">
+      <NavLink to="/account" end className={tabClass}>
+        Overview
       </NavLink>
-      &nbsp;|&nbsp;
-      <NavLink to="/account/profile" style={isActiveStyle}>
-        &nbsp; Profile &nbsp;
+      <NavLink to="/account/orders" className={tabClass}>
+        Orders
       </NavLink>
-      &nbsp;|&nbsp;
-      <NavLink to="/account/addresses" style={isActiveStyle}>
-        &nbsp; Addresses &nbsp;
+      <NavLink to="/account/profile" className={tabClass}>
+        Profile
       </NavLink>
-      &nbsp;|&nbsp;
-      <Logout />
+      <NavLink to="/account/addresses" className={tabClass}>
+        Addresses
+      </NavLink>
+      <Form className="acct-signout" method="POST" action="/account/logout">
+        <button type="submit" className="btn btn-ghost">
+          Sign out
+        </button>
+      </Form>
     </nav>
-  );
-}
-
-function Logout() {
-  return (
-    <Form className="account-logout" method="POST" action="/account/logout">
-      &nbsp;<button type="submit">Sign out</button>
-    </Form>
   );
 }
 
