@@ -11,7 +11,7 @@ import {
  * @type {Route.MetaFunction}
  */
 export const meta = () => {
-  return [{title: 'Profile'}];
+  return [{title: 'KaizenType — Profile'}];
 };
 
 /**
@@ -86,16 +86,19 @@ export default function AccountProfile() {
   /** @type {ActionReturnData} */
   const action = useActionData();
   const customer = action?.customer ?? account?.customer;
+  const email = account?.customer?.emailAddress?.emailAddress;
 
   return (
-    <div className="account-profile">
-      <h2>My profile</h2>
-      <br />
-      <Form method="PUT">
-        <legend>Personal information</legend>
-        <fieldset>
-          <label htmlFor="firstName">First name</label>
+    <div className="acct-profile">
+      <h2 className="acct-sec-h">My profile</h2>
+      {email && <p className="acct-note">Signed in as {email}</p>}
+      <Form method="PUT" className="acct-form">
+        <div className="acct-field">
+          <label className="acct-label" htmlFor="firstName">
+            First name
+          </label>
           <input
+            className="acct-input"
             id="firstName"
             name="firstName"
             type="text"
@@ -105,8 +108,13 @@ export default function AccountProfile() {
             defaultValue={customer.firstName ?? ''}
             minLength={2}
           />
-          <label htmlFor="lastName">Last name</label>
+        </div>
+        <div className="acct-field">
+          <label className="acct-label" htmlFor="lastName">
+            Last name
+          </label>
           <input
+            className="acct-input"
             id="lastName"
             name="lastName"
             type="text"
@@ -116,19 +124,13 @@ export default function AccountProfile() {
             defaultValue={customer.lastName ?? ''}
             minLength={2}
           />
-        </fieldset>
-        {action?.error ? (
-          <p>
-            <mark>
-              <small>{action.error}</small>
-            </mark>
-          </p>
-        ) : (
-          <br />
-        )}
-        <button type="submit" disabled={state !== 'idle'}>
-          {state !== 'idle' ? 'Updating' : 'Update'}
-        </button>
+        </div>
+        {action?.error && <p className="acct-error">{action.error}</p>}
+        <div className="acct-actions">
+          <button className="btn" type="submit" disabled={state !== 'idle'}>
+            {state !== 'idle' ? 'Updating…' : 'Update'}
+          </button>
+        </div>
       </Form>
     </div>
   );
