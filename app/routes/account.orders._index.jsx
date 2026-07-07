@@ -22,7 +22,7 @@ import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
  * @type {Route.MetaFunction}
  */
 export const meta = () => {
-  return [{title: 'Orders'}];
+  return [{title: 'KaizenType — Orders'}];
 };
 
 /**
@@ -59,7 +59,7 @@ export default function Orders() {
   const {orders} = customer;
 
   return (
-    <div className="orders">
+    <div className="acct-orders-page">
       <OrderSearchForm currentFilters={filters} />
       <OrdersTable orders={orders} filters={filters} />
     </div>
@@ -76,9 +76,12 @@ function OrdersTable({orders, filters}) {
   const hasFilters = !!(filters.name || filters.confirmationNumber);
 
   return (
-    <div className="acccount-orders" aria-live="polite">
+    <div aria-live="polite">
       {orders?.nodes.length ? (
-        <PaginatedResourceSection connection={orders}>
+        <PaginatedResourceSection
+          connection={orders}
+          resourcesClassName="acct-orders"
+        >
           {({node: order}) => <OrderItem key={order.id} order={order} />}
         </PaginatedResourceSection>
       ) : (
@@ -93,22 +96,21 @@ function OrdersTable({orders, filters}) {
  */
 function EmptyOrders({hasFilters = false}) {
   return (
-    <div>
+    <div className="acct-empty">
+      <span className="acct-empty-kanji">無</span>
       {hasFilters ? (
         <>
           <p>No orders found matching your search.</p>
-          <br />
-          <p>
-            <Link to="/account/orders">Clear filters →</Link>
-          </p>
+          <Link className="acct-link" to="/account/orders">
+            Clear filters →
+          </Link>
         </>
       ) : (
         <>
           <p>You haven&apos;t placed any orders yet.</p>
-          <br />
-          <p>
-            <Link to="/collections">Start Shopping →</Link>
-          </p>
+          <Link className="btn" to="/collections">
+            Start shopping
+          </Link>
         </>
       )}
     </div>
@@ -152,49 +154,41 @@ function OrderSearchForm({currentFilters}) {
     <form
       ref={formRef}
       onSubmit={handleSubmit}
-      className="order-search-form"
+      className="acct-search"
       aria-label="Search orders"
     >
-      <fieldset className="order-search-fieldset">
-        <legend className="order-search-legend">Filter Orders</legend>
-
-        <div className="order-search-inputs">
-          <input
-            type="search"
-            name={ORDER_FILTER_FIELDS.NAME}
-            placeholder="Order #"
-            aria-label="Order number"
-            defaultValue={currentFilters.name || ''}
-            className="order-search-input"
-          />
-          <input
-            type="search"
-            name={ORDER_FILTER_FIELDS.CONFIRMATION_NUMBER}
-            placeholder="Confirmation #"
-            aria-label="Confirmation number"
-            defaultValue={currentFilters.confirmationNumber || ''}
-            className="order-search-input"
-          />
-        </div>
-
-        <div className="order-search-buttons">
-          <button type="submit" disabled={isSearching}>
-            {isSearching ? 'Searching' : 'Search'}
-          </button>
-          {hasFilters && (
-            <button
-              type="button"
-              disabled={isSearching}
-              onClick={() => {
-                setSearchParams(new URLSearchParams());
-                formRef.current?.reset();
-              }}
-            >
-              Clear
-            </button>
-          )}
-        </div>
-      </fieldset>
+      <input
+        type="search"
+        className="acct-input"
+        name={ORDER_FILTER_FIELDS.NAME}
+        placeholder="Order #"
+        aria-label="Order number"
+        defaultValue={currentFilters.name || ''}
+      />
+      <input
+        type="search"
+        className="acct-input"
+        name={ORDER_FILTER_FIELDS.CONFIRMATION_NUMBER}
+        placeholder="Confirmation #"
+        aria-label="Confirmation number"
+        defaultValue={currentFilters.confirmationNumber || ''}
+      />
+      <button className="btn" type="submit" disabled={isSearching}>
+        {isSearching ? 'Searching…' : 'Search'}
+      </button>
+      {hasFilters && (
+        <button
+          className="btn btn-ghost"
+          type="button"
+          disabled={isSearching}
+          onClick={() => {
+            setSearchParams(new URLSearchParams());
+            formRef.current?.reset();
+          }}
+        >
+          Clear
+        </button>
+      )}
     </form>
   );
 }
@@ -205,22 +199,25 @@ function OrderSearchForm({currentFilters}) {
 function OrderItem({order}) {
   const fulfillmentStatus = flattenConnection(order.fulfillments)[0]?.status;
   return (
-    <>
-      <fieldset>
-        <Link to={`/account/orders/${btoa(order.id)}`}>
-          <strong>#{order.number}</strong>
-        </Link>
-        <p>{new Date(order.processedAt).toDateString()}</p>
-        {order.confirmationNumber && (
-          <p>Confirmation: {order.confirmationNumber}</p>
-        )}
-        <p>{order.financialStatus}</p>
-        {fulfillmentStatus && <p>{fulfillmentStatus}</p>}
+    <Link className="acct-order" to={`/account/orders/${btoa(order.id)}`}>
+      <div>
+        <p className="acct-order-num">#{order.number}</p>
+        <div className="acct-order-meta">
+          <span>{new Date(order.processedAt).toDateString()}</span>
+          {order.confirmationNumber && (
+            <span>Conf. {order.confirmationNumber}</span>
+          )}
+          <span className="acct-chip">{order.financialStatus}</span>
+          {fulfillmentStatus && (
+            <span className="acct-chip">{fulfillmentStatus}</span>
+          )}
+        </div>
+      </div>
+      <div className="acct-order-total">
         <Money data={order.totalPrice} />
-        <Link to={`/account/orders/${btoa(order.id)}`}>View Order →</Link>
-      </fieldset>
-      <br />
-    </>
+        <span className="acct-link">View →</span>
+      </div>
+    </Link>
   );
 }
 
