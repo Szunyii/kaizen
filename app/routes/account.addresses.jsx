@@ -254,7 +254,7 @@ export default function Addresses() {
   const {defaultAddress, addresses} = customer;
 
   return (
-    <div className="acct-addresses">
+    <div>
       <section>
         <h2 className="acct-sec-h">Saved addresses</h2>
         {!addresses.nodes.length ? (
@@ -526,7 +526,11 @@ export function AddressForm({addressId, address, defaultAddress, children}) {
           Set as default address
         </label>
       </div>
-      {error && <p className="acct-error">{error}</p>}
+      {error && (
+        <p className="acct-error" role="alert">
+          {error}
+        </p>
+      )}
       {children({
         stateForMethod: (method) => (formMethod === method ? state : 'idle'),
       })}

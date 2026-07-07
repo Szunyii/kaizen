@@ -19,7 +19,9 @@ export default function AccountOverview() {
   return (
     <div className="acct-grid">
       <Link to="/account/orders" className="acct-card">
-        <span className="acct-card-kanji">注</span>
+        <span className="acct-card-kanji" aria-hidden="true">
+          注
+        </span>
         <h2 className="acct-card-h">Orders</h2>
         <p className="acct-card-p">
           Track, review and revisit everything you have ordered.
@@ -27,7 +29,9 @@ export default function AccountOverview() {
         <span className="acct-link">View orders →</span>
       </Link>
       <Link to="/account/profile" className="acct-card">
-        <span className="acct-card-kanji">名</span>
+        <span className="acct-card-kanji" aria-hidden="true">
+          名
+        </span>
         <h2 className="acct-card-h">Profile</h2>
         <p className="acct-card-p">
           {name || 'Add your name'}
@@ -41,7 +45,9 @@ export default function AccountOverview() {
         <span className="acct-link">Edit profile →</span>
       </Link>
       <Link to="/account/addresses" className="acct-card">
-        <span className="acct-card-kanji">所</span>
+        <span className="acct-card-kanji" aria-hidden="true">
+          所
+        </span>
         <h2 className="acct-card-h">Addresses</h2>
         <p className="acct-card-p">
           {defaultAddress

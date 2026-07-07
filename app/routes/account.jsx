@@ -65,7 +65,7 @@ function AccountMenu() {
     isActive ? 'acct-tab is-active' : 'acct-tab';
 
   return (
-    <nav className="acct-nav" role="navigation">
+    <nav className="acct-nav" role="navigation" aria-label="Account">
       <NavLink to="/account" end className={tabClass}>
         Overview
       </NavLink>

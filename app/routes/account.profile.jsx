@@ -89,7 +89,7 @@ export default function AccountProfile() {
   const email = account?.customer?.emailAddress?.emailAddress;
 
   return (
-    <div className="acct-profile">
+    <div>
       <h2 className="acct-sec-h">My profile</h2>
       {email && <p className="acct-note">Signed in as {email}</p>}
       <Form method="PUT" className="acct-form">
@@ -125,7 +125,11 @@ export default function AccountProfile() {
             minLength={2}
           />
         </div>
-        {action?.error && <p className="acct-error">{action.error}</p>}
+        {action?.error && (
+          <p className="acct-error" role="alert">
+            {action.error}
+          </p>
+        )}
         <div className="acct-actions">
           <button className="btn" type="submit" disabled={state !== 'idle'}>
             {state !== 'idle' ? 'Updating…' : 'Update'}

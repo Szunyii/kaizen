@@ -73,13 +73,13 @@ export default function OrderRoute() {
     fulfillmentStatus,
   } = useLoaderData();
   return (
-    <div className="acct-order-page">
+    <div>
       <Link className="acct-back" to="/account/orders">
         ← Back to orders
       </Link>
       <div className="acct-order-head">
         <h2 className="acct-order-num">Order {order.name}</h2>
-        {fulfillmentStatus && (
+        {fulfillmentStatus && fulfillmentStatus !== 'N/A' && (
           <span className="acct-chip">{fulfillmentStatus}</span>
         )}
       </div>
@@ -110,14 +110,18 @@ export default function OrderRoute() {
                 )}
               </div>
             )}
-            <div className="acct-total-row">
-              <span>Subtotal</span>
-              <Money data={order.subtotal} />
-            </div>
-            <div className="acct-total-row">
-              <span>Tax</span>
-              <Money data={order.totalTax} />
-            </div>
+            {order.subtotal && (
+              <div className="acct-total-row">
+                <span>Subtotal</span>
+                <Money data={order.subtotal} />
+              </div>
+            )}
+            {order.totalTax && (
+              <div className="acct-total-row">
+                <span>Tax</span>
+                <Money data={order.totalTax} />
+              </div>
+            )}
             <div className="acct-total-row grand">
               <span>Total</span>
               <Money data={order.totalPrice} />
@@ -145,12 +149,12 @@ export default function OrderRoute() {
               <p>No shipping address defined</p>
             )}
           </div>
-          <div>
-            <h3>Status</h3>
-            {fulfillmentStatus && (
+          {fulfillmentStatus && fulfillmentStatus !== 'N/A' && (
+            <div>
+              <h3>Status</h3>
               <span className="acct-chip">{fulfillmentStatus}</span>
-            )}
-          </div>
+            </div>
+          )}
           <a
             className="btn"
             target="_blank"
@@ -183,7 +187,7 @@ function OrderLineRow({lineItem}) {
         )}
       </div>
       <div className="acct-line-price">
-        <Money data={lineItem.price} />
+        {lineItem.price && <Money data={lineItem.price} />}
         <span>× {lineItem.quantity}</span>
       </div>
     </div>
