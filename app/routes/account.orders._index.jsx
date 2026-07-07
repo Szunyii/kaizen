@@ -59,7 +59,7 @@ export default function Orders() {
   const {orders} = customer;
 
   return (
-    <div className="acct-orders-page">
+    <div>
       <OrderSearchForm currentFilters={filters} />
       <OrdersTable orders={orders} filters={filters} />
     </div>
@@ -97,7 +97,9 @@ function OrdersTable({orders, filters}) {
 function EmptyOrders({hasFilters = false}) {
   return (
     <div className="acct-empty">
-      <span className="acct-empty-kanji">無</span>
+      <span className="acct-empty-kanji" aria-hidden="true">
+        無
+      </span>
       {hasFilters ? (
         <>
           <p>No orders found matching your search.</p>
@@ -207,7 +209,9 @@ function OrderItem({order}) {
           {order.confirmationNumber && (
             <span>Conf. {order.confirmationNumber}</span>
           )}
-          <span className="acct-chip">{order.financialStatus}</span>
+          {order.financialStatus && (
+            <span className="acct-chip">{order.financialStatus}</span>
+          )}
           {fulfillmentStatus && (
             <span className="acct-chip">{fulfillmentStatus}</span>
           )}
