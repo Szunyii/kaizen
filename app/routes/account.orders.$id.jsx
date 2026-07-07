@@ -1,4 +1,4 @@
-import {redirect, useLoaderData} from 'react-router';
+import {Link, redirect, useLoaderData} from 'react-router';
 import {Money, Image} from '@shopify/hydrogen';
 import {CUSTOMER_ORDER_QUERY} from '~/graphql/customer-account/CustomerOrderQuery';
 
@@ -6,7 +6,7 @@ import {CUSTOMER_ORDER_QUERY} from '~/graphql/customer-account/CustomerOrderQuer
  * @type {Route.MetaFunction}
  */
 export const meta = ({data}) => {
-  return [{title: `Order ${data?.order?.name}`}];
+  return [{title: `KaizenType — Order ${data?.order?.name}`}];
 };
 
 /**
@@ -73,114 +73,94 @@ export default function OrderRoute() {
     fulfillmentStatus,
   } = useLoaderData();
   return (
-    <div className="account-order">
-      <h2>Order {order.name}</h2>
-      <p>Placed on {new Date(order.processedAt).toDateString()}</p>
-      {order.confirmationNumber && (
-        <p>Confirmation: {order.confirmationNumber}</p>
-      )}
-      <br />
-      <div>
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Product</th>
-              <th scope="col">Price</th>
-              <th scope="col">Quantity</th>
-              <th scope="col">Total</th>
-            </tr>
-          </thead>
-          <tbody>
+    <div className="acct-order-page">
+      <Link className="acct-back" to="/account/orders">
+        ← Back to orders
+      </Link>
+      <div className="acct-order-head">
+        <h2 className="acct-order-num">Order {order.name}</h2>
+        {fulfillmentStatus && (
+          <span className="acct-chip">{fulfillmentStatus}</span>
+        )}
+      </div>
+      <p className="acct-order-sub">
+        Placed on {new Date(order.processedAt).toDateString()}
+        {order.confirmationNumber
+          ? ` · Confirmation ${order.confirmationNumber}`
+          : ''}
+      </p>
+
+      <div className="acct-order-detail">
+        <div>
+          <div className="acct-lines">
             {lineItems.map((lineItem, lineItemIndex) => (
               // eslint-disable-next-line react/no-array-index-key
               <OrderLineRow key={lineItemIndex} lineItem={lineItem} />
             ))}
-          </tbody>
-          <tfoot>
+          </div>
+          <div className="acct-totals">
             {((discountValue && discountValue.amount) ||
               discountPercentage) && (
-              <tr>
-                <th scope="row" colSpan={3}>
-                  <p>Discounts</p>
-                </th>
-                <th scope="row">
-                  <p>Discounts</p>
-                </th>
-                <td>
-                  {discountPercentage ? (
-                    <span>-{discountPercentage}% OFF</span>
-                  ) : (
-                    discountValue && <Money data={discountValue} />
-                  )}
-                </td>
-              </tr>
+              <div className="acct-total-row">
+                <span>Discounts</span>
+                {discountPercentage ? (
+                  <span>-{discountPercentage}% OFF</span>
+                ) : (
+                  discountValue && <Money data={discountValue} />
+                )}
+              </div>
             )}
-            <tr>
-              <th scope="row" colSpan={3}>
-                <p>Subtotal</p>
-              </th>
-              <th scope="row">
-                <p>Subtotal</p>
-              </th>
-              <td>
-                <Money data={order.subtotal} />
-              </td>
-            </tr>
-            <tr>
-              <th scope="row" colSpan={3}>
-                Tax
-              </th>
-              <th scope="row">
-                <p>Tax</p>
-              </th>
-              <td>
-                <Money data={order.totalTax} />
-              </td>
-            </tr>
-            <tr>
-              <th scope="row" colSpan={3}>
-                Total
-              </th>
-              <th scope="row">
-                <p>Total</p>
-              </th>
-              <td>
-                <Money data={order.totalPrice} />
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-        <div>
-          <h3>Shipping Address</h3>
-          {order?.shippingAddress ? (
-            <address>
-              <p>{order.shippingAddress.name}</p>
-              {order.shippingAddress.formatted ? (
-                <p>{order.shippingAddress.formatted}</p>
-              ) : (
-                ''
-              )}
-              {order.shippingAddress.formattedArea ? (
-                <p>{order.shippingAddress.formattedArea}</p>
-              ) : (
-                ''
-              )}
-            </address>
-          ) : (
-            <p>No shipping address defined</p>
-          )}
-          <h3>Status</h3>
-          <div>
-            <p>{fulfillmentStatus}</p>
+            <div className="acct-total-row">
+              <span>Subtotal</span>
+              <Money data={order.subtotal} />
+            </div>
+            <div className="acct-total-row">
+              <span>Tax</span>
+              <Money data={order.totalTax} />
+            </div>
+            <div className="acct-total-row grand">
+              <span>Total</span>
+              <Money data={order.totalPrice} />
+            </div>
           </div>
         </div>
+        <aside className="acct-aside">
+          <div>
+            <h3>Shipping address</h3>
+            {order?.shippingAddress ? (
+              <address>
+                <p>{order.shippingAddress.name}</p>
+                {order.shippingAddress.formatted ? (
+                  <p>{order.shippingAddress.formatted}</p>
+                ) : (
+                  ''
+                )}
+                {order.shippingAddress.formattedArea ? (
+                  <p>{order.shippingAddress.formattedArea}</p>
+                ) : (
+                  ''
+                )}
+              </address>
+            ) : (
+              <p>No shipping address defined</p>
+            )}
+          </div>
+          <div>
+            <h3>Status</h3>
+            {fulfillmentStatus && (
+              <span className="acct-chip">{fulfillmentStatus}</span>
+            )}
+          </div>
+          <a
+            className="btn"
+            target="_blank"
+            href={order.statusPageUrl}
+            rel="noreferrer"
+          >
+            View order status
+          </a>
+        </aside>
       </div>
-      <br />
-      <p>
-        <a target="_blank" href={order.statusPageUrl} rel="noreferrer">
-          View Order Status →
-        </a>
-      </p>
     </div>
   );
 }
@@ -190,28 +170,23 @@ export default function OrderRoute() {
  */
 function OrderLineRow({lineItem}) {
   return (
-    <tr key={lineItem.id}>
-      <td>
-        <div>
-          {lineItem?.image && (
-            <div>
-              <Image data={lineItem.image} width={96} height={96} />
-            </div>
-          )}
-          <div>
-            <p>{lineItem.title}</p>
-            <small>{lineItem.variantTitle}</small>
-          </div>
-        </div>
-      </td>
-      <td>
+    <div className="acct-line">
+      {lineItem?.image ? (
+        <Image data={lineItem.image} width={72} height={72} />
+      ) : (
+        <div className="acct-line-ph" />
+      )}
+      <div>
+        <p className="acct-line-title">{lineItem.title}</p>
+        {lineItem.variantTitle && (
+          <p className="acct-line-var">{lineItem.variantTitle}</p>
+        )}
+      </div>
+      <div className="acct-line-price">
         <Money data={lineItem.price} />
-      </td>
-      <td>{lineItem.quantity}</td>
-      <td>
-        <Money data={lineItem.totalDiscount} />
-      </td>
-    </tr>
+        <span>× {lineItem.quantity}</span>
+      </div>
+    </div>
   );
 }
 
