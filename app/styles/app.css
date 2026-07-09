@@ -165,7 +165,9 @@ aside li {
   transition: opacity 400ms ease-in-out;
   transition: opacity 400ms;
   visibility: hidden;
-  z-index: 10;
+  /* must sit above the sticky header (.hd z-index:60) so the drawer + its
+     close button aren't covered by the nav */
+  z-index: 100;
 }
 
 .overlay .close-outside {

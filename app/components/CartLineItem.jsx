@@ -3,6 +3,7 @@ import {useVariantUrl} from '~/lib/variants';
 import {Link} from 'react-router';
 import {ProductPrice} from './ProductPrice';
 import {useAside} from './Aside';
+import {I} from '~/components/kaizen/Icons';
 
 /**
  * A single line item in the cart. It displays the product image, title, price.
@@ -26,19 +27,31 @@ export function CartLineItem({layout, line, childrenMap}) {
   return (
     <li key={id} className="cart-line">
       <div className="cart-line-inner">
-        {image && (
-          <Image
-            alt={title}
-            aspectRatio="1/1"
-            data={image}
-            height={100}
-            loading="lazy"
-            width={100}
-          />
-        )}
+        <Link
+          className="cart-line-media"
+          prefetch="intent"
+          to={lineItemUrl}
+          onClick={() => {
+            if (layout === 'aside') {
+              close();
+            }
+          }}
+        >
+          {image && (
+            <Image
+              alt={title}
+              aspectRatio="1/1"
+              data={image}
+              height={100}
+              loading="lazy"
+              width={100}
+            />
+          )}
+        </Link>
 
-        <div>
+        <div className="cart-line-body">
           <Link
+            className="cart-line-title"
             prefetch="intent"
             to={lineItemUrl}
             onClick={() => {
@@ -47,21 +60,23 @@ export function CartLineItem({layout, line, childrenMap}) {
               }
             }}
           >
-            <p>
-              <strong>{product.title}</strong>
-            </p>
+            {product.title}
           </Link>
-          <ProductPrice price={line?.cost?.totalAmount} />
-          <ul>
-            {selectedOptions.map((option) => (
-              <li key={option.name}>
-                <small>
-                  {option.name}: {option.value}
-                </small>
-              </li>
-            ))}
-          </ul>
-          <CartLineQuantity line={line} />
+          {selectedOptions.length ? (
+            <ul className="cart-line-options">
+              {selectedOptions.map((option) => (
+                <li key={option.name}>
+                  {option.name}: <span>{option.value}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <div className="cart-line-foot">
+            <CartLineQuantity line={line} />
+            <div className="cart-line-price">
+              <ProductPrice price={line?.cost?.totalAmount} />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -100,29 +115,33 @@ function CartLineQuantity({line}) {
 
   return (
     <div className="cart-line-quantity">
-      <small>Quantity: {quantity} &nbsp;&nbsp;</small>
-      <CartLineUpdateButton lines={[{id: lineId, quantity: prevQuantity}]}>
-        <button
-          aria-label="Decrease quantity"
-          disabled={quantity <= 1 || !!isOptimistic}
-          name="decrease-quantity"
-          value={prevQuantity}
-        >
-          <span>&#8722; </span>
-        </button>
-      </CartLineUpdateButton>
-      &nbsp;
-      <CartLineUpdateButton lines={[{id: lineId, quantity: nextQuantity}]}>
-        <button
-          aria-label="Increase quantity"
-          name="increase-quantity"
-          value={nextQuantity}
-          disabled={!!isOptimistic}
-        >
-          <span>&#43;</span>
-        </button>
-      </CartLineUpdateButton>
-      &nbsp;
+      <div className="cart-stepper">
+        <CartLineUpdateButton lines={[{id: lineId, quantity: prevQuantity}]}>
+          <button
+            className="cart-step"
+            aria-label="Decrease quantity"
+            disabled={quantity <= 1 || !!isOptimistic}
+            name="decrease-quantity"
+            value={prevQuantity}
+          >
+            {I.minus}
+          </button>
+        </CartLineUpdateButton>
+        <span className="cart-qty" aria-label={`Quantity, ${quantity}`}>
+          {quantity}
+        </span>
+        <CartLineUpdateButton lines={[{id: lineId, quantity: nextQuantity}]}>
+          <button
+            className="cart-step"
+            aria-label="Increase quantity"
+            name="increase-quantity"
+            value={nextQuantity}
+            disabled={!!isOptimistic}
+          >
+            {I.plus}
+          </button>
+        </CartLineUpdateButton>
+      </div>
       <CartLineRemoveButton lineIds={[lineId]} disabled={!!isOptimistic} />
     </div>
   );
@@ -145,7 +164,7 @@ function CartLineRemoveButton({lineIds, disabled}) {
       action={CartForm.ACTIONS.LinesRemove}
       inputs={{lineIds}}
     >
-      <button disabled={disabled} type="submit">
+      <button className="cart-remove ul" disabled={disabled} type="submit">
         Remove
       </button>
     </CartForm>

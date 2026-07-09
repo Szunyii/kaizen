@@ -1,3 +1,4 @@
+import {fileURLToPath} from 'node:url';
 import {defineConfig} from 'vite';
 import {hydrogen} from '@shopify/hydrogen/vite';
 import {oxygen} from '@shopify/mini-oxygen/vite';
@@ -6,7 +7,9 @@ import {reactRouter} from '@react-router/dev/vite';
 export default defineConfig({
   plugins: [hydrogen(), oxygen(), reactRouter()],
   resolve: {
-    tsconfigPaths: true,
+    alias: {
+      '~': fileURLToPath(new URL('./app', import.meta.url)),
+    },
   },
   build: {
     // Allow a strict Content-Security-Policy
@@ -33,6 +36,6 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ['.tryhydrogen.dev'],
+    allowedHosts: ['.tryhydrogen.dev', '.trycloudflare.com'],
   },
 });

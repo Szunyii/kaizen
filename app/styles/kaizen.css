@@ -105,24 +105,38 @@ p{ margin:0; }
 .hd-about{ font:600 12px/1 var(--sans); letter-spacing:.22em; text-transform:uppercase; color:var(--red); }
 .hd-about:hover{ color:var(--red-bright); }
 
-/* second-row navigation */
-.hd-sub{ display:flex; justify-content:center; gap:36px; padding:6px 0 16px;
-  background:linear-gradient(rgba(12,11,10,.55), rgba(12,11,10,0)); transition:padding .35s var(--ease), opacity .3s; }
-.hd-on .hd-sub{ padding:6px 0 12px; background:transparent; }
+/* second-row navigation — negative margin hugs the categories up against the
+   centred wordmark (the bar row is taller than the logo, so this overlaps
+   only empty space) */
+.hd-sub{ display:flex; justify-content:center; gap:36px; margin-top:-18px; padding:0 0 14px;
+  background:linear-gradient(rgba(12,11,10,.55), rgba(12,11,10,0));
+  transition:margin .35s var(--ease), padding .35s var(--ease), opacity .3s; }
+.hd-on .hd-sub{ margin-top:-6px; padding:0 0 10px; background:transparent; }
 .navd{ position:relative; }
 .navd-trigger{ display:inline-flex; align-items:center; gap:7px; font:600 12.5px/1 var(--sans);
   letter-spacing:.16em; text-transform:uppercase; color:var(--bone); padding:8px 2px; }
 .navd-trigger svg{ width:11px; height:11px; color:var(--red); transition:transform .3s var(--ease); }
 .navd:hover .navd-trigger{ color:var(--red-bright); }
 .navd:hover .navd-trigger svg{ transform:rotate(180deg); }
-.navd-menu{ position:absolute; top:100%; left:50%; transform:translate(-50%,8px); min-width:190px;
+/* menu sits flush under the trigger; visibility is delayed on close so the
+   cursor can cross to it without the menu vanishing mid-path */
+.navd-menu{ position:absolute; top:100%; left:50%; transform:translate(-50%,10px); min-width:190px;
   background:var(--ink-800); border:1px solid var(--line); border-radius:4px; padding:8px;
-  display:flex; flex-direction:column; opacity:0; visibility:hidden; pointer-events:none;
-  box-shadow:0 26px 50px -24px rgba(0,0,0,.9); transition:opacity .25s var(--ease), transform .25s var(--ease); z-index:5; }
-.navd:hover .navd-menu, .navd:focus-within .navd-menu{ opacity:1; visibility:visible; pointer-events:auto; transform:translate(-50%,4px); }
+  display:flex; flex-direction:column; opacity:0; visibility:hidden;
+  box-shadow:0 26px 50px -24px rgba(0,0,0,.9);
+  transition:opacity .2s var(--ease), transform .2s var(--ease), visibility 0s linear .3s; z-index:5; }
+/* invisible bridge over the trigger→menu gap keeps :hover alive */
+.navd-menu::before{ content:''; position:absolute; left:-14px; right:-14px; top:-16px; height:16px; }
+.navd:hover .navd-menu, .navd:focus-within .navd-menu{ opacity:1; visibility:visible;
+  transform:translate(-50%,0); transition-delay:0s; }
 .navd-menu a{ display:block; padding:10px 14px; border-radius:3px; font:500 13px/1 var(--sans);
   letter-spacing:.04em; color:var(--bone-dim); transition:.2s var(--ease); }
 .navd-menu a:hover{ background:var(--ink-750); color:var(--bone); }
+.navd-menu .navd-all{ display:flex; align-items:center; gap:8px; margin-top:6px; padding-top:12px;
+  border-top:1px solid var(--line); font:600 11px/1 var(--sans); letter-spacing:.16em;
+  text-transform:uppercase; color:var(--red); }
+.navd-menu .navd-all svg{ width:13px; height:13px; }
+.navd-menu .navd-all:hover{ background:transparent; color:var(--red-bright); }
 
 .hd-actions .hd-ic svg{ width:19px; height:19px; }
 

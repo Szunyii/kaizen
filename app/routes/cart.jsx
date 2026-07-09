@@ -112,9 +112,12 @@ export default function Cart() {
   const cart = useLoaderData();
 
   return (
-    <div className="cart">
-      <h1>Cart</h1>
-      <CartMain layout="page" cart={cart} />
+    <div className="cart-page view-enter">
+      <div className="wrap">
+        <p className="kicker cart-page-kicker">改善 — Your bag</p>
+        <h1 className="cart-page-h display">Cart</h1>
+        <CartMain layout="page" cart={cart} />
+      </div>
     </div>
   );
 }

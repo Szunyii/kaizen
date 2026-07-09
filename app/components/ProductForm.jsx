@@ -17,9 +17,17 @@ export function ProductForm({productOptions, selectedVariant}) {
         // If there is only a single value in the option values, don't display the option
         if (option.optionValues.length === 1) return null;
 
+        const selectedValue =
+          option.optionValues.find((v) => v.selected)?.name ?? '';
+
         return (
           <div className="product-options" key={option.name}>
-            <h5>{option.name}</h5>
+            <div className="product-options-head">
+              <span className="kicker">{option.name}</span>
+              {selectedValue ? (
+                <span className="product-options-selected">{selectedValue}</span>
+              ) : null}
+            </div>
             <div className="product-options-grid">
               {option.optionValues.map((value) => {
                 const {
@@ -33,6 +41,15 @@ export function ProductForm({productOptions, selectedVariant}) {
                   swatch,
                 } = value;
 
+                const itemClass = [
+                  'product-options-item',
+                  selected ? 'is-selected' : '',
+                  available ? '' : 'is-unavailable',
+                  swatch?.color || swatch?.image ? 'is-swatch' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ');
+
                 if (isDifferentProduct) {
                   // SEO
                   // When the variant is a combined listing child product
@@ -40,18 +57,12 @@ export function ProductForm({productOptions, selectedVariant}) {
                   // as an anchor tag
                   return (
                     <Link
-                      className="product-options-item"
+                      className={itemClass}
                       key={option.name + name}
                       prefetch="intent"
                       preventScrollReset
                       replace
                       to={`/products/${handle}?${variantUriQuery}`}
-                      style={{
-                        border: selected
-                          ? '1px solid black'
-                          : '1px solid transparent',
-                        opacity: available ? 1 : 0.3,
-                      }}
                     >
                       <ProductOptionSwatch swatch={swatch} name={name} />
                     </Link>
@@ -65,14 +76,8 @@ export function ProductForm({productOptions, selectedVariant}) {
                   return (
                     <button
                       type="button"
-                      className={`product-options-item${exists && !selected ? ' link' : ''}`}
+                      className={itemClass}
                       key={option.name + name}
-                      style={{
-                        border: selected
-                          ? '1px solid black'
-                          : '1px solid transparent',
-                        opacity: available ? 1 : 0.3,
-                      }}
                       disabled={!exists}
                       onClick={() => {
                         if (!selected) {
@@ -89,11 +94,11 @@ export function ProductForm({productOptions, selectedVariant}) {
                 }
               })}
             </div>
-            <br />
           </div>
         );
       })}
       <AddToCartButton
+        className="btn product-add"
         disabled={!selectedVariant || !selectedVariant.availableForSale}
         onClick={() => {
           open('cart');

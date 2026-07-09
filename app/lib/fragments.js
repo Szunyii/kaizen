@@ -240,3 +240,26 @@ export const FOOTER_QUERY = `#graphql
   }
   ${MENU_FRAGMENT}
 `;
+
+// Real collections that drive the header dropdown nav. Product types are
+// deduped client-side into the dropdown's category links. The `frontpage`
+// collection is filtered out in the root loader.
+export const NAV_COLLECTIONS_QUERY = `#graphql
+  query NavCollections(
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(language: $language, country: $country) {
+    collections(first: 8) {
+      nodes {
+        id
+        handle
+        title
+        products(first: 32) {
+          nodes {
+            productType
+          }
+        }
+      }
+    }
+  }
+`;

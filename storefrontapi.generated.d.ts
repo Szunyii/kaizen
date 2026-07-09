@@ -377,6 +377,21 @@ export type FooterQuery = {
   >;
 };
 
+export type NavCollectionsQueryVariables = StorefrontAPI.Exact<{
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+}>;
+
+export type NavCollectionsQuery = {
+  collections: {
+    nodes: Array<
+      Pick<StorefrontAPI.Collection, 'id' | 'handle' | 'title'> & {
+        products: {nodes: Array<Pick<StorefrontAPI.Product, 'productType'>>};
+      }
+    >;
+  };
+};
+
 export type HomeFeaturedProductFragment = Pick<
   StorefrontAPI.Product,
   'id' | 'handle' | 'title'
@@ -545,6 +560,17 @@ export type KaizenCollectionProductFragment = Pick<
   priceRange: {
     minVariantPrice: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
   };
+  options: Array<
+    Pick<StorefrontAPI.ProductOption, 'name'> & {
+      optionValues: Array<
+        Pick<StorefrontAPI.ProductOptionValue, 'name'> & {
+          swatch?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.ProductOptionValueSwatch, 'color'>
+          >;
+        }
+      >;
+    }
+  >;
 };
 
 export type KaizenCollectionQueryVariables = StorefrontAPI.Exact<{
@@ -552,6 +578,8 @@ export type KaizenCollectionQueryVariables = StorefrontAPI.Exact<{
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
   first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  sortKey: StorefrontAPI.ProductCollectionSortKeys;
+  reverse?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Boolean']['input']>;
 }>;
 
 export type KaizenCollectionQuery = {
@@ -578,6 +606,17 @@ export type KaizenCollectionQuery = {
                 'amount' | 'currencyCode'
               >;
             };
+            options: Array<
+              Pick<StorefrontAPI.ProductOption, 'name'> & {
+                optionValues: Array<
+                  Pick<StorefrontAPI.ProductOptionValue, 'name'> & {
+                    swatch?: StorefrontAPI.Maybe<
+                      Pick<StorefrontAPI.ProductOptionValueSwatch, 'color'>
+                    >;
+                  }
+                >;
+              }
+            >;
           }
         >;
       };
@@ -1251,6 +1290,10 @@ interface GeneratedQueryTypes {
     return: FooterQuery;
     variables: FooterQueryVariables;
   };
+  '#graphql\n  query NavCollections(\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(language: $language, country: $country) {\n    collections(first: 8) {\n      nodes {\n        id\n        handle\n        title\n        products(first: 32) {\n          nodes {\n            productType\n          }\n        }\n      }\n    }\n  }\n': {
+    return: NavCollectionsQuery;
+    variables: NavCollectionsQueryVariables;
+  };
   '#graphql\n  fragment HomeFeaturedProduct on Product {\n    id\n    handle\n    title\n    featuredImage {\n      id\n      altText\n      url\n      width\n      height\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n  }\n  query HomeFeaturedProducts(\n    $country: CountryCode\n    $language: LanguageCode\n    $first: Int\n  ) @inContext(country: $country, language: $language) {\n    products(first: $first, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...HomeFeaturedProduct\n      }\n    }\n  }\n': {
     return: HomeFeaturedProductsQuery;
     variables: HomeFeaturedProductsQueryVariables;
@@ -1267,7 +1310,7 @@ interface GeneratedQueryTypes {
     return: BlogsQuery;
     variables: BlogsQueryVariables;
   };
-  '#graphql\n  fragment KaizenCollectionProduct on Product {\n    id\n    handle\n    title\n    productType\n    featuredImage {\n      id\n      altText\n      url\n      width\n      height\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n  }\n  query KaizenCollection(\n    $handle: String!\n    $country: CountryCode\n    $language: LanguageCode\n    $first: Int\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      id\n      handle\n      title\n      description\n      products(first: $first) {\n        nodes {\n          ...KaizenCollectionProduct\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  fragment KaizenCollectionProduct on Product {\n    id\n    handle\n    title\n    productType\n    featuredImage {\n      id\n      altText\n      url\n      width\n      height\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    options {\n      name\n      optionValues {\n        name\n        swatch {\n          color\n        }\n      }\n    }\n  }\n  query KaizenCollection(\n    $handle: String!\n    $country: CountryCode\n    $language: LanguageCode\n    $first: Int\n    $sortKey: ProductCollectionSortKeys!\n    $reverse: Boolean\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      id\n      handle\n      title\n      description\n      products(first: $first, sortKey: $sortKey, reverse: $reverse) {\n        nodes {\n          ...KaizenCollectionProduct\n        }\n      }\n    }\n  }\n': {
     return: KaizenCollectionQuery;
     variables: KaizenCollectionQueryVariables;
   };

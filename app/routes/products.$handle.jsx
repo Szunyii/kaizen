@@ -1,4 +1,4 @@
-import {useLoaderData} from 'react-router';
+import {Link, useLoaderData} from 'react-router';
 import {
   getSelectedProductOptions,
   Analytics,
@@ -8,8 +8,10 @@ import {
   useSelectedOptionInUrlParam,
 } from '@shopify/hydrogen';
 import {ProductPrice} from '~/components/ProductPrice';
-import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
+import {ProductGallery} from '~/components/kaizen/ProductGallery';
+import {EnsoMark} from '~/components/kaizen/Brand';
+import {I} from '~/components/kaizen/Icons';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
 /**
@@ -103,30 +105,76 @@ export default function Product() {
     selectedOrFirstAvailableVariant: selectedVariant,
   });
 
-  const {title, descriptionHtml} = product;
+  const {title, descriptionHtml, productType, vendor} = product;
+  const eyebrow = productType || vendor || 'Kaizen';
 
   return (
-    <div className="product">
-      <ProductImage image={selectedVariant?.image} />
-      <div className="product-main">
-        <h1>{title}</h1>
-        <ProductPrice
-          price={selectedVariant?.price}
-          compareAtPrice={selectedVariant?.compareAtPrice}
-        />
-        <br />
-        <ProductForm
-          productOptions={productOptions}
-          selectedVariant={selectedVariant}
-        />
-        <br />
-        <br />
-        <p>
-          <strong>Description</strong>
-        </p>
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-        <br />
+    <div className="pdp view-enter">
+      <div className="wrap pdp-wrap">
+        <nav className="pdp-crumbs" aria-label="Breadcrumb">
+          <Link className="pdp-crumb ul" to="/collections">
+            All products
+          </Link>
+          <span className="pdp-crumb-sep" aria-hidden="true">
+            /
+          </span>
+          <span className="pdp-crumb-here">{title}</span>
+        </nav>
+
+        <div className="pdp-grid">
+          <ProductGallery
+            images={product.images?.nodes}
+            variantImage={selectedVariant?.image}
+            fallback={product.featuredImage}
+            title={title}
+          />
+
+          <div className="pdp-info">
+            <p className="kicker pdp-eyebrow">改善 — {eyebrow}</p>
+            <h1 className="pdp-title display">{title}</h1>
+            <div className="pdp-price">
+              <ProductPrice
+                price={selectedVariant?.price}
+                compareAtPrice={selectedVariant?.compareAtPrice}
+              />
+            </div>
+
+            <div className="pdp-rule" aria-hidden="true" />
+
+            <ProductForm
+              productOptions={productOptions}
+              selectedVariant={selectedVariant}
+            />
+
+            <ul className="pdp-perks">
+              <li>
+                <span className="pdp-perk-ic">{I.truck}</span>
+                Free shipping over 25 000 Ft
+              </li>
+              <li>
+                <span className="pdp-perk-ic">{I.refresh}</span>
+                30-day easy returns
+              </li>
+              <li>
+                <span className="pdp-perk-ic">{I.leaf}</span>
+                Made in Budapest
+              </li>
+            </ul>
+
+            {descriptionHtml ? (
+              <div className="pdp-details">
+                <div className="pdp-details-head">
+                  <EnsoMark size={26} stroke={9} />
+                  <span className="kicker">The detail</span>
+                </div>
+                <div
+                  className="pdp-prose"
+                  dangerouslySetInnerHTML={{__html: descriptionHtml}}
+                />
+              </div>
+            ) : null}
+          </div>
+        </div>
       </div>
       <Analytics.ProductView
         data={{
@@ -190,8 +238,25 @@ const PRODUCT_FRAGMENT = `#graphql
     title
     vendor
     handle
+    productType
     descriptionHtml
     description
+    featuredImage {
+      id
+      url
+      altText
+      width
+      height
+    }
+    images(first: 12) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
     encodedVariantExistence
     encodedVariantAvailability
     options {

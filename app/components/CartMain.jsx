@@ -3,6 +3,8 @@ import {Link} from 'react-router';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
 import {CartSummary} from './CartSummary';
+import {EnsoMark} from '~/components/kaizen/Brand';
+import {I} from '~/components/kaizen/Icons';
 /**
  * Returns a map of all line items and their children.
  * @param {CartLine[]} lines
@@ -90,15 +92,21 @@ export function CartMain({layout, cart: originalCart}) {
 function CartEmpty({hidden = false}) {
   const {close} = useAside();
   return (
-    <div hidden={hidden}>
-      <br />
-      <p>
-        Looks like you haven&rsquo;t added anything yet, let&rsquo;s get you
-        started!
+    <div className="cart-empty" hidden={hidden}>
+      <span className="cart-empty-seal">
+        <EnsoMark size={66} stroke={10} />
+      </span>
+      <p className="cart-empty-h display">Your bag is empty</p>
+      <p className="cart-empty-p">
+        Nothing here yet. Begin with the small, daily better.
       </p>
-      <br />
-      <Link to="/collections" onClick={close} prefetch="viewport">
-        Continue shopping →
+      <Link
+        className="btn"
+        to="/collections"
+        onClick={close}
+        prefetch="viewport"
+      >
+        Shop the collection {I.arrow}
       </Link>
     </div>
   );

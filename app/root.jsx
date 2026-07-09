@@ -10,9 +10,16 @@ import {
   useRouteLoaderData,
 } from 'react-router';
 import favicon from '~/assets/favicon.svg';
-import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
+import {
+  FOOTER_QUERY,
+  HEADER_QUERY,
+  NAV_COLLECTIONS_QUERY,
+} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
+import kaizenTokens from '~/styles/kaizen.css?url';
+import kaizenComponents from '~/styles/kaizen-components.css?url';
+import kaizenPages from '~/styles/kaizen-pages.css?url';
 import {PageLayout} from './components/PageLayout';
 
 /**
@@ -97,17 +104,25 @@ export async function loader(args) {
 async function loadCriticalData({context}) {
   const {storefront} = context;
 
-  const [header] = await Promise.all([
+  const [header, nav] = await Promise.all([
     storefront.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
         headerMenuHandle: 'main-menu', // Adjust to your header menu handle
       },
     }),
+    storefront.query(NAV_COLLECTIONS_QUERY, {
+      cache: storefront.CacheLong(),
+    }),
     // Add other queries here, so that they are loaded in parallel
   ]);
 
-  return {header};
+  return {
+    header,
+    navCollections: (nav?.collections?.nodes ?? []).filter(
+      (collection) => collection.handle !== 'frontpage',
+    ),
+  };
 }
 
 /**
@@ -150,8 +165,21 @@ export function Layout({children}) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@400;500;600;700&family=Yuji+Mai&display=swap"
+        />
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
+        <link rel="stylesheet" href={kaizenTokens}></link>
+        <link rel="stylesheet" href={kaizenComponents}></link>
+        <link rel="stylesheet" href={kaizenPages}></link>
         <Meta />
         <Links />
       </head>

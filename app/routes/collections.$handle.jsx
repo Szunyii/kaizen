@@ -1,12 +1,43 @@
-import {useEffect, useMemo, useState} from 'react';
-import {Link, redirect, useLoaderData} from 'react-router';
+import {Link, redirect, useLoaderData, useSearchParams} from 'react-router';
 import {Analytics} from '@shopify/hydrogen';
 import {ProductCard} from '~/components/kaizen/ProductCard';
 import {BrushRibbon, EnsoMark} from '~/components/kaizen/Brand';
 import {I} from '~/components/kaizen/Icons';
 import {useReveal} from '~/lib/useReveal';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
-import {CATEGORIES, productsByCategory} from '~/lib/kaizen-data';
+
+/**
+ * Sort options exposed in the UI, mapped to Storefront API sort keys.
+ * 'featured' follows the merchandised collection order (COLLECTION_DEFAULT).
+ */
+const SORT_OPTIONS = {
+  featured: {label: 'Featured', sortKey: 'COLLECTION_DEFAULT', reverse: false},
+  'price-asc': {label: 'Price — low to high', sortKey: 'PRICE', reverse: false},
+  'price-desc': {label: 'Price — high to low', sortKey: 'PRICE', reverse: true},
+  name: {label: 'Name', sortKey: 'TITLE', reverse: false},
+};
+
+/**
+ * Option names treated as the product's colour axis, both for the card
+ * swatches and for the colour filter.
+ */
+const COLOR_OPTION_NAMES = new Set(['szín', 'color', 'colour']);
+
+/** Fallback hexes for colour names without a configured admin swatch. */
+const COLOR_HEX = {
+  fekete: '#1b1916',
+  black: '#1b1916',
+  fehér: '#e7e1d4',
+  white: '#e7e1d4',
+  bone: '#e7e1d4',
+  szürke: '#7c776e',
+  grey: '#7c776e',
+  gray: '#7c776e',
+  piros: '#a32e13',
+  red: '#a32e13',
+  olíva: '#55543f',
+  olive: '#55543f',
+};
 
 /**
  * @type {Route.MetaFunction}
@@ -24,9 +55,14 @@ export async function loader(args) {
 }
 
 /**
- * Hybrid collection data: prefer the live Storefront collection, fall back to
- * the mock kaizen catalogue by category. Maps everything onto the shape the
- * Kaizen ProductCard expects.
+ * Live collection data with URL-driven filtering + sorting, so filtered
+ * views are shareable and SSR-rendered. Filtering is limited to two axes —
+ * product category (`?type=`) and colour (`?color=`) — and happens here in
+ * the loader: this store's Search & Discovery app doesn't expose
+ * productType/variantOption filters, so the Storefront API silently ignores
+ * them as `filters:` inputs. Chip values and counts are derived from the
+ * products actually in the collection (capped at the first 48), and URL
+ * params that don't match a real value are dropped.
  * @param {Route.LoaderArgs}
  */
 async function loadCriticalData({context, params, request}) {
@@ -37,117 +73,167 @@ async function loadCriticalData({context, params, request}) {
     throw redirect('/collections');
   }
 
+  const url = new URL(request.url);
+  const sortParam = url.searchParams.get('sort');
+  const sort = SORT_OPTIONS[sortParam] ? sortParam : 'featured';
+  const {sortKey, reverse} = SORT_OPTIONS[sort];
+
   const {collection} = await storefront.query(COLLECTION_QUERY, {
-    variables: {handle, first: 48},
+    variables: {handle, first: 48, sortKey, reverse},
   });
-  const category = CATEGORIES.find((c) => c.id === handle);
 
-  // A live collection's handle may be localized — redirect to the canonical one.
-  if (collection) {
-    redirectIfHandleIsLocalized(request, {handle, data: collection});
-  }
-
-  // Unknown handle with no live collection → 404.
-  if (!collection && !category) {
+  if (!collection) {
     throw new Response(`Collection ${handle} not found`, {status: 404});
   }
 
-  const liveNodes = collection?.products?.nodes ?? [];
+  // A live collection's handle may be localized — redirect to the canonical one.
+  redirectIfHandleIsLocalized(request, {handle, data: collection});
 
-  // Live collection with products wins.
-  if (liveNodes.length) {
+  const all = collection.products.nodes.map((p) => {
+    const colorValues = productColors(p.options);
     return {
-      id: collection.id,
-      handle,
-      title: collection.title,
-      description: collection.description || category?.sub || '',
-      source: 'live',
-      products: liveNodes.map((p) => ({
-        id: p.id,
-        handle: p.handle,
-        name: p.title,
-        price: Number(p.priceRange.minVariantPrice.amount),
-        image: p.featuredImage,
-        type: (p.productType || '').toLowerCase(),
-        tag: null,
-        colors: [],
-      })),
+      id: p.id,
+      handle: p.handle,
+      name: p.title,
+      price: Number(p.priceRange.minVariantPrice.amount),
+      image: p.featuredImage,
+      tag: null,
+      type: p.productType || null,
+      colorNames: colorValues.map((c) => c.name),
+      colors: colorValues.filter((c) => c.hex),
     };
+  });
+
+  const typeValues = [...new Set(all.map((p) => p.type).filter(Boolean))].sort(
+    (a, b) => a.localeCompare(b),
+  );
+  const colorNames = [...new Set(all.flatMap((p) => p.colorNames))].sort(
+    (a, b) => a.localeCompare(b),
+  );
+  const hexByColor = new Map();
+  for (const p of all) {
+    for (const c of p.colors) {
+      if (!hexByColor.has(c.name)) hexByColor.set(c.name, c.hex);
+    }
   }
 
-  // Known category → mock fallback.
-  if (category) {
-    return {
-      id: '',
-      handle,
-      title: category.label,
-      description: category.sub,
-      source: 'mock',
-      products: productsByCategory(handle),
-    };
-  }
+  const appliedTypes = [...new Set(url.searchParams.getAll('type'))].filter(
+    (t) => typeValues.includes(t),
+  );
+  const appliedColors = [...new Set(url.searchParams.getAll('color'))].filter(
+    (c) => colorNames.includes(c),
+  );
 
-  // Live collection exists but is empty (and not a known category).
+  // Values within a group are OR-ed, the two groups are AND-ed.
+  const matchesType = (p) =>
+    appliedTypes.length === 0 || appliedTypes.includes(p.type);
+  const matchesColor = (p) =>
+    appliedColors.length === 0 ||
+    p.colorNames.some((n) => appliedColors.includes(n));
+
   return {
     id: collection.id,
     handle,
     title: collection.title,
     description: collection.description || '',
-    source: 'live',
-    products: [],
+    // Each value's count is taken against the other group's selection, so
+    // a chip always shows how many items picking it would yield.
+    facets: {
+      types: typeValues.map((value) => ({
+        value,
+        count: all.filter((p) => p.type === value && matchesColor(p)).length,
+      })),
+      colors: colorNames.map((name) => ({
+        name,
+        hex: hexByColor.get(name) ?? null,
+        count: all.filter((p) => p.colorNames.includes(name) && matchesType(p))
+          .length,
+      })),
+    },
+    appliedTypes,
+    appliedColors,
+    sort,
+    products: all.filter((p) => matchesType(p) && matchesColor(p)),
   };
+}
+
+/**
+ * The product's colour option values, preferring the admin-configured
+ * swatch colour and falling back to a named-colour hex. Values without a
+ * resolvable hex are kept (they still filter) but get `hex: null`.
+ */
+function productColors(options) {
+  const colorOption = (options ?? []).find((o) =>
+    COLOR_OPTION_NAMES.has(o.name.toLowerCase()),
+  );
+  if (!colorOption) return [];
+  return colorOption.optionValues.map((v) => ({
+    name: v.name,
+    hex: v.swatch?.color || COLOR_HEX[v.name.toLowerCase()] || null,
+  }));
 }
 
 export default function Collection() {
   /** @type {LoaderReturnData} */
-  const {id, handle, title, description, products} = useLoaderData();
+  const {
+    id,
+    handle,
+    title,
+    description,
+    facets,
+    appliedTypes,
+    appliedColors,
+    sort,
+    products,
+  } = useLoaderData();
 
-  const [activeType, setActiveType] = useState('all');
-  const [sort, setSort] = useState('featured');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filterCount = appliedTypes.length + appliedColors.length;
 
-  // Reset filter + sort whenever the category (route) changes.
-  useEffect(() => {
-    setActiveType('all');
-    setSort('featured');
-  }, [handle]);
+  /** Toggle one value of a multi-value filter param (`type` / `color`). */
+  const toggleFilter = (key, value) => {
+    const params = new URLSearchParams(searchParams);
+    const current = params.getAll(key);
+    params.delete(key);
+    const next = current.includes(value)
+      ? current.filter((v) => v !== value)
+      : [...current, value];
+    for (const v of next) params.append(key, v);
+    setSearchParams(params, {preventScrollReset: true});
+  };
 
-  // Distinct sub-types present in the loaded products.
-  const types = useMemo(() => {
-    const set = new Set(products.map((p) => p.type).filter(Boolean));
-    return ['all', ...set];
-  }, [products]);
+  const clearFilters = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete('type');
+    params.delete('color');
+    setSearchParams(params, {preventScrollReset: true});
+  };
 
-  // Client-side filter + sort over the loaded set.
-  const visible = useMemo(() => {
-    const list =
-      activeType === 'all'
-        ? [...products]
-        : products.filter((p) => p.type === activeType);
-    // 'featured' keeps the loader's order (Shopify collection order, or mock
-    // order); no explicit merchandised-position field is fetched.
-    if (sort === 'price-asc') list.sort((a, b) => a.price - b.price);
-    else if (sort === 'price-desc') list.sort((a, b) => b.price - a.price);
-    else if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
-    return list;
-  }, [products, activeType, sort]);
+  const setSort = (value) => {
+    const params = new URLSearchParams(searchParams);
+    if (value === 'featured') params.delete('sort');
+    else params.set('sort', value);
+    setSearchParams(params, {preventScrollReset: true});
+  };
 
   return (
     <div className="col view-enter">
       <CollectionHead title={title} description={description} />
       <div className="wrap">
-        <CategoryTabs current={handle} />
         <CollectionToolbar
-          types={types}
-          activeType={activeType}
-          onType={setActiveType}
+          facets={facets}
+          appliedTypes={appliedTypes}
+          appliedColors={appliedColors}
+          onToggle={toggleFilter}
+          onClear={clearFilters}
           sort={sort}
           onSort={setSort}
-          count={visible.length}
+          count={products.length}
         />
-        {visible.length ? (
-          <ProductGrid products={visible} />
+        {products.length ? (
+          <ProductGrid products={products} />
         ) : (
-          <CollectionEmpty onReset={() => setActiveType('all')} />
+          <CollectionEmpty onReset={clearFilters} filtered={filterCount > 0} />
         )}
       </div>
       <Analytics.CollectionView data={{collection: {id, handle}}} />
@@ -174,42 +260,76 @@ function CollectionHead({title, description}) {
   );
 }
 
-/** Men / Women / Accessories switcher. Each pill is a real route link. */
-function CategoryTabs({current}) {
-  // Active state matches the category id (men/women/accessories). A live
-  // Shopify collection with a different handle intentionally shows no active
-  // tab — by design, not a bug.
-  return (
-    <nav className="col-tabs" aria-label="Categories">
-      {CATEGORIES.map((c) => (
-        <Link
-          key={c.id}
-          to={`/collections/${c.id}`}
-          className={`col-tab ${c.id === current ? 'is-active' : ''}`}
-          aria-current={c.id === current ? 'page' : undefined}
-        >
-          {c.label}
-        </Link>
-      ))}
-    </nav>
-  );
-}
+/**
+ * Filter + sort toolbar. Filtering is limited to product category and
+ * colour; the chips are the values that actually occur in this collection's
+ * products, so every chip maps to at least one real product.
+ */
+function CollectionToolbar({
+  facets,
+  appliedTypes,
+  appliedColors,
+  onToggle,
+  onClear,
+  sort,
+  onSort,
+  count,
+}) {
+  const anyApplied = appliedTypes.length + appliedColors.length > 0;
 
-/** Sub-type filter chips (client-side) + result count + sort. */
-function CollectionToolbar({types, activeType, onType, sort, onSort, count}) {
   return (
     <div className="col-bar">
       <div className="col-filters">
-        {types.map((t) => (
-          <button
-            key={t}
-            type="button"
-            className={`col-chip ${t === activeType ? 'is-active' : ''}`}
-            onClick={() => onType(t)}
-          >
-            {t === 'all' ? 'All' : t.charAt(0).toUpperCase() + t.slice(1)}
-          </button>
-        ))}
+        <button
+          type="button"
+          className={`col-chip ${anyApplied ? '' : 'is-active'}`}
+          onClick={onClear}
+        >
+          All
+        </button>
+        {facets.types.length ? (
+          <span className="col-facet">
+            <span className="col-facet-label">Category</span>
+            {facets.types.map(({value, count: n}) => (
+              <button
+                key={value}
+                type="button"
+                className={`col-chip ${
+                  appliedTypes.includes(value) ? 'is-active' : ''
+                }`}
+                onClick={() => onToggle('type', value)}
+              >
+                {value}
+                <span className="col-chip-count">{n}</span>
+              </button>
+            ))}
+          </span>
+        ) : null}
+        {facets.colors.length ? (
+          <span className="col-facet">
+            <span className="col-facet-label">Colour</span>
+            {facets.colors.map(({name, hex, count: n}) => (
+              <button
+                key={name}
+                type="button"
+                className={`col-chip ${
+                  appliedColors.includes(name) ? 'is-active' : ''
+                }`}
+                onClick={() => onToggle('color', name)}
+              >
+                {hex ? (
+                  <span
+                    className="col-chip-dot"
+                    style={{background: hex}}
+                    aria-hidden="true"
+                  />
+                ) : null}
+                {name}
+                <span className="col-chip-count">{n}</span>
+              </button>
+            ))}
+          </span>
+        ) : null}
       </div>
       <div className="col-tools">
         <span className="col-count">
@@ -218,10 +338,11 @@ function CollectionToolbar({types, activeType, onType, sort, onSort, count}) {
         <label className="col-sort">
           <span className="col-sort-label">Sort</span>
           <select value={sort} onChange={(e) => onSort(e.target.value)}>
-            <option value="featured">Featured</option>
-            <option value="price-asc">Price — low to high</option>
-            <option value="price-desc">Price — high to low</option>
-            <option value="name">Name</option>
+            {Object.entries(SORT_OPTIONS).map(([value, option]) => (
+              <option key={value} value={value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </label>
       </div>
@@ -232,8 +353,8 @@ function CollectionToolbar({types, activeType, onType, sort, onSort, count}) {
 /** Reveal-on-scroll product grid. */
 function ProductGrid({products}) {
   // useReveal fires once: it adds `.in` when the grid scrolls into view, then
-  // stops observing. Reveal is initial-scroll only — when client filtering
-  // swaps cards, they render immediately via the already-applied `.in .reveal`
+  // stops observing. Reveal is initial-scroll only — when filtering swaps
+  // cards, they render immediately via the already-applied `.in .reveal`
   // rule (no per-filter replay, by design).
   const ref = useReveal();
   return (
@@ -245,20 +366,23 @@ function ProductGrid({products}) {
   );
 }
 
-/** Branded empty state for an empty filter or empty category. */
-function CollectionEmpty({onReset}) {
+/** Branded empty state for an empty filter result or empty collection. */
+function CollectionEmpty({onReset, filtered}) {
   return (
     <div className="col-empty">
       <EnsoMark size={92} stroke={9} />
       <h2 className="col-empty-h display">Nothing here yet</h2>
       <p className="col-empty-p">
-        No products match this filter. Try another, or explore the full
-        catalogue.
+        {filtered
+          ? 'No products match these filters. Try another combination, or explore the full catalogue.'
+          : 'This collection has no products yet. Explore the full catalogue instead.'}
       </p>
       <div className="col-empty-cta">
-        <button type="button" className="btn btn-ghost" onClick={onReset}>
-          Clear filter
-        </button>
+        {filtered ? (
+          <button type="button" className="btn btn-ghost" onClick={onReset}>
+            Clear filters
+          </button>
+        ) : null}
         <Link className="btn" to="/collections">
           View all {I.arrow}
         </Link>
@@ -286,19 +410,30 @@ const COLLECTION_QUERY = `#graphql
         currencyCode
       }
     }
+    options {
+      name
+      optionValues {
+        name
+        swatch {
+          color
+        }
+      }
+    }
   }
   query KaizenCollection(
     $handle: String!
     $country: CountryCode
     $language: LanguageCode
     $first: Int
+    $sortKey: ProductCollectionSortKeys!
+    $reverse: Boolean
   ) @inContext(country: $country, language: $language) {
     collection(handle: $handle) {
       id
       handle
       title
       description
-      products(first: $first) {
+      products(first: $first, sortKey: $sortKey, reverse: $reverse) {
         nodes {
           ...KaizenCollectionProduct
         }
