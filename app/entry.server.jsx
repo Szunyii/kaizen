@@ -22,6 +22,12 @@ export default async function handleRequest(
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
+    // Allow the Google Fonts stylesheet + font files used by the KaizenType
+    // typography. These are merged with Hydrogen's defaults; without them the
+    // production CSP blocks the fonts and every custom face falls back to a
+    // system font.
+    styleSrc: ['https://fonts.googleapis.com'],
+    fontSrc: ["'self'", 'https://fonts.gstatic.com'],
   });
 
   const body = await renderToReadableStream(
