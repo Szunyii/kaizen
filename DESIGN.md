@@ -77,7 +77,7 @@ Minta: kicker (opcionális kanji + gondolatjel) → display H2 → egy rövid be
 | `.kicker` + `.display` | szekció-fejléc páros |
 | `.dict`, `.dict-parts`, `.one` | szótár-blokk és az "1%" állítás-sáv (filozófia) |
 | `.show` | termék-showcase: kép 4:5 + szöveg, váltakozó oldal |
-| `.voice-lead`, `.voice-row` | vélemények: egy nagy idézet + rövid sorok, fotó nélkül |
+| `.voices` / `.voice` | vélemények: három egyforma idézet-kártya, csillagok + idézet + név, kép nélkül |
 | `.faq-i` | számozott kérdés, plusz ikon, piros bal él nyitva |
 | `.restock`, `.ft-form` | egy mezős űrlapok (értesítés, hírlevél): mező + piros gomb egy keretben, `role="status"` üzenet |
 | `.cart-*`, `.sd-*`, `.acct-*`, `.pdp-*`, `.col-*` | drawer és oldalak; ugyanazok a tokenek |
