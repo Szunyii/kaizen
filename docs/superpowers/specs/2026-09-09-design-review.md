@@ -76,7 +76,7 @@ Synthesized from this review's findings. Each task derives from a specific findi
   - Surfaced by: Pass 1 — 1.1 `document.querySelectorAll('h1').length === 0`
   - Files: `app/routes/_index.jsx` (Hero), `app/styles/kaizen.css` (`.sr-only`)
   - Verify: pontosan egy H1 a nyitóoldalon, vizuális változás nélkül
-- [x] **T9 (P2, human: ~1 h / CC: ~10 min)** — Navigáció — Kollekciók desktopon is elérhetők
+- [x] **T9 (P2, human: ~1 h / CC: ~10 min)** — Navigáció — Kollekciók desktopon is elérhetők (footer Vásárlás oszlop; a lenyílót a felhasználó elvetette)
   - Surfaced by: Pass 1 — 1.2 a "Termékek" csak `#termekek` horgony
   - Files: `app/components/kaizen/KaizenHeader.jsx` (almenü a `navCollections`-ból) vagy `app/components/kaizen/KaizenFooter.jsx` (Vásárlás oszlop: Férfi/Női/Kiegészítők), `app/components/PageLayout.jsx` (prop átadás)
   - Verify: desktopon 1 kattintással elérhető `/collections/men|women|accessories`
