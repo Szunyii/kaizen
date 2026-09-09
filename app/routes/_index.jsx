@@ -775,10 +775,10 @@ function formatPromoDate(iso) {
 /* ------------------------------------------------------------------ */
 
 const STATS = [
-  ['100+', 'eladott darab'],
-  ['4,9', 'átlagos értékelés (80 vélemény)'],
-  ['870', 'tag a Kaizen Familyben'],
-  ['92%', 'visszatérő vásárló'],
+  ['200+', 'vásárló'],
+  ['4,9', 'csillag'],
+  ['100+', 'tag a Kaizen Familyben'],
+  ['92%', 'elégedettség'],
 ];
 
 const VOICES = [
