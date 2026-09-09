@@ -3,6 +3,7 @@ import {Await, Link, useAsyncValue} from 'react-router';
 import {useAnalytics, useOptimisticCart} from '@shopify/hydrogen';
 import {useAside} from '~/components/Aside';
 import {I} from '~/components/kaizen/Icons';
+import {collectionTitle} from '~/lib/text';
 
 // Primary navigation: anchors into the homepage sections.
 export const PRIMARY_NAV = [
@@ -17,7 +18,7 @@ export const PRIMARY_NAV = [
  * Cart + search open the shared Aside drawers.
  * @param {{cart: Promise<any>, isLoggedIn?: Promise<boolean>, navCollections?: Array<any>}} props
  */
-export function KaizenHeader({cart, isLoggedIn}) {
+export function KaizenHeader({cart, isLoggedIn, navCollections = []}) {
   const scrolled = useScrolled(12);
   const {open} = useAside();
 
@@ -47,16 +48,20 @@ export function KaizenHeader({cart, isLoggedIn}) {
         </div>
 
         <nav className="hd-nav" role="navigation" aria-label="Elsődleges">
-          {PRIMARY_NAV.map(([label, to]) => (
-            <Link to={to} key={to} className="hd-nav-link">
-              {label}
-            </Link>
-          ))}
+          {PRIMARY_NAV.map(([label, to]) =>
+            to === '/#termekek' && navCollections.length ? (
+              <NavMenu key={to} label={label} to={to} items={navCollections} />
+            ) : (
+              <Link to={to} key={to} className="hd-nav-link">
+                {label}
+              </Link>
+            ),
+          )}
         </nav>
 
         <div className="hd-actions">
           <button
-            className="hd-ic"
+            className="hd-ic hd-search"
             aria-label="Keresés"
             onClick={() => open('search')}
           >
@@ -82,12 +87,22 @@ export function KaizenHeader({cart, isLoggedIn}) {
  * @param {{navCollections?: Array<{handle: string, title: string}>}} props
  */
 export function KaizenMobileNav({navCollections}) {
-  const {close} = useAside();
+  const {close, open} = useAside();
   return (
     <nav className="hd-mnav" aria-label="Mobil">
-      <Link className="hd-mnav-home" to="/" onClick={close}>
-        Kezdőlap {I.arrow}
-      </Link>
+      <div className="hd-mnav-top">
+        <Link className="hd-mnav-home" to="/" onClick={close}>
+          Kezdőlap {I.arrow}
+        </Link>
+        {/* the header hides its search icon on small screens; it lives here */}
+        <button
+          type="button"
+          className="hd-mnav-search"
+          onClick={() => open('search')}
+        >
+          {I.search} Keresés
+        </button>
+      </div>
       <div className="hd-mnav-group">
         {PRIMARY_NAV.map(([label, to]) => (
           <Link className="hd-mnav-h" to={to} key={to} onClick={close}>
@@ -105,7 +120,7 @@ export function KaizenMobileNav({navCollections}) {
                 key={c.handle}
                 onClick={close}
               >
-                {c.title}
+                {collectionTitle(c)}
               </Link>
             ))}
           </div>
@@ -117,6 +132,43 @@ export function KaizenMobileNav({navCollections}) {
         </Link>
       </div>
     </nav>
+  );
+}
+
+/**
+ * Desktop "Termékek" entry: a link to the homepage showcases that also
+ * reveals the real store collections on hover / focus / tap.
+ * @param {{label: string, to: string, items: Array<{handle: string, title: string}>}} props
+ */
+function NavMenu({label, to, items}) {
+  const [openMenu, setOpenMenu] = useState(false);
+  return (
+    <div
+      className={`hd-menu ${openMenu ? 'is-open' : ''}`}
+      onMouseEnter={() => setOpenMenu(true)}
+      onMouseLeave={() => setOpenMenu(false)}
+      onFocus={() => setOpenMenu(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) setOpenMenu(false);
+      }}
+    >
+      <Link to={to} className="hd-nav-link hd-menu-trigger" aria-haspopup="true" aria-expanded={openMenu}>
+        {label}
+        <span className="hd-menu-caret" aria-hidden="true">{I.chevron}</span>
+      </Link>
+      <div className="hd-menu-panel" role="group" aria-label="Kollekciók">
+        {items.map((c) => (
+          <Link
+            key={c.handle}
+            to={`/collections/${c.handle}`}
+            className="hd-menu-item"
+            onClick={() => setOpenMenu(false)}
+          >
+            {collectionTitle(c)}
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
 
