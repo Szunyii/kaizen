@@ -48,8 +48,18 @@ body{
   flex-direction:column;
 }
 body > main{ flex:1; }
+/* The homepage owns its own gutters (.wrap) and has full-bleed sections, so it
+   opts out of reset.css's 1rem main margin; other routes keep it for now. */
+body > main:has(.home){ margin-inline:0; }
+.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+  clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 img{ border-radius:0; }
 ::selection{ background:var(--red); color:#fff; }
+html{ scrollbar-color:var(--bone-mut) transparent; }
+/* keyboard focus in the brand palette instead of the browser default ring */
+:focus-visible{ outline:2px solid var(--red); outline-offset:3px; border-radius:2px; }
+.btn:focus-visible, .pcard-cta:focus-visible, .acct-tab.is-active:focus-visible{ outline-color:var(--bone); outline-offset:2px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible{ outline:none; }
 
 a{ color:inherit; text-decoration:none; }
 button{ font-family:inherit; cursor:pointer; background:none; border:none; color:inherit; }

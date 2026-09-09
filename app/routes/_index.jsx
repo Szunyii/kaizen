@@ -1,5 +1,5 @@
 import {Suspense, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Await, Link, useLoaderData} from 'react-router';
+import {Await, Link, useFetcher, useLoaderData} from 'react-router';
 import {Image} from '@shopify/hydrogen';
 import {useReveal} from '~/lib/useReveal';
 import {Wave} from '~/components/kaizen/Brand';
@@ -8,6 +8,14 @@ import {AddToCartButton} from '~/components/AddToCartButton';
 import {useAside} from '~/components/Aside';
 import {formatMoney} from '~/lib/money';
 import {fetchActivePromos} from '~/lib/discounts';
+import {
+  TEXT,
+  optionName,
+  isSizeOption,
+  productType,
+  sortSizes,
+  collectionTitle,
+} from '~/lib/text';
 
 /**
  * @type {Route.MetaFunction}
@@ -86,6 +94,12 @@ function Hero() {
   const {heroImage} = useLoaderData();
   return (
     <section id="top" className="hero hero-full" ref={ref}>
+      {/* The brand film carries the first screen visually; the page still
+          needs a heading for search engines and screen readers. */}
+      <h1 className="sr-only">
+        KaizenType — Progress Has No End. Nehéz pamut alapdarabok és a Kaizen
+        Family közösség.
+      </h1>
       <HeroVideo poster={heroImage?.url} />
     </section>
   );
@@ -210,27 +224,6 @@ function ValueStrip() {
 
 function Philosophy() {
   const ref = useReveal();
-  const cards = [
-    {
-      glyph: '改',
-      brush: true,
-      h: 'Kai — változás',
-      p: 'Nem a nagy döntés, hanem a mai. Az, amit ma másképp teszel, mint tegnap.',
-    },
-    {
-      glyph: '善',
-      brush: true,
-      h: 'Zen — jó',
-      p: 'A jó irányba. Mérhetően, türelmesen, nem hangosan.',
-    },
-    {
-      glyph: '1%',
-      brush: false,
-      hot: true,
-      h: 'A mi fordításunk',
-      p: 'Napi egy százalék egy év alatt harmincszoros fejlődés. Ezt hordod magadon, és ezt csináljuk együtt a közösségben.',
-    },
-  ];
   return (
     <section id="filozofia" className="phil-home" ref={ref}>
       <div className="wrap">
@@ -252,28 +245,42 @@ function Philosophy() {
             <span className="dict-tag">főnév</span>
           </div>
           <p className="dict-p">
-            A japán <b>kaizen</b> szó jelentése <b>„változás a jobb felé”</b> —{' '}
-            <span className="dict-k">改</span> <em>kai</em>: változás,
-            átalakítás; <span className="dict-k">善</span> <em>zen</em>:
-            erény, jóság. A japán szótárakban és a hétköznapi használatban
-            egyaránt együtt jár vele a <b>folyamatosság</b> és a{' '}
-            <b>szemléletmód</b> jelentése.
+            A japán <b>kaizen</b> szó jelentése <b>„változás a jobb felé”</b>. A
+            japán szótárakban és a hétköznapi használatban egyaránt együtt jár
+            vele a <b>folyamatosság</b> és a <b>szemléletmód</b> jelentése.
           </p>
+          {/* The two characters, dictionary-style: no cards, just entries. */}
+          <dl className="dict-parts">
+            <div className="dict-part">
+              <dt>
+                <span className="dict-k">改</span>
+                <span className="dict-part-h">kai — változás</span>
+              </dt>
+              <dd>
+                Nem a nagy döntés, hanem a mai. Az, amit ma másképp teszel, mint
+                tegnap.
+              </dd>
+            </div>
+            <div className="dict-part">
+              <dt>
+                <span className="dict-k">善</span>
+                <span className="dict-part-h">zen — jó</span>
+              </dt>
+              <dd>A jó irányba. Mérhetően, türelmesen, nem hangosan.</dd>
+            </div>
+          </dl>
         </div>
 
-        <div className="kz-cards">
-          {cards.map((c, i) => (
-            <div
-              className={`kz-card reveal reveal-d${i + 1} ${c.hot ? 'is-hot' : ''}`}
-              key={c.h}
-            >
-              <div className={`kz-glyph ${c.brush ? 'is-brush' : 'display'}`}>
-                {c.glyph}
-              </div>
-              <div className="kz-card-h">{c.h}</div>
-              <p className="kz-card-p">{c.p}</p>
-            </div>
-          ))}
+        {/* One statement band instead of a third card: the brand's translation. */}
+        <div className="one reveal reveal-d3">
+          <div className="one-glyph display">1%</div>
+          <div className="one-body">
+            <div className="one-h">A mi fordításunk</div>
+            <p className="one-p">
+              Napi egy százalék egy év alatt harmincszoros fejlődés. Ezt hordod
+              magadon, és ezt csináljuk együtt a közösségben.
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -284,22 +291,16 @@ function Philosophy() {
 /* Products (live Storefront data)                                     */
 /* ------------------------------------------------------------------ */
 
-const COLLECTION_LABELS = {
-  men: 'Férfi',
-  women: 'Női',
-  accessories: 'Kiegészítők',
-  unisex: 'Unisex',
-};
-
 /** @param {HomeProduct} product */
 function productKicker(product) {
-  const handles = (product.collections?.nodes ?? []).map((c) => c.handle);
-  const known = handles.find((h) => COLLECTION_LABELS[h]);
-  if (known) return COLLECTION_LABELS[known];
   const first = (product.collections?.nodes ?? []).find(
     (c) => c.handle !== 'frontpage',
   );
-  return first?.title ?? product.productType ?? 'Kaizen';
+  return (
+    (first && collectionTitle(first)) ||
+    productType(product.productType) ||
+    'Kaizen'
+  );
 }
 
 /** Options worth rendering: more than one value, and not Shopify's default. */
@@ -338,14 +339,22 @@ function specLine(product) {
     if (o.name === 'Title') continue;
     const values = o.optionValues.map((v) => v.name);
     if (values.length <= 1) continue;
-    const isSize = /size|méret/i.test(o.name);
+    const isSize = isSizeOption(o.name);
+    const ordered = isSize ? sortSizes(values) : values;
     parts.push(
-      isSize && values.length > 2
-        ? `${values[0]}–${values[values.length - 1]}`
-        : values.join(' · '),
+      isSize && ordered.length > 2
+        ? `${ordered[0]}–${ordered[ordered.length - 1]}`
+        : ordered.join(' · '),
     );
   }
   return parts.join(' · ');
+}
+
+/** Option values in display order: sizes S → M → L, everything else as stored. */
+function orderedValues(option) {
+  if (!isSizeOption(option.name)) return option.optionValues;
+  const byName = new Map(option.optionValues.map((v) => [v.name, v]));
+  return sortSizes([...byName.keys()]).map((n) => byName.get(n));
 }
 
 /** Trim a description to a readable paragraph. */
@@ -477,15 +486,21 @@ function Showcase({product, flip, selection, variant, onSelect, onAdded}) {
         </h3>
         <p className="show-p reveal reveal-d2">{excerpt(product.description)}</p>
         <div className="show-specs reveal reveal-d2">
-          {product.productType ? <span>{product.productType}</span> : null}
+          {product.productType ? (
+            <span>{productType(product.productType)}</span>
+          ) : null}
           {specs ? <span>{specs}</span> : null}
         </div>
 
         {options.map((o) => (
           <div className="show-opt reveal reveal-d2" key={o.name}>
-            <span className="show-opt-name">{o.name}</span>
-            <div className="show-chips" role="group" aria-label={o.name}>
-              {o.optionValues.map((v) => {
+            <span className="show-opt-name">{optionName(o.name)}</span>
+            <div
+              className="show-chips"
+              role="group"
+              aria-label={optionName(o.name)}
+            >
+              {orderedValues(o).map((v) => {
                 const active = selection[o.name] === v.name;
                 const exists = findVariant(product, {
                   ...selection,
@@ -514,33 +529,82 @@ function Showcase({product, flip, selection, variant, onSelect, onAdded}) {
             {onSale ? <s className="show-was">{money(compareAt)}</s> : null}
             {money(price)}
           </div>
-          <AddToCartButton
-            className="btn"
-            disabled={!available}
-            onClick={() => onAdded(product.title)}
-            lines={
-              variant
-                ? [
-                    {
-                      merchandiseId: variant.id,
-                      quantity: 1,
-                      selectedVariant: variant,
-                    },
-                  ]
-                : []
-            }
-          >
-            {available ? (
-              <>
-                Kosárba {I.arrow}
-              </>
-            ) : (
-              'Elfogyott'
-            )}
-          </AddToCartButton>
+          {available ? (
+            <AddToCartButton
+              className="btn"
+              busyLabel={TEXT.adding}
+              onClick={() => onAdded(product.title)}
+              lines={[
+                {
+                  merchandiseId: variant.id,
+                  quantity: 1,
+                  selectedVariant: variant,
+                },
+              ]}
+            >
+              {TEXT.addToCart} {I.arrow}
+            </AddToCartButton>
+          ) : (
+            <RestockForm variant={variant} productTitle={product.title} />
+          )}
         </div>
       </div>
     </article>
+  );
+}
+
+/**
+ * Sold-out state that keeps the path open: a one-field form that asks the
+ * `/restock` route to tag the address for this variant.
+ * @param {{variant: HomeVariant | null; productTitle: string}} props
+ */
+function RestockForm({variant, productTitle}) {
+  const fetcher = useFetcher();
+  /** @type {import('~/routes/restock').RestockResult | undefined} */
+  const result = fetcher.data;
+  const busy = fetcher.state !== 'idle';
+  const done = result?.ok === true;
+  const id = `restock-${variant?.id?.split('/').pop() ?? 'x'}`;
+
+  if (!variant) return <span className="show-out">{TEXT.soldOut}</span>;
+
+  return (
+    <fetcher.Form
+      method="post"
+      action="/restock"
+      className={`restock${done ? ' is-done' : ''}${result && !result.ok ? ' is-error' : ''}`}
+    >
+      <input type="hidden" name="variantId" value={variant.id} />
+      <input type="hidden" name="product" value={productTitle} />
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        className="ft-form-hp"
+        aria-hidden="true"
+      />
+      <label className="restock-label" htmlFor={id}>
+        {TEXT.soldOut} · Szólunk, ha újra kapható
+      </label>
+      <div className="restock-row">
+        <input
+          id={id}
+          type="email"
+          name="email"
+          placeholder="E-mail cím"
+          autoComplete="email"
+          required
+          disabled={busy || done}
+        />
+        <button type="submit" disabled={busy || done} aria-busy={busy}>
+          {done ? I.check : 'Értesíts'}
+        </button>
+      </div>
+      <p className="restock-msg" role="status" aria-live="polite">
+        {result?.message ?? ''}
+      </p>
+    </fetcher.Form>
   );
 }
 
@@ -677,6 +741,7 @@ function BundlePromo({promo, products, selectedVariants, onAdded}) {
       <AddToCartButton
         className="btn"
         disabled={!ready}
+        busyLabel={TEXT.adding}
         onClick={() => onAdded('Csomag')}
         lines={
           ready
@@ -730,10 +795,7 @@ const VOICES = [
 
 function Community() {
   const ref = useReveal();
-  /** @type {LoaderReturnData} */
-  const {products} = useLoaderData();
-  // Card imagery cycles through the live product photography.
-  const gallery = products.flatMap((p) => p.images?.nodes ?? []);
+  const [lead, ...rest] = VOICES;
 
   return (
     <section className="comm" ref={ref}>
@@ -748,28 +810,24 @@ function Community() {
         </div>
 
         <h2 className="sec-h sec-h-sm display reveal">Amit a közösség mond</h2>
-        <div className="voices">
-          {VOICES.map((v, i) => {
-            const img = gallery.length ? gallery[i % gallery.length] : null;
-            return (
-              <figure className={`voice reveal reveal-d${i + 1}`} key={v.who}>
-                <div className="voice-media">
-                  {img ? (
-                    <Image data={img} sizes="(min-width: 900px) 30vw, 100vw" />
-                  ) : (
-                    <div className="ph" />
-                  )}
-                </div>
-                <figcaption className="voice-body">
-                  <div className="stars" aria-label="5 csillag">
-                    ★★★★★
-                  </div>
-                  <blockquote className="voice-q">{v.q}</blockquote>
-                  <div className="voice-who">{v.who}</div>
-                </figcaption>
-              </figure>
-            );
-          })}
+
+        {/* One voice carries the section; the rest read as a short ledger. */}
+        <figure className="voice-lead reveal reveal-d1">
+          <blockquote className="voice-lead-q display">{lead.q}</blockquote>
+          <figcaption className="voice-who">
+            <span className="stars" aria-label="5 csillag">
+              ★★★★★
+            </span>
+            {lead.who}
+          </figcaption>
+        </figure>
+        <div className="voice-list">
+          {rest.map((v, i) => (
+            <figure className={`voice-row reveal reveal-d${i + 2}`} key={v.who}>
+              <blockquote className="voice-row-q">{v.q}</blockquote>
+              <figcaption className="voice-who">{v.who}</figcaption>
+            </figure>
+          ))}
         </div>
       </div>
     </section>
@@ -833,12 +891,12 @@ function Family() {
             ))}
           </div>
           <div className="fam-cta reveal reveal-d3">
-            <Link className="btn" to="/#termekek">
-              Csatlakozom {I.arrow}
-            </Link>
             <span className="fam-note">
-              A hozzáféréshez termék vásárlás szükséges.
+              A hozzáférés minden vásárláshoz jár. Válassz egy darabot:
             </span>
+            <Link className="btn" to="/#termekek">
+              Vásárlás a hozzáféréshez {I.arrow}
+            </Link>
           </div>
         </div>
         <div className="fam-phone-wrap reveal reveal-d2">
