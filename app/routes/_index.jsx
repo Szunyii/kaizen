@@ -774,7 +774,7 @@ function formatPromoDate(iso) {
 /* Community                                                           */
 /* ------------------------------------------------------------------ */
 
-const RATING = 4.9;
+const RATING = 4.5;
 
 const STATS = [
   ['200+', 'vásárló'],
