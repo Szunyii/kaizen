@@ -9,6 +9,7 @@ import {
 } from '@shopify/hydrogen';
 import {ProductPrice} from '~/components/ProductPrice';
 import {ProductForm} from '~/components/ProductForm';
+import {TEXT, productType} from '~/lib/text';
 import {ProductGallery} from '~/components/kaizen/ProductGallery';
 import {EnsoMark} from '~/components/kaizen/Brand';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
@@ -18,7 +19,7 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
  */
 export const meta = ({data}) => {
   return [
-    {title: `Hydrogen | ${data?.product.title ?? ''}`},
+    {title: `${data?.product.title ?? ''} — KaizenType`},
     {
       rel: 'canonical',
       href: `/products/${data?.product.handle}`,
@@ -104,15 +105,15 @@ export default function Product() {
     selectedOrFirstAvailableVariant: selectedVariant,
   });
 
-  const {title, descriptionHtml, productType, vendor} = product;
-  const eyebrow = productType || vendor || 'Kaizen';
+  const {title, descriptionHtml, vendor} = product;
+  const eyebrow = productType(product.productType) || vendor || 'Kaizen';
 
   return (
     <div className="pdp view-enter">
       <div className="wrap pdp-wrap">
-        <nav className="pdp-crumbs" aria-label="Breadcrumb">
-          <Link className="pdp-crumb ul" to="/collections">
-            All products
+        <nav className="pdp-crumbs" aria-label="Navigációs útvonal">
+          <Link className="pdp-crumb ul" to="/#termekek">
+            {TEXT.allProducts}
           </Link>
           <span className="pdp-crumb-sep" aria-hidden="true">
             /
@@ -149,7 +150,7 @@ export default function Product() {
               <div className="pdp-details">
                 <div className="pdp-details-head">
                   <EnsoMark size={26} stroke={9} />
-                  <span className="kicker">The detail</span>
+                  <span className="kicker">{TEXT.detail}</span>
                 </div>
                 <div
                   className="pdp-prose"

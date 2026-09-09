@@ -119,7 +119,7 @@ function CartLineQuantity({line}) {
         <CartLineUpdateButton lines={[{id: lineId, quantity: prevQuantity}]}>
           <button
             className="cart-step"
-            aria-label="Decrease quantity"
+            aria-label="Mennyiség csökkentése"
             disabled={quantity <= 1 || !!isOptimistic}
             name="decrease-quantity"
             value={prevQuantity}
@@ -127,13 +127,13 @@ function CartLineQuantity({line}) {
             {I.minus}
           </button>
         </CartLineUpdateButton>
-        <span className="cart-qty" aria-label={`Quantity, ${quantity}`}>
+        <span className="cart-qty" aria-label={`Mennyiség: ${quantity}`}>
           {quantity}
         </span>
         <CartLineUpdateButton lines={[{id: lineId, quantity: nextQuantity}]}>
           <button
             className="cart-step"
-            aria-label="Increase quantity"
+            aria-label="Mennyiség növelése"
             name="increase-quantity"
             value={nextQuantity}
             disabled={!!isOptimistic}
@@ -165,7 +165,7 @@ function CartLineRemoveButton({lineIds, disabled}) {
       inputs={{lineIds}}
     >
       <button className="cart-remove ul" disabled={disabled} type="submit">
-        Remove
+        Eltávolítás
       </button>
     </CartForm>
   );

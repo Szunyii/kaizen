@@ -28,14 +28,29 @@
 .hd-cart{ width:auto; padding:0 6px; gap:8px; grid-auto-flow:column; }
 .hd-count{ min-width:16px; text-align:center; font:700 12px/1 var(--sans); color:var(--red); }
 .hd-ic.hd-burger{ display:none; }
+
 @media (max-width:860px){
   .hd-ic.hd-burger{ display:grid; }
   .hd-nav{ display:none; }
   .hd-mark{ width:30px; height:30px; }
+  /* keep the bar inside a 360-390px viewport: tighter gaps, denser wordmark,
+     and the search icon lives in the menu drawer instead */
+  .hd-bar{ gap:10px; padding:0 12px; }
+  .hd-left{ gap:2px; min-width:0; }
+  .hd-logo{ gap:8px; min-width:0; }
+  .hd-word{ font-size:17px; letter-spacing:.07em; }
+  .hd-actions{ gap:0; }
+  .hd-ic.hd-search{ display:none; }
+  .hd-cart{ padding:0 4px; gap:6px; }
 }
 
 /* ---------- mobile nav drawer (Aside type="mobile") ---------- */
 .hd-mnav{ display:flex; flex-direction:column; padding:6px 4px 28px; }
+.hd-mnav-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding-right:12px; }
+.hd-mnav-search{ display:inline-flex; align-items:center; gap:8px; padding:12px 10px; min-height:44px;
+  font:600 12px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase; color:var(--bone-dim); }
+.hd-mnav-search svg{ width:15px; height:15px; }
+.hd-mnav-search:hover{ color:var(--bone); }
 .hd-mnav-home{ display:inline-flex; align-items:center; gap:9px; padding:14px 20px;
   font:600 12px/1 var(--sans); letter-spacing:.18em; text-transform:uppercase; color:var(--red); }
 .hd-mnav-home svg{ width:15px; height:15px; }
@@ -142,7 +157,24 @@
   .ft-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
   .ft-brand,.ft-news{ grid-column:1 / -1; }
 }
-@media (max-width:700px){ .ft-grid{ grid-template-columns:minmax(0,1fr); } }
+@media (max-width:700px){
+  .ft{ margin-top:64px; padding:80px var(--page-pad) 0; }
+  .ft-brush{ height:50px; }
+  /* two link columns side by side; brand and newsletter span the row */
+  .ft-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px 20px; }
+  .ft-brand, .ft-news{ grid-column:1 / -1; }
+  .ft-logo{ width:130px; }
+  .ft-tag{ margin-top:18px; font-size:15px; }
+  .ft-col{ gap:12px; }
+  .ft-h{ font-size:11px; margin-bottom:4px; }
+  .ft-link{ font-size:15px; }
+  .ft-news-p{ margin-top:12px; font-size:15px; }
+  .ft-form{ margin-top:16px; }
+  .ft-form input{ padding:15px 14px; font-size:15px; }
+  .ft-form button{ width:52px; }
+  .ft-base{ margin-top:48px; padding:22px 0 30px; flex-direction:column; align-items:flex-start; gap:10px; font-size:14px; }
+  .ft-base-links{ gap:24px; }
+}
 
 /* ============================================================
    CART — drawer (aside) + page, brand theme

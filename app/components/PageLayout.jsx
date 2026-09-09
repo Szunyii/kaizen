@@ -26,13 +26,9 @@ export function PageLayout({
       <CartAside cart={cart} />
       <SearchAside />
       <MobileMenuAside navCollections={navCollections} />
-      <KaizenHeader
-        cart={cart}
-        isLoggedIn={isLoggedIn}
-        navCollections={navCollections}
-      />
+      <KaizenHeader cart={cart} isLoggedIn={isLoggedIn} />
       <main>{children}</main>
-      <KaizenFooter footer={footer} />
+      <KaizenFooter footer={footer} navCollections={navCollections} />
     </Aside.Provider>
   );
 }

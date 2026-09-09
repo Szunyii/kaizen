@@ -3,6 +3,7 @@ import {Await, Link, useAsyncValue} from 'react-router';
 import {useAnalytics, useOptimisticCart} from '@shopify/hydrogen';
 import {useAside} from '~/components/Aside';
 import {I} from '~/components/kaizen/Icons';
+import {collectionTitle} from '~/lib/text';
 
 // Primary navigation: anchors into the homepage sections.
 export const PRIMARY_NAV = [
@@ -56,7 +57,7 @@ export function KaizenHeader({cart, isLoggedIn}) {
 
         <div className="hd-actions">
           <button
-            className="hd-ic"
+            className="hd-ic hd-search"
             aria-label="Keresés"
             onClick={() => open('search')}
           >
@@ -82,12 +83,22 @@ export function KaizenHeader({cart, isLoggedIn}) {
  * @param {{navCollections?: Array<{handle: string, title: string}>}} props
  */
 export function KaizenMobileNav({navCollections}) {
-  const {close} = useAside();
+  const {close, open} = useAside();
   return (
     <nav className="hd-mnav" aria-label="Mobil">
-      <Link className="hd-mnav-home" to="/" onClick={close}>
-        Kezdőlap {I.arrow}
-      </Link>
+      <div className="hd-mnav-top">
+        <Link className="hd-mnav-home" to="/" onClick={close}>
+          Kezdőlap {I.arrow}
+        </Link>
+        {/* the header hides its search icon on small screens; it lives here */}
+        <button
+          type="button"
+          className="hd-mnav-search"
+          onClick={() => open('search')}
+        >
+          {I.search} Keresés
+        </button>
+      </div>
       <div className="hd-mnav-group">
         {PRIMARY_NAV.map(([label, to]) => (
           <Link className="hd-mnav-h" to={to} key={to} onClick={close}>
@@ -105,7 +116,7 @@ export function KaizenMobileNav({navCollections}) {
                 key={c.handle}
                 onClick={close}
               >
-                {c.title}
+                {collectionTitle(c)}
               </Link>
             ))}
           </div>

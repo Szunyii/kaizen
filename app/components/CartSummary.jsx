@@ -12,10 +12,10 @@ export function CartSummary({cart, layout}) {
   return (
     <div aria-labelledby={summaryId} className={`cart-summary ${className}`}>
       <h4 id={summaryId} className="kicker cart-summary-h">
-        Summary
+        Összegzés
       </h4>
       <dl role="group" className="cart-subtotal">
-        <dt>Subtotal</dt>
+        <dt>Részösszeg</dt>
         <dd>
           {cart?.cost?.subtotalAmount?.amount ? (
             formatMoney(cart?.cost?.subtotalAmount)
@@ -37,7 +37,7 @@ function CartCheckoutActions({checkoutUrl}) {
 
   return (
     <a className="btn cart-checkout" href={checkoutUrl} target="_self">
-      Continue to checkout &rarr;
+      Tovább a fizetéshez &rarr;
     </a>
   );
 }

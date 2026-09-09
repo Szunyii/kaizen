@@ -1,6 +1,7 @@
 import {Link, useNavigate} from 'react-router';
 import {AddToCartButton} from './AddToCartButton';
 import {useAside} from './Aside';
+import {TEXT, optionName, isSizeOption, sortSizes} from '~/lib/text';
 
 /**
  * @param {{
@@ -19,17 +20,23 @@ export function ProductForm({productOptions, selectedVariant}) {
 
         const selectedValue =
           option.optionValues.find((v) => v.selected)?.name ?? '';
+        // Sizes always render S → M → L, whatever order admin stored them in.
+        const values = isSizeOption(option.name)
+          ? sortSizes(option.optionValues.map((v) => v.name)).map((n) =>
+              option.optionValues.find((v) => v.name === n),
+            )
+          : option.optionValues;
 
         return (
           <div className="product-options" key={option.name}>
             <div className="product-options-head">
-              <span className="kicker">{option.name}</span>
+              <span className="kicker">{optionName(option.name)}</span>
               {selectedValue ? (
                 <span className="product-options-selected">{selectedValue}</span>
               ) : null}
             </div>
             <div className="product-options-grid">
-              {option.optionValues.map((value) => {
+              {values.map((value) => {
                 const {
                   name,
                   handle,
@@ -100,6 +107,7 @@ export function ProductForm({productOptions, selectedVariant}) {
       <AddToCartButton
         className="btn product-add"
         disabled={!selectedVariant || !selectedVariant.availableForSale}
+        busyLabel={TEXT.adding}
         onClick={() => {
           open('cart');
         }}
@@ -115,7 +123,7 @@ export function ProductForm({productOptions, selectedVariant}) {
             : []
         }
       >
-        {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
+        {selectedVariant?.availableForSale ? TEXT.addToCart : TEXT.soldOut}
       </AddToCartButton>
     </div>
   );

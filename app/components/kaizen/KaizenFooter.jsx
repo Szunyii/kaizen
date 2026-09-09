@@ -2,6 +2,7 @@ import {Suspense, useEffect, useRef} from 'react';
 import {Await, Link, useFetcher} from 'react-router';
 import {Wave} from '~/components/kaizen/Brand';
 import {I} from '~/components/kaizen/Icons';
+import {collectionTitle} from '~/lib/text';
 
 const BRAND_LINKS = [
   ['A filozófia', '/#filozofia'],
@@ -41,14 +42,21 @@ function helpLinks(shop) {
 /**
  * KAIZENTYPE footer. Product and policy links come from the deferred
  * footer query; the rest is brand copy.
- * @param {{footer: Promise<FooterQuery|null>}} props
+ * @param {{
+ *   footer: Promise<FooterQuery|null>,
+ *   navCollections?: Array<{handle: string, title: string}>,
+ * }} props
  */
-export function KaizenFooter({footer}) {
+export function KaizenFooter({footer, navCollections = []}) {
   return (
-    <Suspense fallback={<FooterShell />}>
-      <Await resolve={footer} errorElement={<FooterShell />}>
+    <Suspense fallback={<FooterShell collections={navCollections} />}>
+      <Await
+        resolve={footer}
+        errorElement={<FooterShell collections={navCollections} />}
+      >
         {(data) => (
           <FooterShell
+            collections={navCollections}
             products={data?.products?.nodes ?? []}
             help={helpLinks(data?.shop)}
             blog={data?.blogs?.nodes?.[0] ?? FALLBACK_BLOG}
@@ -62,6 +70,7 @@ export function KaizenFooter({footer}) {
 
 /**
  * @param {{
+ *   collections?: Array<{handle: string, title: string}>,
  *   products?: Array<{id: string, handle: string, title: string}>,
  *   help?: Array<[string, string]>,
  *   blog?: {handle: string, title: string},
@@ -69,6 +78,7 @@ export function KaizenFooter({footer}) {
  * }} props
  */
 function FooterShell({
+  collections = [],
   products = [],
   help = FALLBACK_HELP,
   blog = FALLBACK_BLOG,
@@ -99,6 +109,15 @@ function FooterShell({
 
         <div className="ft-col">
           <span className="ft-h">Vásárlás</span>
+          {collections.map((c) => (
+            <Link
+              to={`/collections/${c.handle}`}
+              key={c.handle}
+              className="ft-link"
+            >
+              {collectionTitle(c)}
+            </Link>
+          ))}
           {products.map((p) => (
             <Link to={`/products/${p.handle}`} key={p.id} className="ft-link">
               {p.title}

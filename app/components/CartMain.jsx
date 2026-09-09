@@ -49,12 +49,12 @@ export function CartMain({layout, cart: originalCart}) {
   return (
     <section
       className={className}
-      aria-label={layout === 'page' ? 'Cart page' : 'Cart drawer'}
+      aria-label={layout === 'page' ? 'Kosár oldal' : 'Kosár'}
     >
       <CartEmpty hidden={linesCount} layout={layout} />
       <div className="cart-details">
         <p id="cart-lines" className="sr-only">
-          Line items
+          Tételek
         </p>
         <div>
           <ul aria-labelledby="cart-lines">
@@ -96,17 +96,17 @@ function CartEmpty({hidden = false}) {
       <span className="cart-empty-seal">
         <EnsoMark size={66} stroke={10} />
       </span>
-      <p className="cart-empty-h display">Your bag is empty</p>
+      <p className="cart-empty-h display">Üres a kosarad</p>
       <p className="cart-empty-p">
-        Nothing here yet. Begin with the small, daily better.
+        Még semmi. Kezdd a kicsivel, a mai jobbal.
       </p>
       <Link
         className="btn"
-        to="/collections"
+        to="/#termekek"
         onClick={close}
         prefetch="viewport"
       >
-        Shop the collection {I.arrow}
+        Irány a kollekció {I.arrow}
       </Link>
     </div>
   );
