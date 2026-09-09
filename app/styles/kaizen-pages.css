@@ -178,8 +178,11 @@
 .fam-feat-h{ margin-top:12px; font:700 13px/1 var(--sans); letter-spacing:.18em; text-transform:uppercase; color:var(--bone); }
 .fam-feat-p{ margin-top:10px; font:400 16px/1.6 var(--sans); color:var(--bone-mut); }
 .fam-cta{ display:flex; flex-direction:column; gap:14px; margin-top:40px; align-items:flex-start; }
+.fam-cta-row{ display:flex; gap:14px; flex-wrap:wrap; }
 .fam-note{ font:400 15px/1.4 var(--sans); color:var(--bone-faint); }
 .fam-phone-wrap{ min-width:0; display:flex; justify-content:center; }
+.fam-phone-wrap .fam-phone{ transition:transform .5s var(--ease-out), box-shadow .5s var(--ease-out); }
+.fam-phone-wrap:hover .fam-phone{ transform:translateY(-6px); box-shadow:0 50px 90px -40px rgba(218,41,28,.35); }
 .fam-phone{ width:min(320px,100%); aspect-ratio:9/19; border:10px solid #1c1512; border-radius:44px; background:var(--ink-900);
   overflow:hidden; box-shadow:0 40px 80px -40px rgba(0,0,0,.9); }
 .fam-app{ height:100%; padding:44px 26px 30px; display:flex; flex-direction:column; gap:28px; font-family:var(--sans); }
@@ -647,6 +650,7 @@
   .fam-feat-h{ margin-top:0; }
   .fam-feat-p{ margin-top:6px; font-size:15px; }
   .fam-cta{ margin-top:28px; gap:12px; }
+  .fam-cta-row{ width:100%; flex-direction:column; gap:10px; }
   .fam-cta .btn{ width:100%; justify-content:center; }
   .fam-note{ font-size:14px; }
   .fam-phone{ width:min(250px,100%); aspect-ratio:9/14; border-width:8px; border-radius:36px; }

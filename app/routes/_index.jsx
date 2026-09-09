@@ -837,6 +837,9 @@ function Community() {
 /* Kaizen Family                                                       */
 /* ------------------------------------------------------------------ */
 
+/** The Kaizen Family app, opened from the Family section. */
+const APP_URL = 'https://app.kaizentype.com/';
+
 const FAMILY = [
   {
     h: 'Kihívások',
@@ -890,15 +893,31 @@ function Family() {
             ))}
           </div>
           <div className="fam-cta reveal reveal-d3">
+            <div className="fam-cta-row">
+              <a
+                className="btn"
+                href={APP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Belépés az appba {I.arrow}
+              </a>
+              <Link className="btn btn-ghost" to="/#termekek">
+                Vásárlás a hozzáféréshez
+              </Link>
+            </div>
             <span className="fam-note">
-              A hozzáférés minden vásárláshoz jár. Válassz egy darabot:
+              A hozzáférés minden vásárláshoz jár.
             </span>
-            <Link className="btn" to="/#termekek">
-              Vásárlás a hozzáféréshez {I.arrow}
-            </Link>
           </div>
         </div>
-        <div className="fam-phone-wrap reveal reveal-d2">
+        <a
+          className="fam-phone-wrap reveal reveal-d2"
+          href={APP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Kaizen Family app megnyitása"
+        >
           <div className="fam-phone" aria-hidden="true">
             <div className="fam-app">
               <div className="fam-app-top">
@@ -915,7 +934,7 @@ function Family() {
               </div>
             </div>
           </div>
-        </div>
+        </a>
       </div>
     </section>
   );
