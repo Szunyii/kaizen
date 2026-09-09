@@ -1,6 +1,7 @@
 import {useEffect, useMemo, useState} from 'react';
 import {Image} from '@shopify/hydrogen';
 import {BrushRibbon} from '~/components/kaizen/Brand';
+import {TEXT} from '~/lib/text';
 
 /**
  * KAIZENTYPE product gallery: a framed main image with the kanji watermark and
@@ -66,7 +67,7 @@ export function ProductGallery({images = [], variantImage, fallback, title}) {
         {active ? (
           <Image
             className="pdp-main-img"
-            alt={active.altText || title || 'Product image'}
+            alt={active.altText || title || TEXT.productImage}
             aspectRatio="1/1"
             data={active}
             key={keyOf(active)}
@@ -81,7 +82,7 @@ export function ProductGallery({images = [], variantImage, fallback, title}) {
       </div>
 
       {gallery.length > 1 ? (
-        <div className="pdp-thumbs" aria-label="Product images">
+        <div className="pdp-thumbs" aria-label={TEXT.productImages}>
           {gallery.map((img) => {
             const key = keyOf(img);
             const isActive = keyOf(active) === key;
@@ -90,13 +91,13 @@ export function ProductGallery({images = [], variantImage, fallback, title}) {
                 type="button"
                 key={key}
                 className={`pdp-thumb${isActive ? ' is-active' : ''}`}
-                aria-label="View image"
+                aria-label={TEXT.viewImage}
                 aria-current={isActive}
                 onClick={() => setActiveKey(key)}
                 onKeyDown={onThumbKeyDown}
               >
                 <Image
-                  alt={img.altText || title || 'Product image'}
+                  alt={img.altText || title || TEXT.productImage}
                   aspectRatio="1/1"
                   data={img}
                   sizes="100px"

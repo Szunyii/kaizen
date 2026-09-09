@@ -5,16 +5,17 @@ import {BrushRibbon, EnsoMark} from '~/components/kaizen/Brand';
 import {I} from '~/components/kaizen/Icons';
 import {useReveal} from '~/lib/useReveal';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {productType, collectionTitle} from '~/lib/text';
 
 /**
  * Sort options exposed in the UI, mapped to Storefront API sort keys.
  * 'featured' follows the merchandised collection order (COLLECTION_DEFAULT).
  */
 const SORT_OPTIONS = {
-  featured: {label: 'Featured', sortKey: 'COLLECTION_DEFAULT', reverse: false},
-  'price-asc': {label: 'Price — low to high', sortKey: 'PRICE', reverse: false},
-  'price-desc': {label: 'Price — high to low', sortKey: 'PRICE', reverse: true},
-  name: {label: 'Name', sortKey: 'TITLE', reverse: false},
+  featured: {label: 'Kiemelt', sortKey: 'COLLECTION_DEFAULT', reverse: false},
+  'price-asc': {label: 'Ár: alacsonytól', sortKey: 'PRICE', reverse: false},
+  'price-desc': {label: 'Ár: magastól', sortKey: 'PRICE', reverse: true},
+  name: {label: 'Név: A–Z', sortKey: 'TITLE', reverse: false},
 };
 
 /**
@@ -43,7 +44,7 @@ const COLOR_HEX = {
  * @type {Route.MetaFunction}
  */
 export const meta = ({data}) => {
-  return [{title: `KaizenType — ${data?.title ?? 'Collection'}`}];
+  return [{title: `${data?.title ?? 'Kollekció'} — KaizenType`}];
 };
 
 /**
@@ -134,7 +135,7 @@ async function loadCriticalData({context, params, request}) {
   return {
     id: collection.id,
     handle,
-    title: collection.title,
+    title: collectionTitle(collection),
     description: collection.description || '',
     // Each value's count is taken against the other group's selection, so
     // a chip always shows how many items picking it would yield.
@@ -249,7 +250,7 @@ function CollectionHead({title, description}) {
         改
       </div>
       <div className="wrap col-head-inner">
-        <p className="kicker">改善 — Collection</p>
+        <p className="kicker">改善 — Kollekció</p>
         <h1 className="col-h display">{title}</h1>
         {description ? <p className="col-sub">{description}</p> : null}
       </div>
@@ -285,11 +286,11 @@ function CollectionToolbar({
           className={`col-chip ${anyApplied ? '' : 'is-active'}`}
           onClick={onClear}
         >
-          All
+          Összes
         </button>
         {facets.types.length ? (
           <span className="col-facet">
-            <span className="col-facet-label">Category</span>
+            <span className="col-facet-label">Kategória</span>
             {facets.types.map(({value, count: n}) => (
               <button
                 key={value}
@@ -299,7 +300,7 @@ function CollectionToolbar({
                 }`}
                 onClick={() => onToggle('type', value)}
               >
-                {value}
+                {productType(value)}
                 <span className="col-chip-count">{n}</span>
               </button>
             ))}
@@ -307,7 +308,7 @@ function CollectionToolbar({
         ) : null}
         {facets.colors.length ? (
           <span className="col-facet">
-            <span className="col-facet-label">Colour</span>
+            <span className="col-facet-label">Szín</span>
             {facets.colors.map(({name, hex, count: n}) => (
               <button
                 key={name}
@@ -333,10 +334,10 @@ function CollectionToolbar({
       </div>
       <div className="col-tools">
         <span className="col-count">
-          {count} {count === 1 ? 'item' : 'items'}
+          {count} termék
         </span>
         <label className="col-sort">
-          <span className="col-sort-label">Sort</span>
+          <span className="col-sort-label">Rendezés</span>
           <select value={sort} onChange={(e) => onSort(e.target.value)}>
             {Object.entries(SORT_OPTIONS).map(([value, option]) => (
               <option key={value} value={value}>
@@ -371,20 +372,20 @@ function CollectionEmpty({onReset, filtered}) {
   return (
     <div className="col-empty">
       <EnsoMark size={92} stroke={9} />
-      <h2 className="col-empty-h display">Nothing here yet</h2>
+      <h2 className="col-empty-h display">Még nincs itt semmi</h2>
       <p className="col-empty-p">
         {filtered
-          ? 'No products match these filters. Try another combination, or explore the full catalogue.'
-          : 'This collection has no products yet. Explore the full catalogue instead.'}
+          ? 'Ezekre a szűrőkre nincs találat. Próbálj másik kombinációt, vagy nézd meg a teljes kínálatot.'
+          : 'Ebben a kollekcióban még nincs termék. Nézd meg a teljes kínálatot.'}
       </p>
       <div className="col-empty-cta">
         {filtered ? (
           <button type="button" className="btn btn-ghost" onClick={onReset}>
-            Clear filters
+            Szűrők törlése
           </button>
         ) : null}
-        <Link className="btn" to="/collections">
-          View all {I.arrow}
+        <Link className="btn" to="/#termekek">
+          Összes termék {I.arrow}
         </Link>
       </div>
     </div>
