@@ -485,12 +485,15 @@ function Showcase({product, flip, selection, variant, onSelect, onAdded}) {
           <Link to={`/products/${product.handle}`}>{product.title}</Link>
         </h3>
         <p className="show-p reveal reveal-d2">{excerpt(product.description)}</p>
-        <div className="show-specs reveal reveal-d2">
-          {product.productType ? (
-            <span>{productType(product.productType)}</span>
-          ) : null}
-          {specs ? <span>{specs}</span> : null}
-        </div>
+        {/* the spec line only earns its place when there are no chips to say the same */}
+        {product.productType || (specs && !options.length) ? (
+          <div className="show-specs reveal reveal-d2">
+            {product.productType ? (
+              <span>{productType(product.productType)}</span>
+            ) : null}
+            {specs && !options.length ? <span>{specs}</span> : null}
+          </div>
+        ) : null}
 
         {options.map((o) => (
           <div className="show-opt reveal reveal-d2" key={o.name}>

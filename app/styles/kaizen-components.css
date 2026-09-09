@@ -157,7 +157,24 @@
   .ft-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); }
   .ft-brand,.ft-news{ grid-column:1 / -1; }
 }
-@media (max-width:700px){ .ft-grid{ grid-template-columns:minmax(0,1fr); } }
+@media (max-width:700px){
+  .ft{ margin-top:64px; padding:80px var(--page-pad) 0; }
+  .ft-brush{ height:50px; }
+  /* two link columns side by side; brand and newsletter span the row */
+  .ft-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px 20px; }
+  .ft-brand, .ft-news{ grid-column:1 / -1; }
+  .ft-logo{ width:130px; }
+  .ft-tag{ margin-top:18px; font-size:15px; }
+  .ft-col{ gap:12px; }
+  .ft-h{ font-size:11px; margin-bottom:4px; }
+  .ft-link{ font-size:15px; }
+  .ft-news-p{ margin-top:12px; font-size:15px; }
+  .ft-form{ margin-top:16px; }
+  .ft-form input{ padding:15px 14px; font-size:15px; }
+  .ft-form button{ width:52px; }
+  .ft-base{ margin-top:48px; padding:22px 0 30px; flex-direction:column; align-items:flex-start; gap:10px; font-size:14px; }
+  .ft-base-links{ gap:24px; }
+}
 
 /* ============================================================
    CART — drawer (aside) + page, brand theme

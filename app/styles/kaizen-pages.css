@@ -588,3 +588,88 @@
   .acct-order{ grid-template-columns:1fr; }
   .acct-order-total{ flex-direction:row; align-items:center; justify-content:space-between; }
 }
+
+/* ============================================================
+   MOBILE (≤640px) — intentional layout changes, not just stacking
+   ============================================================ */
+@media (max-width:640px){
+  /* hero: a 4:5 frame keeps the film's seal and wordmark whole in portrait */
+  .hero-full .hero-video{ height:auto; aspect-ratio:4/5; min-height:0; max-height:none; }
+  .hero-video-el{ object-position:50% 50%; }
+  .home-divider{ height:28px; }
+
+  /* value strip: icon and text on one row, left-aligned */
+  .vstrip{ gap:14px; padding:22px 0; }
+  .vstrip-i{ display:grid; grid-template-columns:auto 1fr; gap:12px; text-align:left; justify-content:start;
+    font-size:15px; }
+
+  /* body copy one step down so headings keep the lead */
+  .sec-p, .dict-p, .about-p, .fam-p, .show-p, .one-p, .faq-lead{ font-size:17px; line-height:1.6; }
+  .sec-p{ margin-top:16px; }
+  .dict{ margin-top:32px; padding-left:18px; }
+  .dict-meta{ font-size:15px; }
+  .dict-part dd{ font-size:16px; }
+  .one{ padding:24px 20px; }
+  .one-glyph{ font-size:64px; }
+
+  /* showcases: clamp the description, tighten the buy row */
+  .show{ padding:44px 0; gap:22px; }
+  .show:first-of-type{ margin-top:16px; }
+  .show-p{ display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; margin-top:14px; }
+  .show-specs{ margin-top:16px; font-size:15px; gap:4px; }
+  .show-opt{ margin-top:20px; }
+  .show-buy{ gap:16px 20px; margin-top:24px; }
+  .show-price{ font-size:30px; }
+  .chip{ padding:11px 15px; min-height:44px; display:inline-flex; align-items:center; }
+
+  /* buttons: shorter padding so Hungarian labels fit on one line */
+  .btn{ padding:16px 20px; gap:10px; letter-spacing:.12em; }
+  .btn svg{ width:15px; height:15px; }
+
+  /* community */
+  .stats{ gap:22px 16px; padding:30px 0; }
+  .stat-l{ font-size:13px; margin-top:6px; }
+  .comm .sec-h{ margin-top:44px; }
+  .voice-lead{ padding:24px 0 20px; }
+  .voice-lead-q{ font-size:24px; }
+  .voice-row{ padding:20px 0; }
+  .voice-row-q{ font-size:16px; }
+
+  /* family: feature rows with the tick inline, full-width CTA, shorter phone */
+  .fam{ margin-top:64px; }
+  .fam-inner{ gap:32px; padding:36px 20px 28px; }
+  .fam-feats{ grid-template-columns:1fr; gap:18px; margin-top:28px; }
+  .fam-feat{ display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:baseline; }
+  .fam-feat-ic{ font-size:16px; grid-row:1 / span 2; }
+  .fam-feat-h{ margin-top:0; }
+  .fam-feat-p{ margin-top:6px; font-size:15px; }
+  .fam-cta{ margin-top:28px; gap:12px; }
+  .fam-cta .btn{ width:100%; justify-content:center; }
+  .fam-note{ font-size:14px; }
+  .fam-phone{ width:min(250px,100%); aspect-ratio:9/14; border-width:8px; border-radius:36px; }
+  .fam-app{ padding:30px 18px 22px; gap:20px; }
+  .fam-app-ring{ width:120px; height:120px; }
+  .fam-app-ring span{ width:94px; height:94px; font-size:32px; }
+  .fam-app-row{ padding:12px 14px; font-size:13px; }
+
+  /* about + faq */
+  .about{ padding-top:64px; }
+  .about-grid{ gap:24px; }
+  .about-tags{ gap:10px 24px; margin-top:24px; font-size:15px; }
+  .faq{ padding:64px 0 32px; }
+  .faq::before{ font-size:170px; top:.05em; color:rgba(140,42,18,.05); }
+  .faq-contact{ margin-top:22px; }
+  .faq-grid{ gap:28px; }
+  .faq-q-t{ font-size:19px; }
+  .faq-a{ font-size:15px; }
+
+  /* collection head: brush sits under the subtitle, not across it */
+  .col-head{ padding-bottom:46px; }
+  .col-head-brush{ bottom:0; height:30px; }
+  .col-bar{ padding:18px 0; gap:12px; }
+
+  /* pdp */
+  .pdp-crumbs{ margin-bottom:18px; }
+  .pdp-thumb{ width:64px; }
+  .product-options-item{ min-height:44px; }
+}
