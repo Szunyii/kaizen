@@ -44,51 +44,51 @@ Három hero-változat készült (HTML-sketch a valódi tokenekkel, desktop + mob
 
 Synthesized from this review's findings. Each task derives from a specific finding above. Run with Claude Code or Codex; checkbox as you ship.
 
-- [ ] **T1 (P1, human: ~40 min / CC: ~8 min)** — KaizenHeader — Mobil header overflow megszüntetése (403px → 390px)
+- [x] **T1 (P1, human: ~40 min / CC: ~8 min)** — KaizenHeader — Mobil header overflow megszüntetése (403px → 390px)
   - Surfaced by: Pass 6 — 6.1 `.hd-actions` 260→403px, a kosárszám levág
   - Files: `app/styles/kaizen-components.css` (≤860px media query: `.hd-bar gap`, `.hd-word` letter-spacing/size, `.hd-actions gap`), opcionálisan `app/components/kaizen/KaizenHeader.jsx` (keresés ikon a drawerbe mobilon)
   - Verify: 390px viewport, `document.documentElement.scrollWidth === 390`, a "0" látszik
-- [ ] **T2 (P1, human: ~20 min / CC: ~4 min)** — Homepage hero — 16px-es csík lokális javítása
+- [x] **T2 (P1, human: ~20 min / CC: ~4 min)** — Homepage hero — 16px-es csík lokális javítása
   - Surfaced by: Pass 6 — 6.2 `.home{overflow-x:clip}` levágja a `-1rem` margót
   - Files: `app/styles/kaizen.css` (`main:has(.home){margin-inline:0}`), `app/styles/kaizen-pages.css` (`.hero-full` margin ki; `.fam` méretezés ellenőrzése)
   - Verify: `elementFromPoint(5,400)` a hero videó; a wave divider széltől szélig
-- [ ] **T3 (P1, human: ~30 min / CC: ~5 min)** — Tipográfia — Mobil clamp() alsó korlátok
+- [x] **T3 (P1, human: ~30 min / CC: ~5 min)** — Tipográfia — Mobil clamp() alsó korlátok
   - Surfaced by: Pass 6 — 6.3 `.sec-h` 25px, `.show-h` 19.5px mobilon
   - Files: `app/styles/kaizen-pages.css` (`.sec-h clamp(34px,6.5vw,80px)`, `.sec-h-sm clamp(30px,6vw,68px)`, `.show-h clamp(28px,5vw,54px)`, `.dict-word clamp(30px,7vw,64px)`, `.stat-n clamp(36px,5vw,52px)`, `.fam .sec-h clamp(32px,6vw,72px)`)
   - Verify: 390px-en minden szekció-címsor ≥ 1.6× a törzsszöveg
-- [ ] **T4 (P1, human: ~2 h / CC: ~20 min)** — PDP + kollekció — Magyar vásárlási út
+- [x] **T4 (P1, human: ~2 h / CC: ~20 min)** — PDP + kollekció — Magyar vásárlási út
   - Surfaced by: Pass 3 — 3.1 "All products / Color / Size / Add to cart / The detail / Collection / Category / Colour / Featured / 1 item / Sort / All"
   - Files: új `app/lib/text.js` (az `accountText.js` mintájára), `app/routes/products.$handle.jsx`, `app/components/ProductForm.jsx`, `app/routes/collections.$handle.jsx`; Shopify admin: opciónevek "Szín / Méret" (utána a `/size|méret/i` regex ellenőrzése az `_index.jsx`-ben)
   - Verify: a PDP és a kollekció oldalon nincs angol UI-szöveg; `grep -rn "Add to cart\|All products\|The detail" app/` üres
-- [ ] **T5 (P1, human: ~20 min / CC: ~5 min)** — Kosár — Drawer és oldal magyarítása
+- [x] **T5 (P1, human: ~20 min / CC: ~5 min)** — Kosár — Drawer és oldal magyarítása
   - Surfaced by: Pass 2 — 2.2 "Your bag is empty / Nothing here yet… / Shop the collection / Subtotal"
   - Files: `app/components/CartMain.jsx`, `app/components/CartSummary.jsx`, `app/components/CartLineItem.jsx`
   - Verify: üres kosár drawer magyar; `grep -n "Subtotal\|Your bag" app/components/Cart*.jsx` üres
-- [ ] **T6 (P2, human: ~20 min / CC: ~5 min)** — Homepage showcase — Kosárba gomb busy-állapot
+- [x] **T6 (P2, human: ~20 min / CC: ~5 min)** — Homepage showcase — Kosárba gomb busy-állapot
   - Surfaced by: Pass 2 — 2.1 `disabled={!available}` kiüti a `?? fetcher.state` ágat
   - Files: `app/routes/_index.jsx` (Showcase, BundlePromo: `disabled={!available || busy}`, "Hozzáadás…" felirat)
   - Verify: gyors dupla kattintás egy tételt ad; a gomb a kérés alatt disabled
-- [ ] **T7 (P2, human: ~2 min / CC: ~1 min)** — Root — `<html lang="hu">`
+- [x] **T7 (P2, human: ~2 min / CC: ~1 min)** — Root — `<html lang="hu">`
   - Surfaced by: Pass 6 — 6.5
   - Files: `app/root.jsx:166`
   - Verify: `document.documentElement.lang === 'hu'`
-- [ ] **T8 (P2, human: ~15 min / CC: ~3 min)** — Homepage hero — Vizuálisan rejtett H1
+- [x] **T8 (P2, human: ~15 min / CC: ~3 min)** — Homepage hero — Vizuálisan rejtett H1
   - Surfaced by: Pass 1 — 1.1 `document.querySelectorAll('h1').length === 0`
   - Files: `app/routes/_index.jsx` (Hero), `app/styles/kaizen.css` (`.sr-only`)
   - Verify: pontosan egy H1 a nyitóoldalon, vizuális változás nélkül
-- [ ] **T9 (P2, human: ~1 h / CC: ~10 min)** — Navigáció — Kollekciók desktopon is elérhetők
+- [x] **T9 (P2, human: ~1 h / CC: ~10 min)** — Navigáció — Kollekciók desktopon is elérhetők
   - Surfaced by: Pass 1 — 1.2 a "Termékek" csak `#termekek` horgony
   - Files: `app/components/kaizen/KaizenHeader.jsx` (almenü a `navCollections`-ból) vagy `app/components/kaizen/KaizenFooter.jsx` (Vásárlás oszlop: Férfi/Női/Kiegészítők), `app/components/PageLayout.jsx` (prop átadás)
   - Verify: desktopon 1 kattintással elérhető `/collections/men|women|accessories`
-- [ ] **T10 (P2, human: ~10 min / CC: ~2 min)** — Family szekció — CTA felirat/irány
+- [x] **T10 (P2, human: ~10 min / CC: ~2 min)** — Family szekció — CTA felirat/irány
   - Surfaced by: Pass 1 — 1.4 "Csatlakozom" felfelé görget a termékekhez
   - Files: `app/routes/_index.jsx` (Family: felirat "Vásárlás a hozzáféréshez" vagy `fam-note` a gomb fölé)
   - Verify: a gomb szövege és a célja egyértelmű kattintás előtt
-- [ ] **T11 (P2, human: ~20 min / CC: ~4 min)** — Globális CSS — Témázott focus-visible és scrollbar
+- [x] **T11 (P2, human: ~20 min / CC: ~4 min)** — Globális CSS — Témázott focus-visible és scrollbar
   - Surfaced by: Pass 5 — 5.3 böngésző-kék fókuszgyűrű, alap scrollbar
   - Files: `app/styles/kaizen.css` (`:focus-visible{outline:2px solid var(--red);outline-offset:3px}`, piros gombokon `outline-color:var(--bone)`; `html{scrollbar-color:var(--bone-mut) transparent}`)
   - Verify: Tab-bal végigmenve minden fókusz piros/bone gyűrűt kap
-- [ ] **T12 (P2, human: ~3 h / CC: ~30 min)** — Homepage — Ritmus törése: filozófia-kártyák a szótárba, vélemények egy nagy idézet
+- [x] **T12 (P2, human: ~3 h / CC: ~30 min)** — Homepage — Ritmus törése: filozófia-kártyák a szótárba, vélemények egy nagy idézet
   - Surfaced by: Pass 4 — 4.1 hármas rács négyszer (vstrip, kz-cards, voices, fam-feats)
   - Files: `app/routes/_index.jsx` (Philosophy, Community), `app/styles/kaizen-pages.css` (`.kz-cards` → inline glyph-sorok a `.dict` alatt, csak az "1%" marad kiemelt; `.voices` → egy nagy idézet + két rövid sor, fotó nélkül)
   - Verify: mobilon a homepage ≥ 1200px-szel rövidebb; a szótár-blokk a filozófia szekció fő eleme
@@ -100,11 +100,11 @@ Synthesized from this review's findings. Each task derives from a specific findi
   - Surfaced by: Pass 3 — 3.5a `/pages/contact` üres, a FAQ "Írj nekünk" ide mutat
   - Files: nincs (admin: Kapcsolat oldal: e-mail, válaszidő egy munkanap, opcionálisan Instagram)
   - Verify: `/pages/contact` tartalmas; ha űrlap kell, külön route a `newsletter.jsx` mintájára
-- [ ] **T15 (P3, human: ~2 h / CC: ~15 min)** — Dokumentáció — DESIGN.md a tokenekből
+- [x] **T15 (P3, human: ~2 h / CC: ~15 min)** — Dokumentáció — DESIGN.md a tokenekből
   - Surfaced by: Pass 5 — 5.1 nincs leírt design rendszer
   - Files: új `DESIGN.md` (paletta, típus-skála, spacing, kártya-szabály, kanji-használat, komponens-szótár: kicker/display/btn/kz-card/acct-card/Wave/KaizenSeal)
   - Verify: minden token és komponens a fájlban hivatkozott CSS-ben létezik
-- [ ] **T16 (P3, human: ~3 h / CC: ~25 min)** — Showcase — "Értesíts, ha kapható" elfogyott variánsnál
+- [x] **T16 (P3, human: ~3 h / CC: ~25 min)** — Showcase — "Értesíts, ha kapható" elfogyott variánsnál
   - Surfaced by: Pass 2 — 2.4 elfogyott állapotban nincs továbbvezető út
   - Files: új resource route (a `app/routes/newsletter.jsx` mintájára, tag: `restock:<variantId>`), `app/routes/_index.jsx` (Showcase: e-mail mező az "Elfogyott" gomb helyén), `app/styles/kaizen-pages.css`
   - Verify: elfogyott variánsnál e-mail beküldhető, siker/hiba üzenet a hírlevél-mintával
