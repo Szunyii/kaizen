@@ -145,3 +145,39 @@ export function StudioShot({product = {}, ratio = '1 / 1', showType = true}) {
     </div>
   );
 }
+
+const WAVES = {
+  // thin red divider under the hero
+  thin: {
+    viewBox: '0 0 1200 40',
+    d: 'M0 20 C200 0,400 40,600 22 C800 4,1000 34,1200 16 L1200 40 L0 40 Z',
+  },
+  // footer / band top edge
+  edge: {
+    viewBox: '0 0 1200 60',
+    d: 'M0 26 C240 4,460 46,720 24 C920 8,1060 34,1200 18 L1200 60 L0 60 Z',
+  },
+  // tall backdrop for the membership band
+  tall: {
+    viewBox: '0 0 1200 300',
+    d: 'M0 140 C250 40,520 250,800 150 C980 88,1100 150,1200 120 L1200 300 L0 300 Z',
+  },
+};
+
+/**
+ * Soft brushed wave used as section dividers and backdrops.
+ * @param {{shape?: keyof typeof WAVES, fill?: string, className?: string}} props
+ */
+export function Wave({shape = 'thin', fill = 'var(--red)', className = ''}) {
+  const {viewBox, d} = WAVES[shape] ?? WAVES.thin;
+  return (
+    <svg
+      className={`wave ${className}`}
+      viewBox={viewBox}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path d={d} fill={fill} />
+    </svg>
+  );
+}

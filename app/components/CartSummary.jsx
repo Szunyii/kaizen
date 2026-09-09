@@ -1,4 +1,4 @@
-import {Money} from '@shopify/hydrogen';
+import {formatMoney} from '~/lib/money';
 import {useId} from 'react';
 
 /**
@@ -18,7 +18,7 @@ export function CartSummary({cart, layout}) {
         <dt>Subtotal</dt>
         <dd>
           {cart?.cost?.subtotalAmount?.amount ? (
-            <Money data={cart?.cost?.subtotalAmount} />
+            formatMoney(cart?.cost?.subtotalAmount)
           ) : (
             '-'
           )}

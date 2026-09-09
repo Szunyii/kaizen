@@ -1,234 +1,1060 @@
-import {Link, useLoaderData} from 'react-router';
+import {Suspense, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Await, Link, useLoaderData} from 'react-router';
+import {Image} from '@shopify/hydrogen';
 import {useReveal} from '~/lib/useReveal';
-import {BrushRibbon, StudioShot} from '~/components/kaizen/Brand';
-import {ProductCard} from '~/components/kaizen/ProductCard';
+import {Wave} from '~/components/kaizen/Brand';
 import {I} from '~/components/kaizen/Icons';
-import {PRODUCTS, CATEGORIES} from '~/lib/kaizen-data';
+import {AddToCartButton} from '~/components/AddToCartButton';
+import {useAside} from '~/components/Aside';
+import {formatMoney} from '~/lib/money';
+import {fetchActivePromos} from '~/lib/discounts';
 
 /**
  * @type {Route.MetaFunction}
  */
 export const meta = () => {
   return [
-    {title: 'KaizenType — Be Better, One Percent'},
+    {title: 'KaizenType — Progress Has No End'},
     {
       name: 'description',
       content:
-        'Heavyweight, Budapest-made essentials engineered for everyone chasing the small, daily better.',
+        'Több mint egy ruhamárka. Nehéz pamut alapdarabok és a Kaizen Family közösség azoknak, akik minden nap 1%-kal jobbak akarnak lenni.',
     },
   ];
 };
 
 /**
- * Loads the live Storefront products that feed the homepage "Featured" grid.
+ * Loads the live Storefront products that feed the homepage showcases,
+ * plus the frontpage collection image for the hero if one is set.
  * @param {Route.LoaderArgs} args
  */
 export async function loader({context}) {
-  const {products} = await context.storefront.query(FEATURED_PRODUCTS_QUERY, {
-    variables: {first: 6},
-  });
+  const {storefront} = context;
+  // Deferred: active Shopify discounts for the promo strip. Never throws.
+  const promos = fetchActivePromos(context);
+  const [{products}, {collection}] = await Promise.all([
+    storefront.query(HOME_PRODUCTS_QUERY, {variables: {first: 6}}),
+    storefront.query(HOME_HERO_QUERY, {cache: storefront.CacheLong()}),
+  ]);
 
-  // Map Storefront products onto the shape the Kaizen ProductCard expects.
-  const featured = (products?.nodes ?? []).map((p) => ({
-    id: p.id,
-    handle: p.handle,
-    name: p.title,
-    price: Number(p.priceRange.minVariantPrice.amount),
-    image: p.featuredImage,
-    tag: null,
-    colors: [],
-  }));
+  const items = products?.nodes ?? [];
+  const heroImage =
+    collection?.image ??
+    items[0]?.images?.nodes?.[1] ??
+    items[0]?.featuredImage ??
+    null;
 
-  return {featured};
+  return {products: items, heroImage, promos};
 }
 
 export default function Homepage() {
+  const [toast, setToast] = useState(null);
+  const timer = useRef(null);
+
+  const notify = useCallback((label) => {
+    clearTimeout(timer.current);
+    setToast(label);
+    timer.current = setTimeout(() => setToast(null), 2400);
+  }, []);
+  useEffect(() => () => clearTimeout(timer.current), []);
+
   return (
-    <div className="view-enter">
+    <div className="view-enter home">
       <Hero />
+      <div className="home-divider" aria-hidden="true">
+        <Wave shape="thin" />
+      </div>
       <ValueStrip />
-      <Featured />
-      <CategoryTriptych />
-      <MemberBand />
+      <Philosophy />
+      <Products onAdded={notify} />
+      <Community />
+      <Family />
+      <About />
+      <Faq />
+      <Toast label={toast} />
     </div>
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Hero                                                                */
+/* ------------------------------------------------------------------ */
+
 function Hero() {
   const ref = useReveal();
+  /** @type {LoaderReturnData} */
+  const {heroImage} = useLoaderData();
   return (
-    <section className="hero" ref={ref}>
-      <div className="hero-glow" />
-      <div className="hero-kanji" aria-hidden="true">
-        改
-      </div>
-      <div className="wrap hero-inner">
-        <div className="hero-seal" data-reveal>
-          <img
-            className="hero-logo"
-            src="/kaizen-logo.png"
-            alt="KaizenType"
-            width="210"
-            height="210"
-          />
-        </div>
-        <p className="hero-kicker reveal">改善 — Continuous improvement</p>
-        <h1 className="hero-h1 display reveal reveal-d1">
-          Be Better
-          <br />
-          <span className="hero-em">One Percent</span>
-        </h1>
-        <p className="hero-sub reveal reveal-d2">
-          Heavyweight, Budapest-made essentials engineered for everyone chasing
-          the small, daily better. Less noise. More work.
-        </p>
-        <div className="hero-cta reveal reveal-d3">
-          <Link className="btn" to="/collections/men">
-            Shop the collection {I.arrow}
-          </Link>
-          <Link className="btn btn-ghost" to="/pages/about">
-            The philosophy
-          </Link>
-        </div>
-      </div>
-      <div className="hero-brush" aria-hidden="true">
-        <BrushRibbon opacity={0.85} />
-      </div>
+    <section id="top" className="hero hero-full" ref={ref}>
+      <HeroVideo poster={heroImage?.url} />
     </section>
+  );
+}
+
+/**
+ * The original hero copy (kicker, headline, CTAs, trust line). Kept out of
+ * the render for now — the brand film fills the hero on its own. Drop this
+ * back into <Hero /> when the copy should return.
+ */
+// eslint-disable-next-line no-unused-vars
+function HeroCopy() {
+  return (
+    <div className="hero-copy">
+      <p className="kicker reveal">
+        <span className="kanji">改善</span>— Continuous improvement
+      </p>
+      <h1 className="hero-h1 display reveal reveal-d1">
+        Progress
+        <br />
+        <span className="hero-em">Has No End</span>
+      </h1>
+      <p className="hero-sub reveal reveal-d2">
+        Több mint egy ruhamárka. Egy életfilozófia azoknak, akik nem elégednek
+        meg a jelennel, és nap mint nap a jobb önmagukért dolgoznak. Készülj
+        fel a szintlépésre.
+      </p>
+      <div className="hero-cta reveal reveal-d3">
+        <Link className="btn" to="/#termekek">
+          Fedezd fel a kollekciót {I.arrow}
+        </Link>
+        <Link className="btn btn-ghost" to="/#filozofia">
+          A kaizen filozófia
+        </Link>
+      </div>
+      <div className="hero-trust reveal reveal-d3">
+        <span>Magyarországon tervezve</span>
+        <span>Limitált darabok</span>
+        <span>Kaizen Family</span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Autoplaying brand film that fills the hero. Muted + looped so it can
+ * autoplay everywhere. Falls back to the poster when the user prefers
+ * reduced motion.
+ * @param {{poster?: string}} props
+ */
+function HeroVideo({poster}) {
+  const videoRef = useRef(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    // The SSR'd video may finish loading before hydration attaches handlers.
+    if (v.readyState >= 2) setReady(true);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduce.matches) {
+      v.pause();
+      return;
+    }
+    v.play().catch(() => {});
+  }, []);
+
+  return (
+    <div className={`hero-media hero-video reveal reveal-d2${ready ? ' is-ready' : ''}`}>
+      {poster ? (
+        <img
+          className="hero-video-poster"
+          src={poster}
+          alt=""
+          loading="eager"
+          decoding="async"
+        />
+      ) : null}
+      <video
+        ref={videoRef}
+        className="hero-video-el"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-label="Kaizen brand film"
+        onLoadedData={() => setReady(true)}
+      >
+        <source src="/kaizenweboldal.mp4" type='video/mp4; codecs="hvc1"' />
+        <source src="/kaizenweboldal-h264.mp4" type="video/mp4" />
+      </video>
+      <span className="hero-video-shade" aria-hidden="true" />
+    </div>
   );
 }
 
 function ValueStrip() {
   const ref = useReveal();
   const vals = [
-    [I.truck, 'Free shipping over 25 000 Ft'],
-    [I.refresh, '30-day easy returns'],
-    [I.leaf, 'Made in Budapest'],
-    [I.star, 'Member rewards on every order'],
+    'Az 1% fejlődés szimbóluma.',
+    'Kompromisszumok nélküli edzős és utcai viselet.',
+    'Zárt applikáció és támogató közösség.',
   ];
   return (
-    <div className="vstrip wrap" ref={ref}>
-      {vals.map(([ic, t], i) => (
-        <div className="vstrip-i reveal" key={i}>
-          <span className="vstrip-ic">{ic}</span>
-          <span>{t}</span>
+    <section className="vstrip-wrap" ref={ref}>
+      <div className="wrap vstrip">
+        {vals.map((t, i) => (
+          <div className={`vstrip-i reveal reveal-d${i}`} key={t}>
+            <span className="vstrip-ic">✓</span>
+            <span>{t}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Philosophy                                                          */
+/* ------------------------------------------------------------------ */
+
+function Philosophy() {
+  const ref = useReveal();
+  const cards = [
+    {
+      glyph: '改',
+      brush: true,
+      h: 'Kai — változás',
+      p: 'Nem a nagy döntés, hanem a mai. Az, amit ma másképp teszel, mint tegnap.',
+    },
+    {
+      glyph: '善',
+      brush: true,
+      h: 'Zen — jó',
+      p: 'A jó irányba. Mérhetően, türelmesen, nem hangosan.',
+    },
+    {
+      glyph: '1%',
+      brush: false,
+      hot: true,
+      h: 'A mi fordításunk',
+      p: 'Napi egy százalék egy év alatt harmincszoros fejlődés. Ezt hordod magadon, és ezt csináljuk együtt a közösségben.',
+    },
+  ];
+  return (
+    <section id="filozofia" className="phil-home" ref={ref}>
+      <div className="wrap">
+        <p className="kicker reveal">
+          <span className="kanji">改善</span>— A filozófia
+        </p>
+        <h2 className="sec-h display reveal reveal-d1">Mit jelent a kaizen?</h2>
+
+        <div className="dict reveal reveal-d2">
+          <div className="dict-head">
+            <span className="dict-word display">kaizen</span>
+            <span className="dict-kanji">改善</span>
+          </div>
+          <div className="dict-meta">
+            <span className="dict-ipa">[ ˈkaɪzn, ˈkaɪzən ]</span>
+            <i className="dict-dot" />
+            <span className="dict-tag">japán</span>
+            <i className="dict-dot" />
+            <span className="dict-tag">főnév</span>
+          </div>
+          <p className="dict-p">
+            A japán <b>kaizen</b> szó jelentése <b>„változás a jobb felé”</b> —{' '}
+            <span className="dict-k">改</span> <em>kai</em>: változás,
+            átalakítás; <span className="dict-k">善</span> <em>zen</em>:
+            erény, jóság. A japán szótárakban és a hétköznapi használatban
+            egyaránt együtt jár vele a <b>folyamatosság</b> és a{' '}
+            <b>szemléletmód</b> jelentése.
+          </p>
         </div>
-      ))}
+
+        <div className="kz-cards">
+          {cards.map((c, i) => (
+            <div
+              className={`kz-card reveal reveal-d${i + 1} ${c.hot ? 'is-hot' : ''}`}
+              key={c.h}
+            >
+              <div className={`kz-glyph ${c.brush ? 'is-brush' : 'display'}`}>
+                {c.glyph}
+              </div>
+              <div className="kz-card-h">{c.h}</div>
+              <p className="kz-card-p">{c.p}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Products (live Storefront data)                                     */
+/* ------------------------------------------------------------------ */
+
+const COLLECTION_LABELS = {
+  men: 'Férfi',
+  women: 'Női',
+  accessories: 'Kiegészítők',
+  unisex: 'Unisex',
+};
+
+/** @param {HomeProduct} product */
+function productKicker(product) {
+  const handles = (product.collections?.nodes ?? []).map((c) => c.handle);
+  const known = handles.find((h) => COLLECTION_LABELS[h]);
+  if (known) return COLLECTION_LABELS[known];
+  const first = (product.collections?.nodes ?? []).find(
+    (c) => c.handle !== 'frontpage',
+  );
+  return first?.title ?? product.productType ?? 'Kaizen';
+}
+
+/** Options worth rendering: more than one value, and not Shopify's default. */
+function selectableOptions(product) {
+  return (product.options ?? []).filter(
+    (o) => o.name !== 'Title' && o.optionValues.length > 1,
+  );
+}
+
+/** Find the variant matching a {optionName: value} selection. */
+function findVariant(product, selection) {
+  const variants = product.variants?.nodes ?? [];
+  return (
+    variants.find((v) =>
+      v.selectedOptions.every((so) => selection[so.name] === so.value),
+    ) ?? null
+  );
+}
+
+/** Initial selection: the first available variant, else the first one. */
+function initialSelection(product) {
+  const variants = product.variants?.nodes ?? [];
+  const v = variants.find((x) => x.availableForSale) ?? variants[0];
+  return Object.fromEntries(
+    (v?.selectedOptions ?? []).map((so) => [so.name, so.value]),
+  );
+}
+
+/** "9 900 Ft" for HUF, Intl formatting for anything else. */
+const money = formatMoney;
+
+/** Short spec line built from the product's option values, e.g. "Black és White · M–L". */
+function specLine(product) {
+  const parts = [];
+  for (const o of product.options ?? []) {
+    if (o.name === 'Title') continue;
+    const values = o.optionValues.map((v) => v.name);
+    if (values.length <= 1) continue;
+    const isSize = /size|méret/i.test(o.name);
+    parts.push(
+      isSize && values.length > 2
+        ? `${values[0]}–${values[values.length - 1]}`
+        : values.join(' · '),
+    );
+  }
+  return parts.join(' · ');
+}
+
+/** Trim a description to a readable paragraph. */
+function excerpt(text, max = 260) {
+  if (!text) return '';
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf('. '), cut.lastIndexOf(' ')))}…`;
+}
+
+/** @param {{onAdded: (label: string) => void}} props */
+function Products({onAdded}) {
+  const ref = useReveal();
+  const {open} = useAside();
+  /** @type {LoaderReturnData} */
+  const {products} = useLoaderData();
+
+  // Same feedback as the product page: show the toast and slide the cart
+  // drawer open so the added line is visible immediately.
+  const added = useCallback(
+    (label) => {
+      onAdded(label);
+      open('cart');
+    },
+    [onAdded, open],
+  );
+
+  // Variant selection per product, keyed by product id.
+  const [selections, setSelections] = useState(() =>
+    Object.fromEntries(products.map((p) => [p.id, initialSelection(p)])),
+  );
+  const select = useCallback((productId, name, value) => {
+    setSelections((prev) => ({
+      ...prev,
+      [productId]: {...prev[productId], [name]: value},
+    }));
+  }, []);
+
+  const selectedVariants = useMemo(
+    () =>
+      Object.fromEntries(
+        products.map((p) => [p.id, findVariant(p, selections[p.id] ?? {})]),
+      ),
+    [products, selections],
+  );
+
+  return (
+    <section id="termekek" className="shop" ref={ref}>
+      <div className="wrap">
+        <p className="kicker reveal">A kollekció</p>
+        <h2 className="sec-h display reveal reveal-d1">
+          Tiszta fókusz. Semmi felesleg.
+        </h2>
+        <p className="sec-p reveal reveal-d2">
+          Nem hiszünk a felesleges tömeggyártásban. Kizárólag olyan darabokat
+          készítünk, amiket addig finomítunk, amíg a legjobbak nem lesznek.
+        </p>
+
+        {products.length === 0 ? (
+          <p className="shop-empty">Hamarosan érkeznek az első darabok.</p>
+        ) : null}
+
+        {products.map((product, i) => (
+          <Showcase
+            key={product.id}
+            product={product}
+            flip={i % 2 === 1}
+            selection={selections[product.id] ?? {}}
+            variant={selectedVariants[product.id]}
+            onSelect={select}
+            onAdded={added}
+          />
+        ))}
+
+        <Promos
+          products={products}
+          selectedVariants={selectedVariants}
+          onAdded={added}
+        />
+      </div>
+    </section>
+  );
+}
+
+/**
+ * @param {{
+ *   product: HomeProduct;
+ *   flip: boolean;
+ *   selection: Record<string, string>;
+ *   variant: HomeVariant | null;
+ *   onSelect: (productId: string, name: string, value: string) => void;
+ *   onAdded: (label: string) => void;
+ * }} props
+ */
+function Showcase({product, flip, selection, variant, onSelect, onAdded}) {
+  const ref = useReveal();
+  const options = selectableOptions(product);
+  const image = variant?.image ?? product.featuredImage;
+  const price = variant?.price ?? product.priceRange?.minVariantPrice;
+  const compareAt = variant?.compareAtPrice;
+  const onSale =
+    compareAt && Number(compareAt.amount) > Number(price?.amount ?? 0);
+  const available = !!variant?.availableForSale;
+  const specs = specLine(product);
+
+  return (
+    <article className={`show ${flip ? 'is-flip' : ''}`} ref={ref}>
+      <Link
+        to={`/products/${product.handle}`}
+        className="show-media reveal"
+        aria-label={product.title}
+      >
+        {image ? (
+          <Image
+            data={image}
+            sizes="(min-width: 900px) 45vw, 100vw"
+            className="show-img"
+          />
+        ) : (
+          <div className="ph" />
+        )}
+      </Link>
+
+      <div className="show-body">
+        <p className="show-kicker reveal">{productKicker(product)}</p>
+        <h3 className="show-h display reveal reveal-d1">
+          <Link to={`/products/${product.handle}`}>{product.title}</Link>
+        </h3>
+        <p className="show-p reveal reveal-d2">{excerpt(product.description)}</p>
+        <div className="show-specs reveal reveal-d2">
+          {product.productType ? <span>{product.productType}</span> : null}
+          {specs ? <span>{specs}</span> : null}
+        </div>
+
+        {options.map((o) => (
+          <div className="show-opt reveal reveal-d2" key={o.name}>
+            <span className="show-opt-name">{o.name}</span>
+            <div className="show-chips" role="group" aria-label={o.name}>
+              {o.optionValues.map((v) => {
+                const active = selection[o.name] === v.name;
+                const exists = findVariant(product, {
+                  ...selection,
+                  [o.name]: v.name,
+                });
+                return (
+                  <button
+                    type="button"
+                    key={v.name}
+                    className={`chip ${active ? 'is-on' : ''} ${
+                      exists && !exists.availableForSale ? 'is-out' : ''
+                    }`}
+                    aria-pressed={active}
+                    onClick={() => onSelect(product.id, o.name, v.name)}
+                  >
+                    {v.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+
+        <div className="show-buy reveal reveal-d3">
+          <div className="show-price display">
+            {onSale ? <s className="show-was">{money(compareAt)}</s> : null}
+            {money(price)}
+          </div>
+          <AddToCartButton
+            className="btn"
+            disabled={!available}
+            onClick={() => onAdded(product.title)}
+            lines={
+              variant
+                ? [
+                    {
+                      merchandiseId: variant.id,
+                      quantity: 1,
+                      selectedVariant: variant,
+                    },
+                  ]
+                : []
+            }
+          >
+            {available ? (
+              <>
+                Kosárba {I.arrow}
+              </>
+            ) : (
+              'Elfogyott'
+            )}
+          </AddToCartButton>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/**
+ * Active promotions from Shopify admin (Discounts). Renders nothing while
+ * loading, on failure, or when no discount is active.
+ * @param {{
+ *   products: HomeProduct[];
+ *   selectedVariants: Record<string, HomeVariant | null>;
+ *   onAdded: (label: string) => void;
+ * }} props
+ */
+function Promos({products, selectedVariants, onAdded}) {
+  /** @type {LoaderReturnData} */
+  const {promos} = useLoaderData();
+  return (
+    <Suspense fallback={null}>
+      <Await resolve={promos} errorElement={null}>
+        {(list) =>
+          list?.length ? (
+            <div className="promos">
+              {list.map((promo) =>
+                promo.bundle ? (
+                  <BundlePromo
+                    key={promo.id}
+                    promo={promo}
+                    products={products}
+                    selectedVariants={selectedVariants}
+                    onAdded={onAdded}
+                  />
+                ) : (
+                  <Promo key={promo.id} promo={promo} />
+                ),
+              )}
+            </div>
+          ) : null
+        }
+      </Await>
+    </Suspense>
+  );
+}
+
+/** @param {{promo: import('~/lib/discounts').Promo}} props */
+function Promo({promo}) {
+  const ref = useReveal();
+  const ends = promo.endsAt ? formatPromoDate(promo.endsAt) : null;
+  return (
+    <div className="bundle promo reveal" ref={ref}>
+      <div className="bundle-txt">
+        <p className="show-kicker">{promo.code ? 'Kuponkód' : 'Akció'}</p>
+        <div className="bundle-h display">{promo.title}</div>
+        <p className="bundle-p">
+          {promo.summary}
+          {ends ? <span className="promo-ends"> · {ends}-ig</span> : null}
+        </p>
+      </div>
+      <Link className="btn" to={promo.href}>
+        {promo.code ? (
+          <>
+            <span className="promo-code">{promo.code}</span> aktiválása
+          </>
+        ) : (
+          'Megnézem'
+        )}{' '}
+        {I.arrow}
+      </Link>
     </div>
   );
 }
 
-function Featured() {
+/**
+ * "Buy N, the cheapest is X% off" promotion rendered as a real bundle: picks
+ * the first N eligible products, prices the bundle from the variants
+ * currently selected in the showcases, and adds them all to the cart. The
+ * automatic discount itself is applied by Shopify in the cart.
+ * @param {{
+ *   promo: import('~/lib/discounts').Promo;
+ *   products: HomeProduct[];
+ *   selectedVariants: Record<string, HomeVariant | null>;
+ *   onAdded: (label: string) => void;
+ * }} props
+ */
+function BundlePromo({promo, products, selectedVariants, onAdded}) {
+  const ref = useReveal();
+  const {buys, gets, percentage, handles} = promo.bundle;
+  const eligible = handles.length
+    ? products.filter((p) => handles.includes(p.handle))
+    : products;
+  const picked = eligible.slice(0, buys);
+
+  // Not enough products on the page to build the bundle: fall back to the
+  // plain promo card so the offer is still visible.
+  if (picked.length < buys) return <Promo promo={promo} />;
+
+  const variants = picked.map((p) => selectedVariants[p.id] ?? null);
+  const ready = variants.every((v) => v?.availableForSale);
+  const prices = picked.map((p, i) =>
+    Number(
+      variants[i]?.price?.amount ?? p.priceRange.minVariantPrice.amount,
+    ),
+  );
+  const currency =
+    variants[0]?.price?.currencyCode ??
+    picked[0]?.priceRange?.minVariantPrice?.currencyCode ??
+    'HUF';
+  const total = prices.reduce((sum, n) => sum + n, 0);
+  const saving = [...prices]
+    .sort((a, b) => a - b)
+    .slice(0, gets)
+    .reduce((sum, n) => sum + n * percentage, 0);
+  const ends = promo.endsAt ? formatPromoDate(promo.endsAt) : null;
+
+  return (
+    <div className="bundle promo reveal" ref={ref}>
+      <div className="bundle-txt">
+        <p className="show-kicker">Csomag akció</p>
+        <div className="bundle-h display">
+          {picked.map((p) => p.title).join(' + ')}
+        </div>
+        <p className="bundle-p">
+          {promo.summary}{' '}
+          <span className="bundle-total">
+            <s className="bundle-was">
+              {money({amount: String(total), currencyCode: currency})}
+            </s>{' '}
+            helyett{' '}
+            <strong className="bundle-now">
+              {money({amount: String(total - saving), currencyCode: currency})}
+            </strong>
+          </span>
+          {ends ? <span className="promo-ends"> · {ends}-ig</span> : null}
+        </p>
+      </div>
+      <AddToCartButton
+        className="btn"
+        disabled={!ready}
+        onClick={() => onAdded('Csomag')}
+        lines={
+          ready
+            ? variants.map((v) => ({
+                merchandiseId: v.id,
+                quantity: 1,
+                selectedVariant: v,
+              }))
+            : []
+        }
+      >
+        Csomag kosárba {I.arrow}
+      </AddToCartButton>
+    </div>
+  );
+}
+
+/** @param {string} iso */
+function formatPromoDate(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}. ${pad(d.getMonth() + 1)}. ${pad(d.getDate())}`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Community                                                           */
+/* ------------------------------------------------------------------ */
+
+const STATS = [
+  ['100+', 'eladott darab'],
+  ['4,9', 'átlagos értékelés (80 vélemény)'],
+  ['870', 'tag a Kaizen Familyben'],
+  ['92%', 'visszatérő vásárló'],
+];
+
+const VOICES = [
+  {
+    who: 'Márk, 34',
+    q: '„A minőség meglepett, de a közösség tartott meg. Heti kihívások, valódi emberek, nulla üres motivációs szöveg.”',
+  },
+  {
+    who: 'Eszter, 26',
+    q: '„Két hete van meg, és minden második nap ez van rajtam. A szabása pont az, amit kerestem: nem szűk, nem lógós.”',
+  },
+  {
+    who: 'Tamás, 38',
+    q: '„A csapatprogram miatt maradtam. Először csak egy pólót akartam, most már futócsoportba járok velük.”',
+  },
+];
+
+function Community() {
   const ref = useReveal();
   /** @type {LoaderReturnData} */
-  const {featured} = useLoaderData();
-  // Fall back to the mock catalogue if the store returns no products.
-  const items = featured?.length ? featured : PRODUCTS.slice(0, 6);
+  const {products} = useLoaderData();
+  // Card imagery cycles through the live product photography.
+  const gallery = products.flatMap((p) => p.images?.nodes ?? []);
+
   return (
-    <section className="feat" ref={ref}>
+    <section className="comm" ref={ref}>
       <div className="wrap">
-        <div className="feat-head">
-          <div className="reveal">
-            <p className="kicker">The collection</p>
-            <h2 className="feat-h display">Explore Our Products</h2>
-            <p className="feat-sub">Become a Kaizen Member</p>
-          </div>
-          <Link className="feat-all ul reveal reveal-d1" to="/collections">
-            View all <span>{items.length}</span> {I.arrow}
-          </Link>
-        </div>
-        <div className="grid-3 feat-grid">
-          {items.map((p, i) => (
-            <ProductCard key={p.id} product={p} idx={i} />
+        <div className="stats">
+          {STATS.map(([n, l], i) => (
+            <div className={`stat reveal reveal-d${i}`} key={l}>
+              <div className="stat-n display">{n}</div>
+              <div className="stat-l">{l}</div>
+            </div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
 
-function CategoryTriptych() {
-  const ref = useReveal();
-  return (
-    <section className="trip" ref={ref}>
-      <div className="wrap">
-        <div className="trip-grid">
-          {CATEGORIES.map((c, i) => (
-            <Link
-              className={`trip-card reveal reveal-d${i + 1}`}
-              key={c.id}
-              to={`/collections/${c.id}`}
-            >
-              <div className="trip-media">
-                <StudioShot
-                  product={{type: c.type}}
-                  ratio="3 / 4"
-                  showType={false}
-                />
-                <div className="trip-overlay" />
-              </div>
-              <div className="trip-cap">
-                <div>
-                  <h3 className="trip-h display">{c.label}</h3>
-                  <p className="trip-sub">{c.sub}</p>
+        <h2 className="sec-h sec-h-sm display reveal">Amit a közösség mond</h2>
+        <div className="voices">
+          {VOICES.map((v, i) => {
+            const img = gallery.length ? gallery[i % gallery.length] : null;
+            return (
+              <figure className={`voice reveal reveal-d${i + 1}`} key={v.who}>
+                <div className="voice-media">
+                  {img ? (
+                    <Image data={img} sizes="(min-width: 900px) 30vw, 100vw" />
+                  ) : (
+                    <div className="ph" />
+                  )}
                 </div>
-                <span className="trip-arrow">{I.arrow}</span>
-              </div>
-            </Link>
-          ))}
+                <figcaption className="voice-body">
+                  <div className="stars" aria-label="5 csillag">
+                    ★★★★★
+                  </div>
+                  <blockquote className="voice-q">{v.q}</blockquote>
+                  <div className="voice-who">{v.who}</div>
+                </figcaption>
+              </figure>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 }
 
-function MemberBand() {
+/* ------------------------------------------------------------------ */
+/* Kaizen Family                                                       */
+/* ------------------------------------------------------------------ */
+
+const FAMILY = [
+  {
+    h: 'Kihívások',
+    p: (
+      <>
+        Egyéni és csapatfeladatok (pl. <i>Napi 1%</i> vagy{' '}
+        <i>Reggeli meditáció</i>). Nem 30 napos csodák, hanem beépíthető
+        szokások.
+      </>
+    ),
+  },
+  {
+    h: 'Közösség',
+    p: 'Zárt csoportok, megosztott haladás és fókusz felesleges hangoskodás nélkül.',
+  },
+  {
+    h: 'Csapatprogramok',
+    p: 'Közös edzések, futások és élő találkozók a csapattal.',
+  },
+];
+
+function Family() {
   const ref = useReveal();
   return (
-    <section className="member" ref={ref}>
-      <div className="member-brush" aria-hidden="true">
-        <BrushRibbon flip opacity={0.6} />
+    <section id="family" className="fam" ref={ref}>
+      <div className="fam-bg" aria-hidden="true">
+        <Wave shape="tall" fill="var(--ink-red)" />
       </div>
-      <div className="wrap member-inner reveal">
-        <div className="member-seal">
+      <div className="fam-inner">
+        <div className="fam-copy">
+          <p className="kicker reveal">
+            <span className="kanji">改善</span>— Kaizen Family
+          </p>
+          <h2 className="sec-h display reveal reveal-d1">
+            A ruházat csak a belépő
+          </h2>
+          <p className="fam-p reveal reveal-d2">
+            Minden Kaizen darab megvásárlásával exkluzív hozzáférést kapsz a
+            Kaizen Family zárt alkalmazásához. Itt dől el, ki gondolja
+            komolyan. Ez a valódi munka helyszíne: napi szintű kihívások, közös
+            célok és egy olyan közösség vár, amelyik felesleges zaj nélkül,
+            némán teszi a dolgát, hogy minden nap 1%-kal jobb legyen.
+          </p>
+          <div className="fam-feats">
+            {FAMILY.map((f, i) => (
+              <div className={`fam-feat reveal reveal-d${i + 1}`} key={f.h}>
+                <div className="fam-feat-ic">✓</div>
+                <div className="fam-feat-h">{f.h}</div>
+                <p className="fam-feat-p">{f.p}</p>
+              </div>
+            ))}
+          </div>
+          <div className="fam-cta reveal reveal-d3">
+            <Link className="btn" to="/#termekek">
+              Csatlakozom {I.arrow}
+            </Link>
+            <span className="fam-note">
+              A hozzáféréshez termék vásárlás szükséges.
+            </span>
+          </div>
+        </div>
+        <div className="fam-phone-wrap reveal reveal-d2">
+          <div className="fam-phone" aria-hidden="true">
+            <div className="fam-app">
+              <div className="fam-app-top">
+                <span className="fam-app-kanji">改善</span>
+                <span>Napi 1%</span>
+              </div>
+              <div className="fam-app-ring">
+                <span>1%</span>
+              </div>
+              <div className="fam-app-list">
+                <div className="fam-app-row is-done">Reggeli meditáció</div>
+                <div className="fam-app-row is-done">30 perc mozgás</div>
+                <div className="fam-app-row">Esti jegyzet</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* About + FAQ                                                         */
+/* ------------------------------------------------------------------ */
+
+function About() {
+  const ref = useReveal();
+  return (
+    <section id="rolunk" className="about" ref={ref}>
+      <div className="wrap about-grid">
+        <div className="about-media reveal">
           <img
-            className="member-logo"
-            src="/kaizen-logo.png"
-            alt="KaizenType"
-            width="150"
-            height="150"
+            src="/owners.jpg"
+            alt="A KaizenType alapítói"
+            width="1800"
+            height="1200"
+            loading="lazy"
+            decoding="async"
           />
         </div>
-        <div className="member-txt">
-          <p className="kicker">改善 — Membership</p>
-          <h2 className="member-h display">Become a Kaizen Member</h2>
-          <p className="member-p">
-            Earn on every order, unlock member-only drops and early access, and
-            get a note on craft and discipline each week. Free to join —
-            improvement should be.
+        <div className="about-copy">
+          <p className="kicker reveal">
+            <span className="kanji">改善</span>— Rólunk
           </p>
-        </div>
-        <div className="member-cta">
-          <Link className="btn" to="/account">
-            Join free {I.arrow}
-          </Link>
+          <h2 className="sec-h sec-h-sm display reveal reveal-d1">
+            Az erő nem csak fizikai.
+          </h2>
+          <p className="about-p reveal reveal-d2">
+            Személyi edzőkként és versenyzőkként nap mint nap a határokat
+            feszegetjük. Éveken át fókuszáltunk a testépítésre, de útközben
+            rájöttünk a legfontosabbra: a fizikum fejlesztése csak az út fele,
+            az igazi áttörés az elme erősítésével kezdődik. Ebből a
+            felismerésből született a KaizenType. Egy márka és egy közösség,
+            ami a folyamatos fejlődést hirdeti. Ezt a fegyelmet követjük a
+            háttérben is: minden darabunkat hosszú hónapokig teszteljük, és a
+            ti visszajelzéseitek alapján tökéletesítjük újra és újra.
+          </p>
+          <div className="about-tags reveal reveal-d3">
+            <span>Fizikai és mentális szintlépés</span>
+            <span>Edzői és versenyzői háttér</span>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-const FEATURED_PRODUCTS_QUERY = `#graphql
-  fragment HomeFeaturedProduct on Product {
+const FAQ = [
+  [
+    'Melyik méretet válasszam?',
+    'A darabok normál fazonúak, a férfi póló egyenes szabású. Mérj le egy pólót, amiben jól érzed magad, és hasonlítsd össze a cm-es táblázattal mellbőség és teljes hossz alapján. Ha két méret között vagy, a nagyobbat ajánljuk.',
+  ],
+  [
+    'Mennyi idő alatt érkezik meg?',
+    'Raktáron lévő darabok esetén 1–3 munkanap Magyarországon, futárral. A csomagolásról e-mailben értesítünk.',
+  ],
+  [
+    'Visszaküldhetem, ha nem jó a méret?',
+    'Igen, 14 napon belül indoklás nélkül, viseletlen állapotban. Méretcserénél a visszaküldés költségét mi álljuk.',
+  ],
+  [
+    'Hogyan kapom meg az app-hozzáférést?',
+    'A rendelés visszaigazolásában küldünk egy meghívót a Kaizen Family alkalmazáshoz. A hozzáférés a fiókodhoz kötődik, és megmarad.',
+  ],
+];
+
+function Faq() {
+  const ref = useReveal();
+  const [open, setOpen] = useState(0);
+  return (
+    <section id="gyik" className="faq" ref={ref}>
+      <div className="faq-wrap faq-grid">
+        <div className="faq-head">
+          <p className="kicker reveal">
+            <span className="kanji">問</span>— Gyakori kérdések
+          </p>
+          <h2 className="sec-h sec-h-sm display reveal reveal-d1">
+            Amit a legtöbben
+            <br />
+            <em className="faq-em">kérdeznek.</em>
+          </h2>
+          <p className="faq-lead reveal reveal-d2">
+            Méret, szállítás, csere és az app-hozzáférés. Ha nem találod a
+            választ, írj nekünk, egy munkanapon belül válaszolunk.
+          </p>
+          <Link className="faq-contact reveal reveal-d3" to="/pages/contact">
+            Írj nekünk {I.arrow}
+          </Link>
+        </div>
+
+        <div className="faq-list">
+          {FAQ.map(([q, a], i) => {
+            const isOpen = open === i;
+            const id = `faq-${i}`;
+            return (
+              <div
+                className={`faq-i reveal reveal-d${Math.min(i, 3)}${isOpen ? ' is-open' : ''}`}
+                key={q}
+              >
+                <button
+                  type="button"
+                  className="faq-q"
+                  aria-expanded={isOpen}
+                  aria-controls={id}
+                  onClick={() => setOpen(isOpen ? -1 : i)}
+                >
+                  <span className="faq-n display">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="faq-q-t display">{q}</span>
+                  <span className="faq-ic" aria-hidden="true">
+                    {I.plus}
+                  </span>
+                </button>
+                <div className="faq-a-wrap" id={id} role="region">
+                  <div className="faq-a-inner">
+                    <p className="faq-a">{a}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** @param {{label: string | null}} props */
+function Toast({label}) {
+  return (
+    <div className={`toast ${label ? 'is-on' : ''}`} role="status" aria-live="polite">
+      {label ? `${label} a kosárban` : ''}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* GraphQL                                                             */
+/* ------------------------------------------------------------------ */
+
+const HOME_PRODUCTS_QUERY = `#graphql
+  fragment HomeImage on Image {
+    id
+    altText
+    url
+    width
+    height
+  }
+  fragment HomeVariant on ProductVariant {
+    id
+    title
+    availableForSale
+    price {
+      amount
+      currencyCode
+    }
+    compareAtPrice {
+      amount
+      currencyCode
+    }
+    selectedOptions {
+      name
+      value
+    }
+    image {
+      ...HomeImage
+    }
+    product {
+      title
+      handle
+    }
+  }
+  fragment HomeProduct on Product {
     id
     handle
     title
+    description
+    productType
     featuredImage {
-      id
-      altText
-      url
-      width
-      height
+      ...HomeImage
+    }
+    images(first: 3) {
+      nodes {
+        ...HomeImage
+      }
+    }
+    collections(first: 4) {
+      nodes {
+        handle
+        title
+      }
     }
     priceRange {
       minVariantPrice {
@@ -236,15 +1062,41 @@ const FEATURED_PRODUCTS_QUERY = `#graphql
         currencyCode
       }
     }
+    options {
+      name
+      optionValues {
+        name
+      }
+    }
+    variants(first: 50) {
+      nodes {
+        ...HomeVariant
+      }
+    }
   }
-  query HomeFeaturedProducts(
+  query HomeProducts(
     $country: CountryCode
     $language: LanguageCode
     $first: Int
   ) @inContext(country: $country, language: $language) {
-    products(first: $first, sortKey: CREATED_AT, reverse: true) {
+    products(first: $first, sortKey: CREATED_AT) {
       nodes {
-        ...HomeFeaturedProduct
+        ...HomeProduct
+      }
+    }
+  }
+`;
+
+const HOME_HERO_QUERY = `#graphql
+  query HomeHero($country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    collection(handle: "frontpage") {
+      image {
+        id
+        altText
+        url
+        width
+        height
       }
     }
   }
@@ -252,3 +1104,5 @@ const FEATURED_PRODUCTS_QUERY = `#graphql
 
 /** @typedef {import('./+types/_index').Route} Route */
 /** @typedef {ReturnType<typeof useLoaderData<typeof loader>>} LoaderReturnData */
+/** @typedef {import('storefrontapi.generated').HomeProductFragment} HomeProduct */
+/** @typedef {import('storefrontapi.generated').HomeVariantFragment} HomeVariant */

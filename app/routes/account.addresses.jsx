@@ -15,7 +15,7 @@ import {
  * @type {Route.MetaFunction}
  */
 export const meta = () => {
-  return [{title: 'KaizenType — Addresses'}];
+  return [{title: 'KaizenType — Címek'}];
 };
 
 /**
@@ -256,13 +256,13 @@ export default function Addresses() {
   return (
     <div>
       <section>
-        <h2 className="acct-sec-h">Saved addresses</h2>
+        <h2 className="acct-sec-h">Mentett címek</h2>
         {!addresses.nodes.length ? (
           <div className="acct-empty">
             <span className="acct-empty-kanji" aria-hidden="true">
               所
             </span>
-            <p>You have no addresses saved.</p>
+            <p>Még nincs mentett címed.</p>
           </div>
         ) : (
           <ExistingAddresses
@@ -272,7 +272,7 @@ export default function Addresses() {
         )}
       </section>
       <section className="acct-sec">
-        <h2 className="acct-sec-h">Add a new address</h2>
+        <h2 className="acct-sec-h">Új cím hozzáadása</h2>
         <NewAddressForm key={addresses.nodes.length} />
       </section>
     </div>
@@ -309,7 +309,7 @@ function NewAddressForm() {
               formMethod="POST"
               type="submit"
             >
-              {stateForMethod('POST') !== 'idle' ? 'Creating…' : 'Create'}
+              {stateForMethod('POST') !== 'idle' ? 'Mentés…' : 'Hozzáadás'}
             </button>
           </div>
         )}
@@ -327,7 +327,7 @@ function ExistingAddresses({addresses, defaultAddress}) {
       {addresses.nodes.map((address) => (
         <div className="acct-addr" key={address.id}>
           {defaultAddress?.id === address.id && (
-            <span className="acct-chip red">Default</span>
+            <span className="acct-chip red">Alapértelmezett</span>
           )}
           <AddressForm
             addressId={address.id}
@@ -342,7 +342,7 @@ function ExistingAddresses({addresses, defaultAddress}) {
                   formMethod="PUT"
                   type="submit"
                 >
-                  {stateForMethod('PUT') !== 'idle' ? 'Saving…' : 'Save'}
+                  {stateForMethod('PUT') !== 'idle' ? 'Mentés…' : 'Mentés'}
                 </button>
                 <button
                   className="btn btn-danger"
@@ -351,8 +351,8 @@ function ExistingAddresses({addresses, defaultAddress}) {
                   type="submit"
                 >
                   {stateForMethod('DELETE') !== 'idle'
-                    ? 'Deleting…'
-                    : 'Delete'}
+                    ? 'Törlés…'
+                    : 'Törlés'}
                 </button>
               </div>
             )}
@@ -405,100 +405,100 @@ export function AddressForm({addressId, address, defaultAddress, children}) {
       <AddressField
         addressId={addressId}
         name="firstName"
-        label="First name*"
-        aria-label="First name"
+        label="Keresztnév*"
+        aria-label="Keresztnév"
         autoComplete="given-name"
         defaultValue={address?.firstName ?? ''}
-        placeholder="First name"
+        placeholder="Keresztnév"
         required
         type="text"
       />
       <AddressField
         addressId={addressId}
         name="lastName"
-        label="Last name*"
-        aria-label="Last name"
+        label="Vezetéknév*"
+        aria-label="Vezetéknév"
         autoComplete="family-name"
         defaultValue={address?.lastName ?? ''}
-        placeholder="Last name"
+        placeholder="Vezetéknév"
         required
         type="text"
       />
       <AddressField
         addressId={addressId}
         name="company"
-        label="Company"
+        label="Cég"
         full
-        aria-label="Company"
+        aria-label="Cég"
         autoComplete="organization"
         defaultValue={address?.company ?? ''}
-        placeholder="Company"
+        placeholder="Cég (nem kötelező)"
         type="text"
       />
       <AddressField
         addressId={addressId}
         name="address1"
-        label="Address line*"
+        label="Cím*"
         full
-        aria-label="Address line 1"
+        aria-label="Cím"
         autoComplete="address-line1"
         defaultValue={address?.address1 ?? ''}
-        placeholder="Address line 1"
+        placeholder="Utca, házszám"
         required
         type="text"
       />
       <AddressField
         addressId={addressId}
         name="address2"
-        label="Address line 2"
+        label="Cím 2. sor"
         full
-        aria-label="Address line 2"
+        aria-label="Cím 2. sor"
         autoComplete="address-line2"
         defaultValue={address?.address2 ?? ''}
-        placeholder="Address line 2"
+        placeholder="Emelet, ajtó (nem kötelező)"
         type="text"
       />
       <AddressField
         addressId={addressId}
         name="city"
-        label="City*"
-        aria-label="City"
+        label="Város*"
+        aria-label="Város"
         autoComplete="address-level2"
         defaultValue={address?.city ?? ''}
-        placeholder="City"
+        placeholder="Város"
         required
         type="text"
       />
       <AddressField
         addressId={addressId}
         name="zoneCode"
-        label="State / Province*"
-        aria-label="State/Province"
+        label="Megye / tartomány*"
+        aria-label="Megye / tartomány"
         autoComplete="address-level1"
         defaultValue={address?.zoneCode ?? ''}
-        placeholder="State / Province"
+        placeholder="pl. Budapest"
         required
         type="text"
       />
       <AddressField
         addressId={addressId}
         name="zip"
-        label="Zip / Postal Code*"
-        aria-label="Zip"
+        label="Irányítószám*"
+        aria-label="Irányítószám"
         autoComplete="postal-code"
         defaultValue={address?.zip ?? ''}
-        placeholder="Zip / Postal Code"
+        placeholder="Irányítószám"
         required
         type="text"
       />
       <AddressField
         addressId={addressId}
         name="territoryCode"
-        label="Country Code*"
-        aria-label="Country code"
+        label="Országkód*"
+        aria-label="Országkód"
         autoComplete="country"
         defaultValue={address?.territoryCode ?? ''}
-        placeholder="Country"
+        placeholder="HU"
         required
         type="text"
         maxLength={2}
@@ -506,12 +506,12 @@ export function AddressForm({addressId, address, defaultAddress, children}) {
       <AddressField
         addressId={addressId}
         name="phoneNumber"
-        label="Phone"
+        label="Telefon"
         full
-        aria-label="Phone Number"
+        aria-label="Telefonszám"
         autoComplete="tel"
         defaultValue={address?.phoneNumber ?? ''}
-        placeholder="+16135551111"
+        placeholder="+36301234567"
         pattern="^\+?[1-9]\d{3,14}$"
         type="tel"
       />
@@ -523,7 +523,7 @@ export function AddressForm({addressId, address, defaultAddress, children}) {
           type="checkbox"
         />
         <label htmlFor={`${addressId}-defaultAddress`}>
-          Set as default address
+          Legyen ez az alapértelmezett cím
         </label>
       </div>
       {error && (

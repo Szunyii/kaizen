@@ -17,12 +17,13 @@ import {
 } from '~/lib/orderFilters';
 import {CUSTOMER_ORDERS_QUERY} from '~/graphql/customer-account/CustomerOrdersQuery';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
+import {formatDate, STATUS_HU} from '~/lib/accountText';
 
 /**
  * @type {Route.MetaFunction}
  */
 export const meta = () => {
-  return [{title: 'KaizenType — Orders'}];
+  return [{title: 'KaizenType — Rendelések'}];
 };
 
 /**
@@ -102,16 +103,16 @@ function EmptyOrders({hasFilters = false}) {
       </span>
       {hasFilters ? (
         <>
-          <p>No orders found matching your search.</p>
+          <p>Nincs a keresésnek megfelelő rendelés.</p>
           <Link className="acct-link" to="/account/orders">
-            Clear filters →
+            Szűrők törlése →
           </Link>
         </>
       ) : (
         <>
-          <p>You haven&apos;t placed any orders yet.</p>
-          <Link className="btn" to="/collections">
-            Start shopping
+          <p>Még nem adtál le rendelést.</p>
+          <Link className="btn" to="/#termekek">
+            Irány a termékek
           </Link>
         </>
       )}
@@ -125,7 +126,7 @@ function EmptyOrders({hasFilters = false}) {
  * }}
  */
 function OrderSearchForm({currentFilters}) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
   const navigation = useNavigation();
   const isSearching =
     navigation.state !== 'idle' &&
@@ -157,26 +158,26 @@ function OrderSearchForm({currentFilters}) {
       ref={formRef}
       onSubmit={handleSubmit}
       className="acct-search"
-      aria-label="Search orders"
+      aria-label="Rendelések keresése"
     >
       <input
         type="search"
         className="acct-input"
         name={ORDER_FILTER_FIELDS.NAME}
-        placeholder="Order #"
-        aria-label="Order number"
+        placeholder="Rendelésszám"
+        aria-label="Rendelésszám"
         defaultValue={currentFilters.name || ''}
       />
       <input
         type="search"
         className="acct-input"
         name={ORDER_FILTER_FIELDS.CONFIRMATION_NUMBER}
-        placeholder="Confirmation #"
-        aria-label="Confirmation number"
+        placeholder="Visszaigazolási szám"
+        aria-label="Visszaigazolási szám"
         defaultValue={currentFilters.confirmationNumber || ''}
       />
       <button className="btn" type="submit" disabled={isSearching}>
-        {isSearching ? 'Searching…' : 'Search'}
+        {isSearching ? 'Keresés…' : 'Keresés'}
       </button>
       {hasFilters && (
         <button
@@ -188,7 +189,7 @@ function OrderSearchForm({currentFilters}) {
             formRef.current?.reset();
           }}
         >
-          Clear
+          Törlés
         </button>
       )}
     </form>
@@ -205,21 +206,21 @@ function OrderItem({order}) {
       <div>
         <p className="acct-order-num">#{order.number}</p>
         <div className="acct-order-meta">
-          <span>{new Date(order.processedAt).toDateString()}</span>
+          <span>{formatDate(order.processedAt)}</span>
           {order.confirmationNumber && (
-            <span>Conf. {order.confirmationNumber}</span>
+            <span>Visszaig. {order.confirmationNumber}</span>
           )}
           {order.financialStatus && (
-            <span className="acct-chip">{order.financialStatus}</span>
+            <span className="acct-chip">{STATUS_HU[order.financialStatus] ?? order.financialStatus}</span>
           )}
           {fulfillmentStatus && (
-            <span className="acct-chip">{fulfillmentStatus}</span>
+            <span className="acct-chip">{STATUS_HU[fulfillmentStatus] ?? fulfillmentStatus}</span>
           )}
         </div>
       </div>
       <div className="acct-order-total">
         <Money data={order.totalPrice} />
-        <span className="acct-link">View →</span>
+        <span className="acct-link">Részletek →</span>
       </div>
     </Link>
   );

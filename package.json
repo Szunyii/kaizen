@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "shopify hydrogen build --codegen",
-    "dev": "shopify hydrogen dev --codegen",
+    "dev": "shopify hydrogen dev --codegen --customer-account-push",
+    "dev:local": "shopify hydrogen dev --codegen",
     "deploy": "shopify hydrogen deploy --assets-dir dist/client --worker-dir dist/server",
     "preview": "shopify hydrogen preview --build",
     "lint": "eslint --no-error-on-unmatched-pattern .",

@@ -11,7 +11,7 @@ import {
  * @type {Route.MetaFunction}
  */
 export const meta = () => {
-  return [{title: 'KaizenType — Profile'}];
+  return [{title: 'KaizenType — Profil'}];
 };
 
 /**
@@ -90,12 +90,12 @@ export default function AccountProfile() {
 
   return (
     <div>
-      <h2 className="acct-sec-h">My profile</h2>
-      {email && <p className="acct-note">Signed in as {email}</p>}
+      <h2 className="acct-sec-h">Profilom</h2>
+      {email && <p className="acct-note">Bejelentkezve: {email}</p>}
       <Form method="PUT" className="acct-form">
         <div className="acct-field">
           <label className="acct-label" htmlFor="firstName">
-            First name
+            Keresztnév
           </label>
           <input
             className="acct-input"
@@ -103,15 +103,15 @@ export default function AccountProfile() {
             name="firstName"
             type="text"
             autoComplete="given-name"
-            placeholder="First name"
-            aria-label="First name"
+            placeholder="Keresztnév"
+            aria-label="Keresztnév"
             defaultValue={customer.firstName ?? ''}
             minLength={2}
           />
         </div>
         <div className="acct-field">
           <label className="acct-label" htmlFor="lastName">
-            Last name
+            Vezetéknév
           </label>
           <input
             className="acct-input"
@@ -119,8 +119,8 @@ export default function AccountProfile() {
             name="lastName"
             type="text"
             autoComplete="family-name"
-            placeholder="Last name"
-            aria-label="Last name"
+            placeholder="Vezetéknév"
+            aria-label="Vezetéknév"
             defaultValue={customer.lastName ?? ''}
             minLength={2}
           />
@@ -132,7 +132,7 @@ export default function AccountProfile() {
         )}
         <div className="acct-actions">
           <button className="btn" type="submit" disabled={state !== 'idle'}>
-            {state !== 'idle' ? 'Updating…' : 'Update'}
+            {state !== 'idle' ? 'Mentés…' : 'Mentés'}
           </button>
         </div>
       </Form>

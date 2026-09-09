@@ -1,12 +1,13 @@
 import {Link, redirect, useLoaderData} from 'react-router';
 import {Money, Image} from '@shopify/hydrogen';
 import {CUSTOMER_ORDER_QUERY} from '~/graphql/customer-account/CustomerOrderQuery';
+import {formatDate, STATUS_HU} from '~/lib/accountText';
 
 /**
  * @type {Route.MetaFunction}
  */
 export const meta = ({data}) => {
-  return [{title: `KaizenType — Order ${data?.order?.name}`}];
+  return [{title: `KaizenType — Rendelés ${data?.order?.name}`}];
 };
 
 /**
@@ -75,18 +76,18 @@ export default function OrderRoute() {
   return (
     <div>
       <Link className="acct-back" to="/account/orders">
-        ← Back to orders
+        ← Vissza a rendelésekhez
       </Link>
       <div className="acct-order-head">
-        <h2 className="acct-order-num">Order {order.name}</h2>
+        <h2 className="acct-order-num">Rendelés {order.name}</h2>
         {fulfillmentStatus && fulfillmentStatus !== 'N/A' && (
-          <span className="acct-chip">{fulfillmentStatus}</span>
+          <span className="acct-chip">{STATUS_HU[fulfillmentStatus] ?? fulfillmentStatus}</span>
         )}
       </div>
       <p className="acct-order-sub">
-        Placed on {new Date(order.processedAt).toDateString()}
+        Leadva: {formatDate(order.processedAt)}
         {order.confirmationNumber
-          ? ` · Confirmation ${order.confirmationNumber}`
+          ? ` · Visszaigazolás: ${order.confirmationNumber}`
           : ''}
       </p>
 
@@ -102,9 +103,9 @@ export default function OrderRoute() {
             {((discountValue && discountValue.amount) ||
               discountPercentage) && (
               <div className="acct-total-row">
-                <span>Discounts</span>
+                <span>Kedvezmény</span>
                 {discountPercentage ? (
-                  <span>-{discountPercentage}% OFF</span>
+                  <span>−{discountPercentage}%</span>
                 ) : (
                   discountValue && <Money data={discountValue} />
                 )}
@@ -112,25 +113,25 @@ export default function OrderRoute() {
             )}
             {order.subtotal && (
               <div className="acct-total-row">
-                <span>Subtotal</span>
+                <span>Részösszeg</span>
                 <Money data={order.subtotal} />
               </div>
             )}
             {order.totalTax && (
               <div className="acct-total-row">
-                <span>Tax</span>
+                <span>Adó</span>
                 <Money data={order.totalTax} />
               </div>
             )}
             <div className="acct-total-row grand">
-              <span>Total</span>
+              <span>Összesen</span>
               <Money data={order.totalPrice} />
             </div>
           </div>
         </div>
         <aside className="acct-aside">
           <div>
-            <h3>Shipping address</h3>
+            <h3>Szállítási cím</h3>
             {order?.shippingAddress ? (
               <address>
                 <p>{order.shippingAddress.name}</p>
@@ -146,13 +147,13 @@ export default function OrderRoute() {
                 )}
               </address>
             ) : (
-              <p>No shipping address defined</p>
+              <p>Nincs megadva szállítási cím</p>
             )}
           </div>
           {fulfillmentStatus && fulfillmentStatus !== 'N/A' && (
             <div>
-              <h3>Status</h3>
-              <span className="acct-chip">{fulfillmentStatus}</span>
+              <h3>Állapot</h3>
+              <span className="acct-chip">{STATUS_HU[fulfillmentStatus] ?? fulfillmentStatus}</span>
             </div>
           )}
           <a
@@ -161,7 +162,7 @@ export default function OrderRoute() {
             href={order.statusPageUrl}
             rel="noreferrer"
           >
-            View order status
+            Rendelés követése
           </a>
         </aside>
       </div>

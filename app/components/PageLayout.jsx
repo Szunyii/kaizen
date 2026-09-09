@@ -14,7 +14,13 @@ import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
 /**
  * @param {PageLayoutProps}
  */
-export function PageLayout({cart, children = null, isLoggedIn, navCollections}) {
+export function PageLayout({
+  cart,
+  children = null,
+  footer,
+  isLoggedIn,
+  navCollections,
+}) {
   return (
     <Aside.Provider>
       <CartAside cart={cart} />
@@ -26,7 +32,7 @@ export function PageLayout({cart, children = null, isLoggedIn, navCollections}) 
         navCollections={navCollections}
       />
       <main>{children}</main>
-      <KaizenFooter />
+      <KaizenFooter footer={footer} />
     </Aside.Provider>
   );
 }
@@ -36,7 +42,7 @@ export function PageLayout({cart, children = null, isLoggedIn, navCollections}) 
  */
 function CartAside({cart}) {
   return (
-    <Aside type="cart" heading="CART">
+    <Aside type="cart" heading="KOSÁR">
       <Suspense fallback={<p>Loading cart ...</p>}>
         <Await resolve={cart}>
           {(cart) => {
@@ -67,7 +73,7 @@ function SearchAside() {
   }, [type]);
 
   return (
-    <Aside type="search" heading="SEARCH">
+    <Aside type="search" heading="KERESÉS">
       <div className="sd" ref={rootRef}>
         <SearchFormPredictive className="sd-form">
           {({fetchResults, inputRef}) => (
@@ -159,7 +165,7 @@ function SearchAside() {
  */
 function MobileMenuAside({navCollections}) {
   return (
-    <Aside type="mobile" heading="MENU">
+    <Aside type="mobile" heading="MENÜ">
       <KaizenMobileNav navCollections={navCollections} />
     </Aside>
   );

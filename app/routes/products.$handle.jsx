@@ -11,7 +11,6 @@ import {ProductPrice} from '~/components/ProductPrice';
 import {ProductForm} from '~/components/ProductForm';
 import {ProductGallery} from '~/components/kaizen/ProductGallery';
 import {EnsoMark} from '~/components/kaizen/Brand';
-import {I} from '~/components/kaizen/Icons';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
 /**
@@ -145,21 +144,6 @@ export default function Product() {
               productOptions={productOptions}
               selectedVariant={selectedVariant}
             />
-
-            <ul className="pdp-perks">
-              <li>
-                <span className="pdp-perk-ic">{I.truck}</span>
-                Free shipping over 25 000 Ft
-              </li>
-              <li>
-                <span className="pdp-perk-ic">{I.refresh}</span>
-                30-day easy returns
-              </li>
-              <li>
-                <span className="pdp-perk-ic">{I.leaf}</span>
-                Made in Budapest
-              </li>
-            </ul>
 
             {descriptionHtml ? (
               <div className="pdp-details">

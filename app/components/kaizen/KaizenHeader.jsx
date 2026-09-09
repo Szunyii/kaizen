@@ -1,83 +1,68 @@
 import {Suspense, useEffect, useState} from 'react';
-import {Await, Link, NavLink, useAsyncValue} from 'react-router';
+import {Await, Link, useAsyncValue} from 'react-router';
 import {useAnalytics, useOptimisticCart} from '@shopify/hydrogen';
 import {useAside} from '~/components/Aside';
 import {I} from '~/components/kaizen/Icons';
 
-// Fallback shown only if the nav collections query returns nothing.
-const FALLBACK_NAV = [
-  {id: 'men', label: 'Men', items: []},
-  {id: 'women', label: 'Women', items: []},
-  {id: 'accessories', label: 'Accessories', items: []},
+// Primary navigation: anchors into the homepage sections.
+export const PRIMARY_NAV = [
+  ['Termékek', '/#termekek'],
+  ['Kaizen Family', '/#family'],
+  ['Filozófia', '/#filozofia'],
+  ['Rólunk', '/#rolunk'],
 ];
 
 /**
- * Maps real store collections onto the nav shape: top level links to the
- * collection, dropdown items are the product-type categories that actually
- * exist in that collection, linking to the collection filtered by type
- * (the `?type=` param collections.$handle filters by).
- * @param {Array<{handle: string, title: string, products?: {nodes?: Array<{productType: string}>}}>} [collections]
- */
-function buildNav(collections) {
-  if (!collections?.length) return FALLBACK_NAV;
-  return collections.map((collection) => {
-    const types = [
-      ...new Set(
-        (collection.products?.nodes ?? [])
-          .map((product) => product.productType)
-          .filter(Boolean),
-      ),
-    ];
-    return {
-      id: collection.handle,
-      label: collection.title,
-      items: types.map((type) => [
-        type,
-        `/collections/${collection.handle}?type=${encodeURIComponent(type)}`,
-      ]),
-    };
-  });
-}
-
-/**
- * KAIZENTYPE header: announce marquee, centred wordmark, dropdown nav, and
- * search/account/cart actions. Cart + search open the shared Aside drawers.
+ * KAIZENTYPE header: mark + wordmark, section nav, search/account/cart.
+ * Cart + search open the shared Aside drawers.
  * @param {{cart: Promise<any>, isLoggedIn?: Promise<boolean>, navCollections?: Array<any>}} props
  */
-export function KaizenHeader({cart, isLoggedIn, navCollections}) {
-  const scrolled = useScrolled(24);
+export function KaizenHeader({cart, isLoggedIn}) {
+  const scrolled = useScrolled(12);
   const {open} = useAside();
-  const nav = buildNav(navCollections);
 
   return (
     <header className={`hd ${scrolled ? 'hd-on' : ''}`}>
-      <div className="hd-bar wrap ">
+      <div className="hd-bar">
         <div className="hd-left">
           <button
             className="hd-ic hd-burger"
-            aria-label="Open menu"
+            aria-label="Menü megnyitása"
             onClick={() => open('mobile')}
           >
             {I.menu}
           </button>
-          <Link to="/pages/about" className="hd-about">
-            About
+          <Link to="/" className="hd-logo" aria-label="KaizenType kezdőlap">
+            <img
+              className="hd-mark"
+              src="/kaizen-logo.png"
+              alt=""
+              width="36"
+              height="36"
+            />
+            <span className="hd-word">
+              <span className="hd-logo-k">Kaizen</span>type
+            </span>
           </Link>
         </div>
 
-        <Link to="/" className="hd-logo" aria-label="KaizenType home">
-          <span className="hd-logo-k">Kaizen</span>type
-        </Link>
+        <nav className="hd-nav" role="navigation" aria-label="Elsődleges">
+          {PRIMARY_NAV.map(([label, to]) => (
+            <Link to={to} key={to} className="hd-nav-link">
+              {label}
+            </Link>
+          ))}
+        </nav>
 
         <div className="hd-actions">
           <button
             className="hd-ic"
-            aria-label="Search"
+            aria-label="Keresés"
             onClick={() => open('search')}
           >
             {I.search}
           </button>
-          <Link to="/account" className="hd-ic" aria-label="Account">
+          <Link to="/account" className="hd-ic" aria-label="Fiók">
             <Suspense fallback={I.user}>
               <Await resolve={isLoggedIn} errorElement={I.user}>
                 {() => I.user}
@@ -87,74 +72,48 @@ export function KaizenHeader({cart, isLoggedIn, navCollections}) {
           <CartToggle cart={cart} />
         </div>
       </div>
-
-      <nav className="hd-sub" role="navigation" aria-label="Primary">
-        {nav.map((group) => (
-          <div className="navd" key={group.id}>
-            <NavLink to={`/collections/${group.id}`} className="navd-trigger">
-              {group.label}
-              {group.items.length > 0 ? I.chevron : null}
-            </NavLink>
-            {group.items.length > 0 ? (
-              <div className="navd-menu">
-                {group.items.map(([label, to]) => (
-                  <Link to={to} key={to + label}>
-                    {label}
-                  </Link>
-                ))}
-                <Link
-                  to={`/collections/${group.id}`}
-                  className="navd-all"
-                >
-                  Shop all {group.label} {I.arrow}
-                </Link>
-              </div>
-            ) : null}
-          </div>
-        ))}
-      </nav>
     </header>
   );
 }
 
 /**
- * Mobile navigation rendered inside the shared "mobile" Aside drawer.
- * Mirrors the desktop sub-nav so both viewports stay consistent and
- * brand-themed — no skeleton menu, no black-on-dark text.
- * @param {{navCollections?: Array<any>}} props
+ * Mobile navigation rendered inside the shared "mobile" Aside drawer:
+ * the section links plus the real store collections.
+ * @param {{navCollections?: Array<{handle: string, title: string}>}} props
  */
 export function KaizenMobileNav({navCollections}) {
   const {close} = useAside();
-  const nav = buildNav(navCollections);
   return (
-    <nav className="hd-mnav" aria-label="Mobile">
+    <nav className="hd-mnav" aria-label="Mobil">
       <Link className="hd-mnav-home" to="/" onClick={close}>
-        Home {I.arrow}
+        Kezdőlap {I.arrow}
       </Link>
-      {nav.map((group) => (
-        <div className="hd-mnav-group" key={group.id}>
-          <Link
-            className="hd-mnav-h"
-            to={`/collections/${group.id}`}
-            onClick={close}
-          >
-            {group.label}
+      <div className="hd-mnav-group">
+        {PRIMARY_NAV.map(([label, to]) => (
+          <Link className="hd-mnav-h" to={to} key={to} onClick={close}>
+            {label}
           </Link>
+        ))}
+      </div>
+      {navCollections?.length ? (
+        <div className="hd-mnav-group">
+          <span className="hd-mnav-label">Kollekciók</span>
           <div className="hd-mnav-sub">
-            {group.items.map(([label, to]) => (
-              <Link to={to} key={to + label} onClick={close}>
-                {label}
+            {navCollections.map((c) => (
+              <Link
+                to={`/collections/${c.handle}`}
+                key={c.handle}
+                onClick={close}
+              >
+                {c.title}
               </Link>
             ))}
           </div>
         </div>
-      ))}
+      ) : null}
       <div className="hd-mnav-foot">
-        <Link className="hd-mnav-link" to="/pages/about" onClick={close}>
-          About
-        </Link>
         <Link className="hd-mnav-link" to="/account" onClick={close}>
-          Account
+          Fiók
         </Link>
       </div>
     </nav>
@@ -184,8 +143,8 @@ function CartButton({count}) {
   const {publish, shop, cart, prevCart} = useAnalytics();
   return (
     <button
-      className="hd-ic"
-      aria-label={`Cart, ${count} items`}
+      className="hd-ic hd-cart"
+      aria-label={`Kosár, ${count} tétel`}
       onClick={() => {
         open('cart');
         publish('cart_viewed', {
@@ -197,13 +156,13 @@ function CartButton({count}) {
       }}
     >
       {I.bag}
-      {count > 0 ? <span className="hd-badge">{count}</span> : null}
+      <span className="hd-count">{count}</span>
     </button>
   );
 }
 
 /** Tracks whether the window has scrolled past `threshold` pixels. */
-function useScrolled(threshold = 24) {
+function useScrolled(threshold = 12) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > threshold);
