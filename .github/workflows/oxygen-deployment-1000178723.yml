@@ -36,6 +36,8 @@ jobs:
         run: npm ci
 
       - name: Build and Publish to Oxygen
-        run: npx shopify hydrogen deploy
+        # Explicit dirs are required: with Vite 8 the CLI auto-detects the client
+        # asset dir as dist/server and uploads zero CSS/JS assets (site renders unstyled).
+        run: npx shopify hydrogen deploy --assets-dir dist/client --worker-dir dist/server
         env:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000178723 }}
