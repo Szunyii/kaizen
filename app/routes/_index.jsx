@@ -774,12 +774,37 @@ function formatPromoDate(iso) {
 /* Community                                                           */
 /* ------------------------------------------------------------------ */
 
+const RATING = 4.9;
+
 const STATS = [
   ['200+', 'vásárló'],
-  ['4,9', 'csillag'],
+  [null, 'átlagos értékelés'],
   ['100+', 'tag a Kaizen Familyben'],
   ['92%', 'elégedettség'],
 ];
+
+/** Five stars, filled to the rating (4.9 → the last star is 90% red). */
+function StatStars({rating}) {
+  const pct = Math.max(0, Math.min(100, (rating / 5) * 100));
+  return (
+    <div
+      className="stat-stars"
+      role="img"
+      aria-label={`${String(rating).replace('.', ',')} az 5-ből`}
+    >
+      <span className="stat-stars-base" aria-hidden="true">
+        ★★★★★
+      </span>
+      <span
+        className="stat-stars-fill"
+        aria-hidden="true"
+        style={{width: `${pct}%`}}
+      >
+        ★★★★★
+      </span>
+    </div>
+  );
+}
 
 const VOICES = [
   {
@@ -805,7 +830,13 @@ function Community() {
         <div className="stats">
           {STATS.map(([n, l], i) => (
             <div className={`stat reveal reveal-d${i}`} key={l}>
-              <div className="stat-n display">{n}</div>
+              {n ? (
+                <div className="stat-n display">{n}</div>
+              ) : (
+                <div className="stat-n">
+                  <StatStars rating={RATING} />
+                </div>
+              )}
               <div className="stat-l">{l}</div>
             </div>
           ))}
