@@ -798,7 +798,6 @@ const VOICES = [
 
 function Community() {
   const ref = useReveal();
-  const [lead, ...rest] = VOICES;
 
   return (
     <section className="comm" ref={ref}>
@@ -814,20 +813,17 @@ function Community() {
 
         <h2 className="sec-h sec-h-sm display reveal">Amit a közösség mond</h2>
 
-        {/* One voice carries the section; the rest read as a short ledger. */}
-        <figure className="voice-lead reveal reveal-d1">
-          <blockquote className="voice-lead-q display">{lead.q}</blockquote>
-          <figcaption className="voice-who">
-            <span className="stars" aria-label="5 csillag">
-              ★★★★★
-            </span>
-            {lead.who}
-          </figcaption>
-        </figure>
-        <div className="voice-list">
-          {rest.map((v, i) => (
-            <figure className={`voice-row reveal reveal-d${i + 2}`} key={v.who}>
-              <blockquote className="voice-row-q">{v.q}</blockquote>
+        {/* Uniform quote cards, no imagery: the words carry the section. */}
+        <div className="voices">
+          {VOICES.map((v, i) => (
+            <figure className={`voice reveal reveal-d${i + 1}`} key={v.who}>
+              <span className="voice-mark" aria-hidden="true">
+                ”
+              </span>
+              <div className="stars" aria-label="5 csillag">
+                ★★★★★
+              </div>
+              <blockquote className="voice-q">{v.q}</blockquote>
               <figcaption className="voice-who">{v.who}</figcaption>
             </figure>
           ))}

@@ -150,13 +150,17 @@
 .stat-n{ font-size:clamp(36px,5vw,52px); color:var(--red); }
 .stat-l{ margin-top:10px; font:400 15px/1.4 var(--sans); letter-spacing:.1em; color:var(--bone-faint); }
 .comm .sec-h{ margin-top:64px; }
-.voice-lead{ margin:32px 0 0; padding:clamp(28px,4vw,44px) 0 clamp(24px,3vw,36px); border-bottom:1px solid var(--line); }
-.voice-lead-q{ margin:0; max-width:24ch; font-size:clamp(26px,3.4vw,44px); line-height:1.15; color:var(--bone); text-wrap:pretty; }
-.voice-list{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr)); gap:0 clamp(32px,5vw,72px); }
-.voice-row{ margin:0; padding:26px 0; border-bottom:1px solid var(--line); min-width:0; }
-.voice-row-q{ margin:0; font:400 17px/1.65 var(--sans); color:var(--bone-dim); text-wrap:pretty; }
-.stars{ color:var(--red); letter-spacing:.1em; font-size:14px; margin-right:14px; }
-.voice-who{ margin-top:18px; font:400 14px/1 var(--sans); letter-spacing:.12em; text-transform:uppercase; color:var(--bone-faint); }
+.voices{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr)); gap:20px; margin-top:32px; }
+.voice{ position:relative; margin:0; min-width:0; display:flex; flex-direction:column; padding:32px 30px 28px;
+  border:1px solid var(--line); background:var(--ink-850); overflow:hidden;
+  transition:border-color .4s var(--ease), transform .4s var(--ease); }
+.voice:hover{ border-color:rgba(218,41,28,.35); transform:translateY(-3px); }
+.voice-mark{ position:absolute; top:6px; right:20px; font-family:var(--serif); font-size:110px; line-height:.8;
+  color:rgba(218,41,28,.12); pointer-events:none; user-select:none; }
+.stars{ color:var(--red); letter-spacing:.1em; font-size:14px; }
+.voice-q{ margin:18px 0 0; flex:1; font:400 17px/1.65 var(--sans); color:var(--bone-dim); text-wrap:pretty; }
+.voice-who{ margin-top:22px; padding-top:16px; border-top:1px solid var(--line-2);
+  font:400 13px/1 var(--sans); letter-spacing:.14em; text-transform:uppercase; color:var(--bone-faint); }
 
 /* =================== KAIZEN FAMILY =================== */
 .fam{ position:relative; overflow:hidden; box-sizing:border-box; width:min(var(--page-max),100vw - 2*var(--page-pad)); margin:clamp(80px,10vw,120px) auto 0;
@@ -630,10 +634,9 @@
   .stats{ gap:22px 16px; padding:30px 0; }
   .stat-l{ font-size:13px; margin-top:6px; }
   .comm .sec-h{ margin-top:44px; }
-  .voice-lead{ padding:24px 0 20px; }
-  .voice-lead-q{ font-size:24px; }
-  .voice-row{ padding:20px 0; }
-  .voice-row-q{ font-size:16px; }
+  .voices{ gap:14px; margin-top:24px; }
+  .voice{ padding:26px 22px 22px; }
+  .voice-q{ font-size:16px; }
 
   /* family: feature rows with the tick inline, full-width CTA, shorter phone */
   .fam{ margin-top:64px; }
