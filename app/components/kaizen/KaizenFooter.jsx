@@ -1,7 +1,7 @@
-import {Suspense, useEffect, useRef} from 'react';
-import {Await, Link, useFetcher} from 'react-router';
+import {Suspense} from 'react';
+import {Await, Link} from 'react-router';
 import {Wave} from '~/components/kaizen/Brand';
-import {I} from '~/components/kaizen/Icons';
+import {NewsletterForm} from '~/components/kaizen/NewsletterForm';
 import {collectionTitle} from '~/lib/text';
 
 const BRAND_LINKS = [
@@ -181,65 +181,6 @@ function FooterShell({
         </span>
       </div>
     </footer>
-  );
-}
-
-/**
- * Newsletter signup wired to the `/newsletter` resource route, which
- * subscribes the address through Shopify's customer marketing consent.
- */
-function NewsletterForm() {
-  const fetcher = useFetcher();
-  const formRef = useRef(null);
-  /** @type {import('~/routes/newsletter').NewsletterResult | undefined} */
-  const result = fetcher.data;
-  const busy = fetcher.state !== 'idle';
-  const done = result?.ok === true;
-
-  useEffect(() => {
-    if (done) formRef.current?.reset();
-  }, [done]);
-
-  return (
-    <fetcher.Form
-      ref={formRef}
-      method="post"
-      action="/newsletter"
-      className={`ft-form${done ? ' is-done' : ''}${result && !result.ok ? ' is-error' : ''}`}
-      aria-label="Hírlevél feliratkozás"
-    >
-      <div className="ft-form-row">
-        <input
-          type="email"
-          name="email"
-          placeholder="E-mail cím"
-          aria-label="E-mail"
-          autoComplete="email"
-          required
-          disabled={busy}
-        />
-        {/* Honeypot: hidden from humans, filled by bots. */}
-        <input
-          type="text"
-          name="website"
-          tabIndex={-1}
-          autoComplete="off"
-          className="ft-form-hp"
-          aria-hidden="true"
-        />
-        <button
-          type="submit"
-          aria-label="Feliratkozás"
-          disabled={busy}
-          aria-busy={busy}
-        >
-          {done ? I.check : I.arrow}
-        </button>
-      </div>
-      <p className="ft-form-msg" role="status" aria-live="polite">
-        {result?.message ?? ''}
-      </p>
-    </fetcher.Form>
   );
 }
 

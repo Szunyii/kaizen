@@ -3,14 +3,19 @@ import {Image} from '@shopify/hydrogen';
 import {StudioShot} from '~/components/kaizen/Brand';
 import {I} from '~/components/kaizen/Icons';
 import {ft} from '~/lib/kaizen-data';
+import {TEXT} from '~/lib/text';
 
 /**
  * KAIZENTYPE product card. Links to the product detail route; the hover CTA
  * is a visual affordance that follows the same link. Renders the real
  * Storefront product image when available, otherwise the studio placeholder.
- * @param {{product: import('~/lib/kaizen-data').KaizenProduct & {image?: any}, idx?: number}} props
+ * @param {{product: import('~/lib/kaizen-data').KaizenProduct & {image?: any}, idx?: number, sizes?: string}} props
  */
-export function ProductCard({product, idx = 0}) {
+export function ProductCard({
+  product,
+  idx = 0,
+  sizes = '(min-width: 980px) 33vw, 50vw',
+}) {
   const delay = `reveal-d${(idx % 3) + 1}`;
   return (
     <Link
@@ -30,13 +35,13 @@ export function ProductCard({product, idx = 0}) {
             alt={product.image.altText || product.name}
             aspectRatio="3/4"
             data={product.image}
-            sizes="(min-width: 980px) 33vw, 50vw"
+            sizes={sizes}
           />
         ) : (
           <StudioShot product={product} ratio="3 / 4" showType={false} />
         )}
         <span className="pcard-cta">
-          View product {I.arrow}
+          {TEXT.viewProduct} {I.arrow}
         </span>
       </div>
       <div className="pcard-info">

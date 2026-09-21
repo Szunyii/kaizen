@@ -68,7 +68,7 @@ export function ProductGallery({images = [], variantImage, fallback, title}) {
           <Image
             className="pdp-main-img"
             alt={active.altText || title || TEXT.productImage}
-            aspectRatio="1/1"
+            aspectRatio="4/5"
             data={active}
             key={keyOf(active)}
             sizes="(min-width: 900px) 52vw, 100vw"

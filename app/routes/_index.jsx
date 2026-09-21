@@ -1,13 +1,23 @@
-import {Suspense, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {Await, Link, useFetcher, useLoaderData} from 'react-router';
 import {Image} from '@shopify/hydrogen';
 import {useReveal} from '~/lib/useReveal';
 import {Wave} from '~/components/kaizen/Brand';
 import {I} from '~/components/kaizen/Icons';
+import {FaqList} from '~/components/kaizen/Faq';
+import {ReviewMarquee} from '~/components/kaizen/Reviews';
 import {AddToCartButton} from '~/components/AddToCartButton';
 import {useAside} from '~/components/Aside';
 import {formatMoney} from '~/lib/money';
 import {fetchActivePromos} from '~/lib/discounts';
+import {allReviews} from '~/lib/reviews';
 import {
   TEXT,
   optionName,
@@ -73,9 +83,10 @@ export default function Homepage() {
         <Wave shape="thin" />
       </div>
       <ValueStrip />
-      <Philosophy />
       <Products onAdded={notify} />
       <Community />
+      <Philosophy />
+
       <Family />
       <About />
       <Faq />
@@ -124,8 +135,8 @@ function HeroCopy() {
       </h1>
       <p className="hero-sub reveal reveal-d2">
         Több mint egy ruhamárka. Egy életfilozófia azoknak, akik nem elégednek
-        meg a jelennel, és nap mint nap a jobb önmagukért dolgoznak. Készülj
-        fel a szintlépésre.
+        meg a jelennel, és nap mint nap a jobb önmagukért dolgoznak. Készülj fel
+        a szintlépésre.
       </p>
       <div className="hero-cta reveal reveal-d3">
         <Link className="btn" to="/#termekek">
@@ -168,7 +179,9 @@ function HeroVideo({poster}) {
   }, []);
 
   return (
-    <div className={`hero-media hero-video reveal reveal-d2${ready ? ' is-ready' : ''}`}>
+    <div
+      className={`hero-media hero-video reveal reveal-d2${ready ? ' is-ready' : ''}`}
+    >
       {poster ? (
         <img
           className="hero-video-poster"
@@ -193,6 +206,8 @@ function HeroVideo({poster}) {
         <source src="/kaizenweboldal-h264.mp4" type="video/mp4" />
       </video>
       <span className="hero-video-shade" aria-hidden="true" />
+      {/* Sits right under the wordmark that is baked into the film. */}
+      <p className="hero-video-tagline">Gymwear designed in Hungary</p>
     </div>
   );
 }
@@ -201,7 +216,7 @@ function ValueStrip() {
   const ref = useReveal();
   const vals = [
     'Az 1% fejlődés szimbóluma.',
-    'Kompromisszumok nélküli edzős és utcai viselet.',
+    'Kompromisszumok nélküli edzős viselet.',
     'Zárt applikáció és támogató közösség.',
   ];
   return (
@@ -357,6 +372,11 @@ function orderedValues(option) {
   return sortSizes([...byName.keys()]).map((n) => byName.get(n));
 }
 
+/** Stable identity for a Storefront image. */
+function imageKey(img) {
+  return img?.id ?? img?.url;
+}
+
 /** Trim a description to a readable paragraph. */
 function excerpt(text, max = 260) {
   if (!text) return '';
@@ -453,7 +473,30 @@ function Products({onAdded}) {
 function Showcase({product, flip, selection, variant, onSelect, onAdded}) {
   const ref = useReveal();
   const options = selectableOptions(product);
-  const image = variant?.image ?? product.featuredImage;
+  const variantImage = variant?.image ?? product.featuredImage;
+
+  // Every uploaded image, in a stable order so the strip doesn't reshuffle
+  // when the colour changes; the variant image joins only if it's missing.
+  const gallery = useMemo(() => {
+    const list = [];
+    const seen = new Set();
+    for (const img of [...(product.images?.nodes ?? []), variantImage]) {
+      const key = imageKey(img);
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        list.push(img);
+      }
+    }
+    return list;
+  }, [product.images, variantImage]);
+
+  // The main image follows the selected variant, but any thumbnail can
+  // override it until the variant changes again.
+  const [activeKey, setActiveKey] = useState(null);
+  useEffect(() => setActiveKey(null), [variant?.id]);
+  const image =
+    gallery.find((img) => imageKey(img) === activeKey) ?? variantImage;
+
   const price = variant?.price ?? product.priceRange?.minVariantPrice;
   const compareAt = variant?.compareAtPrice;
   const onSale =
@@ -463,28 +506,60 @@ function Showcase({product, flip, selection, variant, onSelect, onAdded}) {
 
   return (
     <article className={`show ${flip ? 'is-flip' : ''}`} ref={ref}>
-      <Link
-        to={`/products/${product.handle}`}
-        className="show-media reveal"
-        aria-label={product.title}
-      >
-        {image ? (
-          <Image
-            data={image}
-            sizes="(min-width: 900px) 45vw, 100vw"
-            className="show-img"
-          />
-        ) : (
-          <div className="ph" />
-        )}
-      </Link>
+      <div className="show-gallery reveal">
+        <Link
+          to={`/products/${product.handle}`}
+          className="show-media"
+          aria-label={product.title}
+        >
+          {image ? (
+            <Image
+              data={image}
+              key={imageKey(image)}
+              alt={image.altText || product.title}
+              sizes="(min-width: 900px) 540px, 100vw"
+              className="show-img"
+            />
+          ) : (
+            <div className="ph" />
+          )}
+        </Link>
+
+        {gallery.length > 1 ? (
+          <div className="show-thumbs" aria-label={TEXT.productImages}>
+            {gallery.map((img) => {
+              const key = imageKey(img);
+              const isActive = imageKey(image) === key;
+              return (
+                <button
+                  type="button"
+                  key={key}
+                  className={`show-thumb${isActive ? ' is-active' : ''}`}
+                  aria-label={TEXT.viewImage}
+                  aria-current={isActive}
+                  onClick={() => setActiveKey(key)}
+                >
+                  <Image
+                    alt={img.altText || product.title}
+                    aspectRatio="1/1"
+                    data={img}
+                    sizes="64px"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
 
       <div className="show-body">
         <p className="show-kicker reveal">{productKicker(product)}</p>
         <h3 className="show-h display reveal reveal-d1">
           <Link to={`/products/${product.handle}`}>{product.title}</Link>
         </h3>
-        <p className="show-p reveal reveal-d2">{excerpt(product.description)}</p>
+        <p className="show-p reveal reveal-d2">
+          {excerpt(product.description)}
+        </p>
         {/* the spec line only earns its place when there are no chips to say the same */}
         {product.productType || (specs && !options.length) ? (
           <div className="show-specs reveal reveal-d2">
@@ -705,9 +780,7 @@ function BundlePromo({promo, products, selectedVariants, onAdded}) {
   const variants = picked.map((p) => selectedVariants[p.id] ?? null);
   const ready = variants.every((v) => v?.availableForSale);
   const prices = picked.map((p, i) =>
-    Number(
-      variants[i]?.price?.amount ?? p.priceRange.minVariantPrice.amount,
-    ),
+    Number(variants[i]?.price?.amount ?? p.priceRange.minVariantPrice.amount),
   );
   const currency =
     variants[0]?.price?.currencyCode ??
@@ -806,23 +879,9 @@ function StatStars({rating}) {
   );
 }
 
-const VOICES = [
-  {
-    who: 'Márk, 34',
-    q: '„A minőség meglepett, de a közösség tartott meg. Heti kihívások, valódi emberek, nulla üres motivációs szöveg.”',
-  },
-  {
-    who: 'Eszter, 26',
-    q: '„Két hete van meg, és minden második nap ez van rajtam. A szabása pont az, amit kerestem: nem szűk, nem lógós.”',
-  },
-  {
-    who: 'Tamás, 38',
-    q: '„A csapatprogram miatt maradtam. Először csak egy pólót akartam, most már futócsoportba járok velük.”',
-  },
-];
-
 function Community() {
   const ref = useReveal();
+  const reviews = allReviews();
 
   return (
     <section className="comm" ref={ref}>
@@ -842,24 +901,15 @@ function Community() {
           ))}
         </div>
 
-        <h2 className="sec-h sec-h-sm display reveal">Amit a közösség mond</h2>
-
-        {/* Uniform quote cards, no imagery: the words carry the section. */}
-        <div className="voices">
-          {VOICES.map((v, i) => (
-            <figure className={`voice reveal reveal-d${i + 1}`} key={v.who}>
-              <span className="voice-mark" aria-hidden="true">
-                ”
-              </span>
-              <div className="stars" aria-label="5 csillag">
-                ★★★★★
-              </div>
-              <blockquote className="voice-q">{v.q}</blockquote>
-              <figcaption className="voice-who">{v.who}</figcaption>
-            </figure>
-          ))}
-        </div>
+        {reviews.length ? (
+          <h2 className="sec-h sec-h-sm display reveal">
+            Amit a közösség mond
+          </h2>
+        ) : null}
       </div>
+
+      {/* Full-bleed band of the same quote cards; see app/lib/reviews.js. */}
+      <ReviewMarquee reviews={reviews} />
     </section>
   );
 }
@@ -909,10 +959,10 @@ function Family() {
           </h2>
           <p className="fam-p reveal reveal-d2">
             Minden Kaizen darab megvásárlásával exkluzív hozzáférést kapsz a
-            Kaizen Family zárt alkalmazásához. Itt dől el, ki gondolja
-            komolyan. Ez a valódi munka helyszíne: napi szintű kihívások, közös
-            célok és egy olyan közösség vár, amelyik felesleges zaj nélkül,
-            némán teszi a dolgát, hogy minden nap 1%-kal jobb legyen.
+            Kaizen Family zárt alkalmazásához. Itt dől el, ki gondolja komolyan.
+            Ez a valódi munka helyszíne: napi szintű kihívások, közös célok és
+            egy olyan közösség vár, amelyik felesleges zaj nélkül, némán teszi a
+            dolgát, hogy minden nap 1%-kal jobb legyen.
           </p>
           <div className="fam-feats">
             {FAMILY.map((f, i) => (
@@ -1002,10 +1052,10 @@ function About() {
             feszegetjük. Éveken át fókuszáltunk a testépítésre, de útközben
             rájöttünk a legfontosabbra: a fizikum fejlesztése csak az út fele,
             az igazi áttörés az elme erősítésével kezdődik. Ebből a
-            felismerésből született a KaizenType. Egy márka és egy közösség,
-            ami a folyamatos fejlődést hirdeti. Ezt a fegyelmet követjük a
-            háttérben is: minden darabunkat hosszú hónapokig teszteljük, és a
-            ti visszajelzéseitek alapján tökéletesítjük újra és újra.
+            felismerésből született a KaizenType. Egy márka és egy közösség, ami
+            a folyamatos fejlődést hirdeti. Ezt a fegyelmet követjük a háttérben
+            is: minden darabunkat hosszú hónapokig teszteljük, és a ti
+            visszajelzéseitek alapján tökéletesítjük újra és újra.
           </p>
           <div className="about-tags reveal reveal-d3">
             <span>Fizikai és mentális szintlépés</span>
@@ -1017,28 +1067,8 @@ function About() {
   );
 }
 
-const FAQ = [
-  [
-    'Melyik méretet válasszam?',
-    'A darabok normál fazonúak, a férfi póló egyenes szabású. Mérj le egy pólót, amiben jól érzed magad, és hasonlítsd össze a cm-es táblázattal mellbőség és teljes hossz alapján. Ha két méret között vagy, a nagyobbat ajánljuk.',
-  ],
-  [
-    'Mennyi idő alatt érkezik meg?',
-    'Raktáron lévő darabok esetén 1–3 munkanap Magyarországon, futárral. A csomagolásról e-mailben értesítünk.',
-  ],
-  [
-    'Visszaküldhetem, ha nem jó a méret?',
-    'Igen, 14 napon belül indoklás nélkül, viseletlen állapotban. Méretcserénél a visszaküldés költségét mi álljuk.',
-  ],
-  [
-    'Hogyan kapom meg az app-hozzáférést?',
-    'A rendelés visszaigazolásában küldünk egy meghívót a Kaizen Family alkalmazáshoz. A hozzáférés a fiókodhoz kötődik, és megmarad.',
-  ],
-];
-
 function Faq() {
   const ref = useReveal();
-  const [open, setOpen] = useState(0);
   return (
     <section id="gyik" className="faq" ref={ref}>
       <div className="faq-wrap faq-grid">
@@ -1060,39 +1090,7 @@ function Faq() {
           </Link>
         </div>
 
-        <div className="faq-list">
-          {FAQ.map(([q, a], i) => {
-            const isOpen = open === i;
-            const id = `faq-${i}`;
-            return (
-              <div
-                className={`faq-i reveal reveal-d${Math.min(i, 3)}${isOpen ? ' is-open' : ''}`}
-                key={q}
-              >
-                <button
-                  type="button"
-                  className="faq-q"
-                  aria-expanded={isOpen}
-                  aria-controls={id}
-                  onClick={() => setOpen(isOpen ? -1 : i)}
-                >
-                  <span className="faq-n display">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <span className="faq-q-t display">{q}</span>
-                  <span className="faq-ic" aria-hidden="true">
-                    {I.plus}
-                  </span>
-                </button>
-                <div className="faq-a-wrap" id={id} role="region">
-                  <div className="faq-a-inner">
-                    <p className="faq-a">{a}</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <FaqList />
       </div>
     </section>
   );
@@ -1101,7 +1099,11 @@ function Faq() {
 /** @param {{label: string | null}} props */
 function Toast({label}) {
   return (
-    <div className={`toast ${label ? 'is-on' : ''}`} role="status" aria-live="polite">
+    <div
+      className={`toast ${label ? 'is-on' : ''}`}
+      role="status"
+      aria-live="polite"
+    >
       {label ? `${label} a kosárban` : ''}
     </div>
   );
@@ -1152,7 +1154,7 @@ const HOME_PRODUCTS_QUERY = `#graphql
     featuredImage {
       ...HomeImage
     }
-    images(first: 3) {
+    images(first: 8) {
       nodes {
         ...HomeImage
       }

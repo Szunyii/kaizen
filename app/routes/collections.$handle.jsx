@@ -6,6 +6,7 @@ import {I} from '~/components/kaizen/Icons';
 import {useReveal} from '~/lib/useReveal';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {productType, collectionTitle} from '~/lib/text';
+import {CARD_PRODUCT_FRAGMENT, toCardProduct} from '~/lib/cardProduct';
 
 /**
  * Sort options exposed in the UI, mapped to Storefront API sort keys.
@@ -16,28 +17,6 @@ const SORT_OPTIONS = {
   'price-asc': {label: 'Ár: alacsonytól', sortKey: 'PRICE', reverse: false},
   'price-desc': {label: 'Ár: magastól', sortKey: 'PRICE', reverse: true},
   name: {label: 'Név: A–Z', sortKey: 'TITLE', reverse: false},
-};
-
-/**
- * Option names treated as the product's colour axis, both for the card
- * swatches and for the colour filter.
- */
-const COLOR_OPTION_NAMES = new Set(['szín', 'color', 'colour']);
-
-/** Fallback hexes for colour names without a configured admin swatch. */
-const COLOR_HEX = {
-  fekete: '#1b1916',
-  black: '#1b1916',
-  fehér: '#e7e1d4',
-  white: '#e7e1d4',
-  bone: '#e7e1d4',
-  szürke: '#7c776e',
-  grey: '#7c776e',
-  gray: '#7c776e',
-  piros: '#a32e13',
-  red: '#a32e13',
-  olíva: '#55543f',
-  olive: '#55543f',
 };
 
 /**
@@ -90,20 +69,7 @@ async function loadCriticalData({context, params, request}) {
   // A live collection's handle may be localized — redirect to the canonical one.
   redirectIfHandleIsLocalized(request, {handle, data: collection});
 
-  const all = collection.products.nodes.map((p) => {
-    const colorValues = productColors(p.options);
-    return {
-      id: p.id,
-      handle: p.handle,
-      name: p.title,
-      price: Number(p.priceRange.minVariantPrice.amount),
-      image: p.featuredImage,
-      tag: null,
-      type: p.productType || null,
-      colorNames: colorValues.map((c) => c.name),
-      colors: colorValues.filter((c) => c.hex),
-    };
-  });
+  const all = collection.products.nodes.map(toCardProduct);
 
   const typeValues = [...new Set(all.map((p) => p.type).filter(Boolean))].sort(
     (a, b) => a.localeCompare(b),
@@ -156,22 +122,6 @@ async function loadCriticalData({context, params, request}) {
     sort,
     products: all.filter((p) => matchesType(p) && matchesColor(p)),
   };
-}
-
-/**
- * The product's colour option values, preferring the admin-configured
- * swatch colour and falling back to a named-colour hex. Values without a
- * resolvable hex are kept (they still filter) but get `hex: null`.
- */
-function productColors(options) {
-  const colorOption = (options ?? []).find((o) =>
-    COLOR_OPTION_NAMES.has(o.name.toLowerCase()),
-  );
-  if (!colorOption) return [];
-  return colorOption.optionValues.map((v) => ({
-    name: v.name,
-    hex: v.swatch?.color || COLOR_HEX[v.name.toLowerCase()] || null,
-  }));
 }
 
 export default function Collection() {
@@ -353,10 +303,9 @@ function CollectionToolbar({
 
 /** Reveal-on-scroll product grid. */
 function ProductGrid({products}) {
-  // useReveal fires once: it adds `.in` when the grid scrolls into view, then
-  // stops observing. Reveal is initial-scroll only — when filtering swaps
-  // cards, they render immediately via the already-applied `.in .reveal`
-  // rule (no per-filter replay, by design).
+  // useReveal reveals each card once, as it scrolls into view. Reveal is
+  // initial-scroll only — when filtering swaps cards, the new ones render
+  // immediately (no per-filter replay, by design).
   const ref = useReveal();
   return (
     <div className="grid-4 col-grid" ref={ref}>
@@ -393,34 +342,6 @@ function CollectionEmpty({onReset, filtered}) {
 }
 
 const COLLECTION_QUERY = `#graphql
-  fragment KaizenCollectionProduct on Product {
-    id
-    handle
-    title
-    productType
-    featuredImage {
-      id
-      altText
-      url
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    options {
-      name
-      optionValues {
-        name
-        swatch {
-          color
-        }
-      }
-    }
-  }
   query KaizenCollection(
     $handle: String!
     $country: CountryCode
@@ -436,11 +357,12 @@ const COLLECTION_QUERY = `#graphql
       description
       products(first: $first, sortKey: $sortKey, reverse: $reverse) {
         nodes {
-          ...KaizenCollectionProduct
+          ...CardProduct
         }
       }
     }
   }
+  ${CARD_PRODUCT_FRAGMENT}
 `;
 
 /** @typedef {import('./+types/collections.$handle').Route} Route */

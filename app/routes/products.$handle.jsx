@@ -12,6 +12,10 @@ import {ProductForm} from '~/components/ProductForm';
 import {TEXT, productType} from '~/lib/text';
 import {ProductGallery} from '~/components/kaizen/ProductGallery';
 import {EnsoMark} from '~/components/kaizen/Brand';
+import {RelatedProducts} from '~/components/kaizen/RelatedProducts';
+import {ProductReviews} from '~/components/kaizen/Reviews';
+import {reviewsFor} from '~/lib/reviews';
+import {CARD_PRODUCT_FRAGMENT, toCardProduct} from '~/lib/cardProduct';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
 /**
@@ -79,15 +83,31 @@ async function loadCriticalData({context, params, request}) {
  * @param {Route.LoaderArgs}
  */
 function loadDeferredData({context, params}) {
-  // Put any API calls that is not critical to be available on first page render
-  // For example: product reviews, product recommendations, social feeds.
+  const {handle} = params;
 
-  return {};
+  // Shopify's own recommendations first; a young catalogue may have none,
+  // so the newest other products fill in.
+  const relatedProducts = context.storefront
+    .query(RELATED_PRODUCTS_QUERY, {variables: {handle}})
+    .then(({recommended, latest}) => {
+      const picks = recommended?.length ? recommended : latest.nodes;
+      return picks
+        .filter((p) => p.handle !== handle)
+        .slice(0, RELATED_LIMIT)
+        .map(toCardProduct);
+    })
+    .catch((error) => {
+      // Log query errors, but don't throw them so the page can still render
+      console.error(error);
+      return null;
+    });
+
+  return {relatedProducts};
 }
 
 export default function Product() {
   /** @type {LoaderReturnData} */
-  const {product} = useLoaderData();
+  const {product, relatedProducts} = useLoaderData();
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -159,6 +179,9 @@ export default function Product() {
               </div>
             ) : null}
           </div>
+
+          <RelatedProducts products={relatedProducts} />
+          <ProductReviews reviews={reviewsFor(product.handle)} />
         </div>
       </div>
       <Analytics.ProductView
@@ -287,6 +310,30 @@ const PRODUCT_QUERY = `#graphql
     }
   }
   ${PRODUCT_FRAGMENT}
+`;
+
+/** Related picks under the gallery: a row of three, or 2×2 when narrow. */
+const RELATED_LIMIT = 4;
+
+const RELATED_PRODUCTS_QUERY = `#graphql
+  query RelatedProducts(
+    $country: CountryCode
+    $handle: String!
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    recommended: productRecommendations(
+      productHandle: $handle
+      intent: RELATED
+    ) {
+      ...CardProduct
+    }
+    latest: products(first: 5, sortKey: CREATED_AT, reverse: true) {
+      nodes {
+        ...CardProduct
+      }
+    }
+  }
+  ${CARD_PRODUCT_FRAGMENT}
 `;
 
 /** @typedef {import('./+types/products.$handle').Route} Route */
