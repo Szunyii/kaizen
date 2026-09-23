@@ -3,9 +3,14 @@
  * Standalone prototype data used by the homepage while no store is linked.
  */
 
-/** Format a forint amount with a space thousands separator, e.g. 15000 -> "15 000 Ft". */
+/**
+ * Format a forint amount with a thousands separator, e.g. 15000 -> "15 000 Ft".
+ * Both spaces are non-breaking (U+00A0) so the price never wraps as
+ * "15 000" / "Ft" in narrow cards (same rule as app/lib/money.js).
+ */
 export function ft(n) {
-  return `${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} Ft`;
+  const NBSP = '\u00A0';
+  return `${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP)}${NBSP}Ft`;
 }
 
 const C = {

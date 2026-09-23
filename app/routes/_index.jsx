@@ -386,6 +386,49 @@ function excerpt(text, max = 260) {
   return `${cut.slice(0, Math.max(cut.lastIndexOf('. '), cut.lastIndexOf(' ')))}…`;
 }
 
+/** Decode the handful of entities Shopify's rich text editor emits. */
+function decodeEntities(text) {
+  return text
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
+}
+
+/** A block of description HTML is a paragraph once it is long enough to read as one, not a label. */
+const PARAGRAPH_MIN = 80;
+
+/**
+ * The description up to the end of its first paragraph: the tenet label and
+ * tagline that open every product text, then the first body paragraph, and
+ * nothing of the spec list that follows. Shopify's plain `description` field
+ * flattens paragraphs into one line, so this walks `descriptionHtml` instead.
+ */
+function firstParagraph(html) {
+  if (!html) return '';
+  const blocks = [];
+  const block = /<(p|h[1-6]|li|blockquote)\b[^>]*>([\s\S]*?)<\/\1>/gi;
+  let match;
+  while ((match = block.exec(html))) {
+    const text = decodeEntities(match[2].replace(/<[^>]+>/g, ''))
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!text) continue;
+    blocks.push(text);
+    if (match[1].toLowerCase() === 'p' && text.length >= PARAGRAPH_MIN) {
+      return blocks.join(' ');
+    }
+  }
+  // no real paragraph found: fall back to the length-trimmed plain text
+  return excerpt(
+    blocks.length
+      ? blocks.join(' ')
+      : decodeEntities(html.replace(/<[^>]+>/g, ' ')),
+  );
+}
+
 /** @param {{onAdded: (label: string) => void}} props */
 function Products({onAdded}) {
   const ref = useReveal();
@@ -558,7 +601,7 @@ function Showcase({product, flip, selection, variant, onSelect, onAdded}) {
           <Link to={`/products/${product.handle}`}>{product.title}</Link>
         </h3>
         <p className="show-p reveal reveal-d2">
-          {excerpt(product.description)}
+          {firstParagraph(product.descriptionHtml)}
         </p>
         {/* the spec line only earns its place when there are no chips to say the same */}
         {product.productType || (specs && !options.length) ? (
@@ -938,7 +981,7 @@ const FAMILY = [
   },
   {
     h: 'Csapatprogramok',
-    p: 'Közös edzések, futások és élő találkozók a csapattal.',
+    p: 'Közös edzések és élő találkozók a csapattal.',
   },
 ];
 
@@ -1149,7 +1192,7 @@ const HOME_PRODUCTS_QUERY = `#graphql
     id
     handle
     title
-    description
+    descriptionHtml
     productType
     featuredImage {
       ...HomeImage

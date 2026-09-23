@@ -1,12 +1,19 @@
 import {Link, useLoaderData} from 'react-router';
 import {getPaginationVariables} from '@shopify/hydrogen';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
+import {BrushRibbon} from '~/components/kaizen/Brand';
+import {I} from '~/components/kaizen/Icons';
+import {useReveal} from '~/lib/useReveal';
+import {BLOG_TEXT} from '~/lib/blog';
 
 /**
  * @type {Route.MetaFunction}
  */
 export const meta = () => {
-  return [{title: `Hydrogen | Blogs`}];
+  return [
+    {title: 'Napló — KaizenType'},
+    {name: 'description', content: BLOG_TEXT.lead},
+  ];
 };
 
 /**
@@ -48,32 +55,56 @@ async function loadCriticalData({context, request}) {
  * Load data for rendering content below the fold. This data is deferred and will be
  * fetched after the initial page load. If it's unavailable, the page should still 200.
  * Make sure to not throw any errors here, as it will cause the page to 500.
- * @param {Route.LoaderArgs}
  */
-function loadDeferredData({context}) {
+function loadDeferredData() {
   return {};
 }
 
 export default function Blogs() {
   /** @type {LoaderReturnData} */
   const {blogs} = useLoaderData();
+  const ref = useReveal();
 
   return (
-    <div className="blogs">
-      <h1>Blogs</h1>
-      <div className="blogs-grid">
-        <PaginatedResourceSection connection={blogs}>
-          {({node: blog}) => (
-            <Link
-              className="blog"
-              key={blog.handle}
-              prefetch="intent"
-              to={`/blogs/${blog.handle}`}
-            >
-              <h2>{blog.title}</h2>
-            </Link>
-          )}
-        </PaginatedResourceSection>
+    <div className="blg view-enter" ref={ref}>
+      <section className="blg-head">
+        <div className="blg-head-kanji" aria-hidden="true">
+          {BLOG_TEXT.kanji}
+        </div>
+        <div className="wrap blg-head-inner">
+          <p className="kicker reveal">
+            <span className="kanji">{BLOG_TEXT.kanji}</span>— {BLOG_TEXT.kicker}
+          </p>
+          <h1 className="blg-h display reveal reveal-d1">Naplók</h1>
+          <p className="blg-sub reveal reveal-d2">{BLOG_TEXT.lead}</p>
+        </div>
+        <div className="blg-head-brush" aria-hidden="true">
+          <BrushRibbon opacity={0.7} />
+        </div>
+      </section>
+
+      <div className="wrap">
+        <div className="blg-list">
+          <PaginatedResourceSection connection={blogs}>
+            {({node: blog}) => (
+              <div className="blg-list-row reveal" key={blog.handle}>
+                <Link
+                  className="blg-list-link"
+                  prefetch="intent"
+                  to={`/blogs/${blog.handle}`}
+                >
+                  <span className="blg-list-title display">{blog.title}</span>
+                  <span className="blg-list-go">
+                    {BLOG_TEXT.all} {I.arrow}
+                  </span>
+                </Link>
+                {blog.seo?.description ? (
+                  <p className="blg-list-note">{blog.seo.description}</p>
+                ) : null}
+              </div>
+            )}
+          </PaginatedResourceSection>
+        </div>
       </div>
     </div>
   );

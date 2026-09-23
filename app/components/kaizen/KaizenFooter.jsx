@@ -1,5 +1,6 @@
 import {Suspense} from 'react';
 import {Await, Link} from 'react-router';
+import {Script} from '@shopify/hydrogen';
 import {Wave} from '~/components/kaizen/Brand';
 import {NewsletterForm} from '~/components/kaizen/NewsletterForm';
 import {collectionTitle} from '~/lib/text';
@@ -12,6 +13,14 @@ const BRAND_LINKS = [
 
 // Used only if the shop has no blog yet.
 const FALLBACK_BLOG = {handle: 'hirek', title: 'Hírek'};
+
+// Fogyasztóbarát ("consumer friendly") trust badge. The vendor loader reads
+// the widget id from the element with id "fbarat", fetches the badge markup
+// and appends a fixed-position HUD to <body>, so where the tag sits in the
+// footer doesn't affect placement. Its origin is allow-listed in the CSP in
+// app/entry.server.jsx.
+const FOGYASZTOBARAT_WIDGET_ID = 'R7FDJBKH';
+const FOGYASZTOBARAT_LOADER = 'https://admin.fogyasztobarat.hu/h-api.js';
 
 // Used only if the Storefront API returns no policies for the shop.
 const FALLBACK_HELP = [
@@ -36,7 +45,10 @@ function helpLinks(shop) {
     ['ÁSZF', shop.termsOfService],
   ].filter(([, policy]) => policy?.handle);
   if (!entries.length) return FALLBACK_HELP;
-  return entries.map(([label, policy]) => [label, `/policies/${policy.handle}`]);
+  return entries.map(([label, policy]) => [
+    label,
+    `/policies/${policy.handle}`,
+  ]);
 }
 
 /**
@@ -49,22 +61,36 @@ function helpLinks(shop) {
  */
 export function KaizenFooter({footer, navCollections = []}) {
   return (
-    <Suspense fallback={<FooterShell collections={navCollections} />}>
-      <Await
-        resolve={footer}
-        errorElement={<FooterShell collections={navCollections} />}
-      >
-        {(data) => (
-          <FooterShell
-            collections={navCollections}
-            products={data?.products?.nodes ?? []}
-            help={helpLinks(data?.shop)}
-            blog={data?.blogs?.nodes?.[0] ?? FALLBACK_BLOG}
-            articles={data?.articles?.nodes ?? []}
-          />
-        )}
-      </Await>
-    </Suspense>
+    <>
+      <Suspense fallback={<FooterShell collections={navCollections} />}>
+        <Await
+          resolve={footer}
+          errorElement={<FooterShell collections={navCollections} />}
+        >
+          {(data) => (
+            <FooterShell
+              collections={navCollections}
+              products={data?.products?.nodes ?? []}
+              help={helpLinks(data?.shop)}
+              blog={data?.blogs?.nodes?.[0] ?? FALLBACK_BLOG}
+              articles={data?.articles?.nodes ?? []}
+            />
+          )}
+        </Await>
+      </Suspense>
+      {/*
+        Kept outside the Suspense boundary so the loader is injected once,
+        not for both the fallback and the resolved shell. `waitForHydration`
+        appends the tag after hydration (no SSR markup, no hydration mismatch)
+        and dedupes by src, so StrictMode's double effects are harmless.
+      */}
+      <Script
+        waitForHydration
+        src={FOGYASZTOBARAT_LOADER}
+        id="fbarat"
+        data-id={FOGYASZTOBARAT_WIDGET_ID}
+      />
+    </>
   );
 }
 
@@ -167,14 +193,17 @@ function FooterShell({
             <span className="kanji">改善</span> — Hírlevél
           </span>
           <p className="ft-news-p">
-            Hetente egy rövid levél a fegyelemről és a mesterségről. Semmi zaj.
+            Nem küldünk sok hírlevelet, amit küldünk az igazán hasznos lesz
+            számodra.
           </p>
           <NewsletterForm />
         </div>
       </div>
 
       <div className="ft-base">
-        <span>© {new Date().getFullYear()} KaizenType — Készült Budapesten</span>
+        <span>
+          © {new Date().getFullYear()} KaizenType — Készült Budapesten
+        </span>
         <span className="ft-base-links">
           {privacy ? <Link to={privacy}>Adatkezelés</Link> : null}
           {terms ? <Link to={terms}>ÁSZF</Link> : null}

@@ -3,6 +3,17 @@
 /* eslint-disable */
 import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
 
+export type ArticleCardFragment = Pick<
+  StorefrontAPI.Article,
+  'id' | 'handle' | 'title' | 'excerpt' | 'content' | 'publishedAt' | 'tags'
+> & {
+  author?: StorefrontAPI.Maybe<Pick<StorefrontAPI.ArticleAuthor, 'name'>>;
+  image?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Image, 'id' | 'altText' | 'url' | 'width' | 'height'>
+  >;
+  blog: Pick<StorefrontAPI.Blog, 'handle'>;
+};
+
 export type CardProductFragment = Pick<
   StorefrontAPI.Product,
   'id' | 'handle' | 'title' | 'productType'
@@ -467,7 +478,7 @@ export type HomeVariantFragment = Pick<
 
 export type HomeProductFragment = Pick<
   StorefrontAPI.Product,
-  'id' | 'handle' | 'title' | 'description' | 'productType'
+  'id' | 'handle' | 'title' | 'descriptionHtml' | 'productType'
 > & {
   featuredImage?: StorefrontAPI.Maybe<
     Pick<StorefrontAPI.Image, 'id' | 'altText' | 'url' | 'width' | 'height'>
@@ -524,7 +535,7 @@ export type HomeProductsQuery = {
     nodes: Array<
       Pick<
         StorefrontAPI.Product,
-        'id' | 'handle' | 'title' | 'description' | 'productType'
+        'id' | 'handle' | 'title' | 'descriptionHtml' | 'productType'
       > & {
         featuredImage?: StorefrontAPI.Maybe<
           Pick<
@@ -604,11 +615,16 @@ export type ArticleQueryVariables = StorefrontAPI.Exact<{
 
 export type ArticleQuery = {
   blog?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Blog, 'handle'> & {
+    Pick<StorefrontAPI.Blog, 'handle' | 'title'> & {
       articleByHandle?: StorefrontAPI.Maybe<
         Pick<
           StorefrontAPI.Article,
-          'handle' | 'title' | 'contentHtml' | 'publishedAt'
+          | 'handle'
+          | 'title'
+          | 'contentHtml'
+          | 'excerpt'
+          | 'tags'
+          | 'publishedAt'
         > & {
           author?: StorefrontAPI.Maybe<
             Pick<StorefrontAPI.ArticleAuthor, 'name'>
@@ -624,6 +640,31 @@ export type ArticleQuery = {
           >;
         }
       >;
+      articles: {
+        nodes: Array<
+          Pick<
+            StorefrontAPI.Article,
+            | 'id'
+            | 'handle'
+            | 'title'
+            | 'excerpt'
+            | 'content'
+            | 'publishedAt'
+            | 'tags'
+          > & {
+            author?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.ArticleAuthor, 'name'>
+            >;
+            image?: StorefrontAPI.Maybe<
+              Pick<
+                StorefrontAPI.Image,
+                'id' | 'altText' | 'url' | 'width' | 'height'
+              >
+            >;
+            blog: Pick<StorefrontAPI.Blog, 'handle'>;
+          }
+        >;
+      };
     }
   >;
 };
@@ -651,7 +692,13 @@ export type BlogQuery = {
         nodes: Array<
           Pick<
             StorefrontAPI.Article,
-            'contentHtml' | 'handle' | 'id' | 'publishedAt' | 'title'
+            | 'id'
+            | 'handle'
+            | 'title'
+            | 'excerpt'
+            | 'content'
+            | 'publishedAt'
+            | 'tags'
           > & {
             author?: StorefrontAPI.Maybe<
               Pick<StorefrontAPI.ArticleAuthor, 'name'>
@@ -672,17 +719,6 @@ export type BlogQuery = {
       };
     }
   >;
-};
-
-export type ArticleItemFragment = Pick<
-  StorefrontAPI.Article,
-  'contentHtml' | 'handle' | 'id' | 'publishedAt' | 'title'
-> & {
-  author?: StorefrontAPI.Maybe<Pick<StorefrontAPI.ArticleAuthor, 'name'>>;
-  image?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Image, 'id' | 'altText' | 'url' | 'width' | 'height'>
-  >;
-  blog: Pick<StorefrontAPI.Blog, 'handle'>;
 };
 
 export type BlogsQueryVariables = StorefrontAPI.Exact<{
@@ -1528,7 +1564,7 @@ interface GeneratedQueryTypes {
     return: NavCollectionsQuery;
     variables: NavCollectionsQueryVariables;
   };
-  '#graphql\n  fragment HomeImage on Image {\n    id\n    altText\n    url\n    width\n    height\n  }\n  fragment HomeVariant on ProductVariant {\n    id\n    title\n    availableForSale\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      ...HomeImage\n    }\n    product {\n      title\n      handle\n    }\n  }\n  fragment HomeProduct on Product {\n    id\n    handle\n    title\n    description\n    productType\n    featuredImage {\n      ...HomeImage\n    }\n    images(first: 8) {\n      nodes {\n        ...HomeImage\n      }\n    }\n    collections(first: 4) {\n      nodes {\n        handle\n        title\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    options {\n      name\n      optionValues {\n        name\n      }\n    }\n    variants(first: 50) {\n      nodes {\n        ...HomeVariant\n      }\n    }\n  }\n  query HomeProducts(\n    $country: CountryCode\n    $language: LanguageCode\n    $first: Int\n  ) @inContext(country: $country, language: $language) {\n    products(first: $first, sortKey: CREATED_AT) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n  }\n': {
+  '#graphql\n  fragment HomeImage on Image {\n    id\n    altText\n    url\n    width\n    height\n  }\n  fragment HomeVariant on ProductVariant {\n    id\n    title\n    availableForSale\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      ...HomeImage\n    }\n    product {\n      title\n      handle\n    }\n  }\n  fragment HomeProduct on Product {\n    id\n    handle\n    title\n    descriptionHtml\n    productType\n    featuredImage {\n      ...HomeImage\n    }\n    images(first: 8) {\n      nodes {\n        ...HomeImage\n      }\n    }\n    collections(first: 4) {\n      nodes {\n        handle\n        title\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    options {\n      name\n      optionValues {\n        name\n      }\n    }\n    variants(first: 50) {\n      nodes {\n        ...HomeVariant\n      }\n    }\n  }\n  query HomeProducts(\n    $country: CountryCode\n    $language: LanguageCode\n    $first: Int\n  ) @inContext(country: $country, language: $language) {\n    products(first: $first, sortKey: CREATED_AT) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n  }\n': {
     return: HomeProductsQuery;
     variables: HomeProductsQueryVariables;
   };
@@ -1536,11 +1572,11 @@ interface GeneratedQueryTypes {
     return: HomeHeroQuery;
     variables: HomeHeroQueryVariables;
   };
-  '#graphql\n  query Article(\n    $articleHandle: String!\n    $blogHandle: String!\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(language: $language, country: $country) {\n    blog(handle: $blogHandle) {\n      handle\n      articleByHandle(handle: $articleHandle) {\n        handle\n        title\n        contentHtml\n        publishedAt\n        author: authorV2 {\n          name\n        }\n        image {\n          id\n          altText\n          url\n          width\n          height\n        }\n        seo {\n          description\n          title\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query Article(\n    $articleHandle: String!\n    $blogHandle: String!\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(language: $language, country: $country) {\n    blog(handle: $blogHandle) {\n      handle\n      title\n      articleByHandle(handle: $articleHandle) {\n        handle\n        title\n        contentHtml\n        excerpt\n        tags\n        publishedAt\n        author: authorV2 {\n          name\n        }\n        image {\n          id\n          altText\n          url\n          width\n          height\n        }\n        seo {\n          description\n          title\n        }\n      }\n      articles(first: 4, sortKey: PUBLISHED_AT, reverse: true) {\n        nodes {\n          ...ArticleCard\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ArticleCard on Article {\n    id\n    handle\n    title\n    excerpt\n    content\n    publishedAt\n    tags\n    author: authorV2 {\n      name\n    }\n    image {\n      id\n      altText\n      url\n      width\n      height\n    }\n    blog {\n      handle\n    }\n  }\n\n': {
     return: ArticleQuery;
     variables: ArticleQueryVariables;
   };
-  '#graphql\n  query Blog(\n    $language: LanguageCode\n    $blogHandle: String!\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $endCursor: String\n  ) @inContext(language: $language) {\n    blog(handle: $blogHandle) {\n      title\n      handle\n      seo {\n        title\n        description\n      }\n      articles(\n        first: $first,\n        last: $last,\n        before: $startCursor,\n        after: $endCursor\n      ) {\n        nodes {\n          ...ArticleItem\n        }\n        pageInfo {\n          hasPreviousPage\n          hasNextPage\n          hasNextPage\n          endCursor\n          startCursor\n        }\n\n      }\n    }\n  }\n  fragment ArticleItem on Article {\n    author: authorV2 {\n      name\n    }\n    contentHtml\n    handle\n    id\n    image {\n      id\n      altText\n      url\n      width\n      height\n    }\n    publishedAt\n    title\n    blog {\n      handle\n    }\n  }\n': {
+  '#graphql\n  query Blog(\n    $language: LanguageCode\n    $blogHandle: String!\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $endCursor: String\n  ) @inContext(language: $language) {\n    blog(handle: $blogHandle) {\n      title\n      handle\n      seo {\n        title\n        description\n      }\n      articles(\n        first: $first,\n        last: $last,\n        before: $startCursor,\n        after: $endCursor\n      ) {\n        nodes {\n          ...ArticleCard\n        }\n        pageInfo {\n          hasPreviousPage\n          hasNextPage\n          endCursor\n          startCursor\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ArticleCard on Article {\n    id\n    handle\n    title\n    excerpt\n    content\n    publishedAt\n    tags\n    author: authorV2 {\n      name\n    }\n    image {\n      id\n      altText\n      url\n      width\n      height\n    }\n    blog {\n      handle\n    }\n  }\n\n': {
     return: BlogQuery;
     variables: BlogQueryVariables;
   };

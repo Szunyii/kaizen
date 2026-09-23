@@ -9,19 +9,19 @@ import {I} from '~/components/kaizen/Icons';
 export const FAQ = [
   [
     'Melyik méretet válasszam?',
-    'A darabok normál fazonúak, a férfi póló egyenes szabású. Mérj le egy pólót, amiben jól érzed magad, és hasonlítsd össze a cm-es táblázattal mellbőség és teljes hossz alapján. Ha két méret között vagy, a nagyobbat ajánljuk.',
+    'A termékek méretezése az általános méretezéssel készült, így javasoljuk, hogy olyan méretet válassz, amit a mindennapokban is hordasz.',
   ],
   [
     'Mennyi idő alatt érkezik meg?',
-    'Raktáron lévő darabok esetén 1–3 munkanap Magyarországon, futárral. A csomagolásról e-mailben értesítünk.',
+    'Raktáron lévő darabok esetén 1-3 munkanap Magyarországon, futárral. A szállításról e-mailben értesítünk.',
   ],
   [
     'Visszaküldhetem, ha nem jó a méret?',
-    'Igen, 14 napon belül indoklás nélkül, viseletlen állapotban. Méretcserénél a visszaküldés költségét mi álljuk.',
+    'Igen, 14 napon belül indoklás nélkül, viseletlen állapotban.',
   ],
   [
     'Hogyan kapom meg az app-hozzáférést?',
-    'A rendelés visszaigazolásában küldünk egy meghívót a Kaizen Family alkalmazáshoz. A hozzáférés a fiókodhoz kötődik, és megmarad.',
+    'A termék megérkezése után egyértelmű lesz számodra, hogyan tudsz csatlakozni a zárt közösséghez.',
   ],
 ];
 

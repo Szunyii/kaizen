@@ -217,8 +217,12 @@
 .cart-line-options{ list-style:none; margin:7px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:4px 12px;
   font:500 11.5px/1.2 var(--sans); letter-spacing:.04em; color:var(--bone-mut); text-transform:uppercase; }
 .cart-line-options span{ color:var(--bone-dim); }
-.cart-line-foot{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:14px; }
-.cart-line-price{ font:600 14px/1 var(--sans); color:var(--bone); }
+/* stepper + remove on the left, price on the right; the price never breaks inside
+   ("13 990" / "Ft") — when the row is too narrow (400px drawer) it wraps as one piece
+   onto its own line, still right-aligned */
+.cart-line-foot{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+  gap:12px 14px; margin-top:14px; }
+.cart-line-price{ flex:none; margin-left:auto; white-space:nowrap; font:600 14px/1 var(--sans); color:var(--bone); }
 
 /* quantity stepper */
 .cart-line-quantity{ display:flex; align-items:center; gap:14px; }
