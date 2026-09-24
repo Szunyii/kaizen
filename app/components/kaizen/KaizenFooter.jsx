@@ -28,10 +28,14 @@ const FALLBACK_BLOG = {handle: 'hirek', title: 'Hírek'};
 // (app/routes/pages.aszf.jsx), not from a Shopify policy.
 const ASZF_LINK = ['ÁSZF', '/pages/aszf'];
 
+// Returns are handled on our own page (app/routes/pages.visszakuldes.jsx),
+// not by the Shopify refund policy, which is empty.
+const RETURNS_LINK = ['Visszaküldés', '/pages/visszakuldes'];
+
 // Used only if the Storefront API returns no policies for the shop.
 const FALLBACK_HELP = [
   ['Szállítás', '/policies/shipping-policy'],
-  ['Visszaküldés', '/policies/refund-policy'],
+  RETURNS_LINK,
   ['Adatkezelés', '/policies/privacy-policy'],
   ASZF_LINK,
 ];
@@ -39,24 +43,18 @@ const FALLBACK_HELP = [
 /**
  * Maps the shop's configured policies onto footer links. Titles are
  * localised here so the footer reads Hungarian even when the policy titles
- * in Shopify are still English.
+ * in Shopify are still English. Returns and the ÁSZF are our own pages and
+ * are always listed.
  * @param {FooterQuery['shop'] | undefined} shop
  */
 function helpLinks(shop) {
   if (!shop) return FALLBACK_HELP;
-  const entries = [
-    ['Szállítás', shop.shippingPolicy],
-    ['Visszaküldés', shop.refundPolicy],
-    ['Adatkezelés', shop.privacyPolicy],
-  ].filter(([, policy]) => policy?.handle);
-  if (!entries.length) return FALLBACK_HELP;
-  return [
-    ...entries.map(([label, policy]) => [
-      label,
-      `/policies/${policy.handle}`,
-    ]),
-    ASZF_LINK,
-  ];
+  const policy = (label, p) =>
+    p?.handle ? [[label, `/policies/${p.handle}`]] : [];
+  const shipping = policy('Szállítás', shop.shippingPolicy);
+  const privacy = policy('Adatkezelés', shop.privacyPolicy);
+  if (!shipping.length && !privacy.length) return FALLBACK_HELP;
+  return [...shipping, RETURNS_LINK, ...privacy, ASZF_LINK];
 }
 
 /**
@@ -157,9 +155,6 @@ function FooterShell({
               {p.title}
             </Link>
           ))}
-          <Link to="/collections/all" className="ft-link">
-            Összes termék
-          </Link>
         </div>
 
         <div className="ft-col">
