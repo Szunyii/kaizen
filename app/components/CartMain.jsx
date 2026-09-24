@@ -3,7 +3,6 @@ import {Link} from 'react-router';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
 import {CartSummary} from './CartSummary';
-import {EnsoMark} from '~/components/kaizen/Brand';
 import {I} from '~/components/kaizen/Icons';
 /**
  * Returns a map of all line items and their children.
@@ -93,12 +92,15 @@ function CartEmpty({hidden = false}) {
   const {close} = useAside();
   return (
     <div className="cart-empty" hidden={hidden}>
-      <span className="cart-empty-seal">
-        <EnsoMark size={66} stroke={10} />
-      </span>
-      <p className="cart-empty-h display">Üres a kosarad</p>
-      <p className="cart-empty-p">
-        Még semmi. Kezdd a kicsivel, a mai jobbal.
+      <img
+        className="cart-empty-logo"
+        src="/kaizen-logo.png"
+        alt="KaizenType"
+        width="140"
+        height="140"
+      />
+      <p className="cart-empty-h display">
+        Jelenleg üres a kosarad, nézd meg kollekciónkat.
       </p>
       <Link
         className="btn"

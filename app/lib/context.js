@@ -1,15 +1,23 @@
-import {createHydrogenContext} from '@shopify/hydrogen';
+import {createHydrogenContext, createWithCache} from '@shopify/hydrogen';
 import {AppSession} from '~/lib/session';
 import {CART_QUERY_FRAGMENT} from '~/lib/fragments';
 
-// Define the additional context object
-const additionalContext = {
-  // Additional context for custom properties, CMS clients, 3P SDKs, etc.
-  // These will be available as both context.propertyName and context.get(propertyContext)
-  // Example of complex objects that could be added:
-  // cms: await createCMSClient(env),
-  // reviews: await createReviewsClient(env),
-};
+/**
+ * Custom properties for the load context. They are available to loaders and
+ * actions as both `context.propertyName` and `context.get(propertyContext)`.
+ * Third-party clients (CMS, reviews, ...) belong here.
+ * @param {{
+ *   cache: Cache,
+ *   waitUntil: (promise: Promise<unknown>) => void,
+ *   request: Request,
+ * }} options
+ */
+function createAdditionalContext({cache, waitUntil, request}) {
+  return {
+    // Cached fetch for third-party APIs (see app/lib/fogyasztobarat.js).
+    withCache: createWithCache({cache, waitUntil, request}),
+  };
+}
 
 /**
  * Creates Hydrogen context for React Router 7.9.x
@@ -49,10 +57,10 @@ export async function createHydrogenRouterContext(
         queryFragment: CART_QUERY_FRAGMENT,
       },
     },
-    additionalContext,
+    createAdditionalContext({cache, waitUntil, request}),
   );
 
   return hydrogenContext;
 }
 
-/** @typedef {Class<additionalContext>} AdditionalContextType */
+/** @typedef {ReturnType<typeof createAdditionalContext>} AdditionalContextType */

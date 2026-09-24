@@ -269,11 +269,10 @@
 .cart-checkout{ width:100%; justify-content:center; margin-top:6px; padding-block:16px; }
 
 /* empty state */
-.cart-empty{ display:flex; flex-direction:column; align-items:flex-start; gap:16px; padding:48px 24px; }
+.cart-empty{ display:flex; flex-direction:column; align-items:center; gap:16px; padding:48px 24px; text-align:center; }
 .cart-empty[hidden]{ display:none; }
-.cart-empty-seal{ opacity:.9; }
+.cart-empty-logo{ display:block; width:140px; height:auto; }
 .cart-empty-h{ font-size:26px; line-height:1.1; color:var(--bone); }
-.cart-empty-p{ font:400 14px/1.6 var(--sans); color:var(--bone-dim); max-width:34ch; }
 .cart-empty .btn{ margin-top:6px; }
 
 /* ---------- cart page (/cart) ---------- */

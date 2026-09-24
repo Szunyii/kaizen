@@ -593,19 +593,6 @@ export type HomeProductsQuery = {
   };
 };
 
-export type HomeHeroQueryVariables = StorefrontAPI.Exact<{
-  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
-  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-}>;
-
-export type HomeHeroQuery = {
-  collection?: StorefrontAPI.Maybe<{
-    image?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.Image, 'id' | 'altText' | 'url' | 'width' | 'height'>
-    >;
-  }>;
-};
-
 export type ArticleQueryVariables = StorefrontAPI.Exact<{
   articleHandle: StorefrontAPI.Scalars['String']['input'];
   blogHandle: StorefrontAPI.Scalars['String']['input'];
@@ -1567,10 +1554,6 @@ interface GeneratedQueryTypes {
   '#graphql\n  fragment HomeImage on Image {\n    id\n    altText\n    url\n    width\n    height\n  }\n  fragment HomeVariant on ProductVariant {\n    id\n    title\n    availableForSale\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      ...HomeImage\n    }\n    product {\n      title\n      handle\n    }\n  }\n  fragment HomeProduct on Product {\n    id\n    handle\n    title\n    descriptionHtml\n    productType\n    featuredImage {\n      ...HomeImage\n    }\n    images(first: 8) {\n      nodes {\n        ...HomeImage\n      }\n    }\n    collections(first: 4) {\n      nodes {\n        handle\n        title\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    options {\n      name\n      optionValues {\n        name\n      }\n    }\n    variants(first: 50) {\n      nodes {\n        ...HomeVariant\n      }\n    }\n  }\n  query HomeProducts(\n    $country: CountryCode\n    $language: LanguageCode\n    $first: Int\n  ) @inContext(country: $country, language: $language) {\n    products(first: $first, sortKey: CREATED_AT) {\n      nodes {\n        ...HomeProduct\n      }\n    }\n  }\n': {
     return: HomeProductsQuery;
     variables: HomeProductsQueryVariables;
-  };
-  '#graphql\n  query HomeHero($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    collection(handle: "frontpage") {\n      image {\n        id\n        altText\n        url\n        width\n        height\n      }\n    }\n  }\n': {
-    return: HomeHeroQuery;
-    variables: HomeHeroQueryVariables;
   };
   '#graphql\n  query Article(\n    $articleHandle: String!\n    $blogHandle: String!\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(language: $language, country: $country) {\n    blog(handle: $blogHandle) {\n      handle\n      title\n      articleByHandle(handle: $articleHandle) {\n        handle\n        title\n        contentHtml\n        excerpt\n        tags\n        publishedAt\n        author: authorV2 {\n          name\n        }\n        image {\n          id\n          altText\n          url\n          width\n          height\n        }\n        seo {\n          description\n          title\n        }\n      }\n      articles(first: 4, sortKey: PUBLISHED_AT, reverse: true) {\n        nodes {\n          ...ArticleCard\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ArticleCard on Article {\n    id\n    handle\n    title\n    excerpt\n    content\n    publishedAt\n    tags\n    author: authorV2 {\n      name\n    }\n    image {\n      id\n      altText\n      url\n      width\n      height\n    }\n    blog {\n      handle\n    }\n  }\n\n': {
     return: ArticleQuery;

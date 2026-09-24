@@ -222,12 +222,16 @@ export default [
       },
     },
   },
+  // Unit tests under app/ use Node's built-in runner (`npm test`), not
+  // Jest, so they are kept out of the Jest rules (which need Jest installed).
   ...compat.extends('plugin:jest/recommended').map((config) => ({
     ...config,
     files: ['**/*.test.*'],
+    ignores: ['app/**/*.test.js'],
   })),
   {
     files: ['**/*.test.*'],
+    ignores: ['app/**/*.test.js'],
     plugins: {
       jest,
     },

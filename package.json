@@ -11,6 +11,7 @@
     "deploy": "shopify hydrogen deploy --assets-dir dist/client --worker-dir dist/server",
     "preview": "shopify hydrogen preview --build",
     "lint": "eslint --no-error-on-unmatched-pattern .",
+    "test": "node --test \"app/**/*.test.js\"",
     "codegen": "shopify hydrogen codegen && react-router typegen"
   },
   "prettier": "@shopify/prettier-config",

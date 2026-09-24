@@ -42,27 +42,18 @@ export const meta = () => {
 };
 
 /**
- * Loads the live Storefront products that feed the homepage showcases,
- * plus the frontpage collection image for the hero if one is set.
+ * Loads the live Storefront products that feed the homepage showcases.
  * @param {Route.LoaderArgs} args
  */
 export async function loader({context}) {
   const {storefront} = context;
   // Deferred: active Shopify discounts for the promo strip. Never throws.
   const promos = fetchActivePromos(context);
-  const [{products}, {collection}] = await Promise.all([
-    storefront.query(HOME_PRODUCTS_QUERY, {variables: {first: 6}}),
-    storefront.query(HOME_HERO_QUERY, {cache: storefront.CacheLong()}),
-  ]);
+  const {products} = await storefront.query(HOME_PRODUCTS_QUERY, {
+    variables: {first: 6},
+  });
 
-  const items = products?.nodes ?? [];
-  const heroImage =
-    collection?.image ??
-    items[0]?.images?.nodes?.[1] ??
-    items[0]?.featuredImage ??
-    null;
-
-  return {products: items, heroImage, promos};
+  return {products: products?.nodes ?? [], promos};
 }
 
 export default function Homepage() {
@@ -101,8 +92,6 @@ export default function Homepage() {
 
 function Hero() {
   const ref = useReveal();
-  /** @type {LoaderReturnData} */
-  const {heroImage} = useLoaderData();
   return (
     <section id="top" className="hero hero-full" ref={ref}>
       {/* The brand film carries the first screen visually; the page still
@@ -111,7 +100,7 @@ function Hero() {
         KaizenType — Progress Has No End. Nehéz pamut alapdarabok és a Kaizen
         Family közösség.
       </h1>
-      <HeroVideo poster={heroImage?.url} />
+      <HeroVideo />
     </section>
   );
 }
@@ -156,12 +145,19 @@ function HeroCopy() {
 }
 
 /**
- * Autoplaying brand film that fills the hero. Muted + looped so it can
- * autoplay everywhere. Falls back to the poster when the user prefers
- * reduced motion.
- * @param {{poster?: string}} props
+ * First frame of the brand film, extracted from public/kaizenweboldal.mp4.
+ * Regenerate it whenever the film changes so the poster matches frame 0.
  */
-function HeroVideo({poster}) {
+const HERO_POSTER = '/kaizenweboldal-poster.jpg';
+
+/**
+ * Autoplaying brand film that fills the hero. Muted + looped so it can
+ * autoplay everywhere. The film's own first frame sits underneath as a
+ * static poster, so the hero shows the film (never a product photo) while
+ * the video loads, and stays on that frame when the user prefers reduced
+ * motion.
+ */
+function HeroVideo() {
   const videoRef = useRef(null);
   const [ready, setReady] = useState(false);
 
@@ -182,15 +178,13 @@ function HeroVideo({poster}) {
     <div
       className={`hero-media hero-video reveal reveal-d2${ready ? ' is-ready' : ''}`}
     >
-      {poster ? (
-        <img
-          className="hero-video-poster"
-          src={poster}
-          alt=""
-          loading="eager"
-          decoding="async"
-        />
-      ) : null}
+      <img
+        className="hero-video-poster"
+        src={HERO_POSTER}
+        alt=""
+        loading="eager"
+        decoding="async"
+      />
       <video
         ref={videoRef}
         className="hero-video-el"
@@ -1234,21 +1228,6 @@ const HOME_PRODUCTS_QUERY = `#graphql
     products(first: $first, sortKey: CREATED_AT) {
       nodes {
         ...HomeProduct
-      }
-    }
-  }
-`;
-
-const HOME_HERO_QUERY = `#graphql
-  query HomeHero($country: CountryCode, $language: LanguageCode)
-  @inContext(country: $country, language: $language) {
-    collection(handle: "frontpage") {
-      image {
-        id
-        altText
-        url
-        width
-        height
       }
     }
   }

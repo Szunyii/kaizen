@@ -14,9 +14,10 @@ npm run build     # Production build (shopify hydrogen build --codegen)
 npm run preview   # Build then serve the production bundle locally
 npm run lint      # ESLint over the repo
 npm run codegen   # Regenerate GraphQL types + react-router typegen
+npm test          # Node's built-in runner over app/**/*.test.js (pure helpers only)
 ```
 
-There is **no test runner configured**. The eslint-plugin-jest config exists but no test scripts/files are present.
+Unit tests use Node's built-in runner (`npm test` → `node --test "app/**/*.test.js"`) for pure helpers, e.g. `app/lib/fogyasztobarat.test.js`. There is no browser/integration test runner; the eslint-plugin-jest config applies to `*.test.*` files.
 
 ## Critical: React Router, not Remix
 
