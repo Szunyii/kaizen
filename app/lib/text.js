@@ -4,6 +4,13 @@
  * to change wording so the purchase path never mixes languages.
  */
 
+/**
+ * Brand tagline. Sits under the wordmark baked into the hero film and, in
+ * the same uppercase serif, under the logo in the footer. The two must read
+ * identically, so change the wording here only.
+ */
+export const BRAND_TAGLINE = 'Gymwear designed in Hungary';
+
 export const TEXT = {
   allProducts: 'Összes termék',
   addToCart: 'Kosárba',

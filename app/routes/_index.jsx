@@ -19,6 +19,7 @@ import {formatMoney} from '~/lib/money';
 import {fetchActivePromos} from '~/lib/discounts';
 import {allReviews} from '~/lib/reviews';
 import {
+  BRAND_TAGLINE,
   TEXT,
   optionName,
   isSizeOption,
@@ -201,7 +202,7 @@ function HeroVideo() {
       </video>
       <span className="hero-video-shade" aria-hidden="true" />
       {/* Sits right under the wordmark that is baked into the film. */}
-      <p className="hero-video-tagline">Gymwear designed in Hungary</p>
+      <p className="hero-video-tagline">{BRAND_TAGLINE}</p>
     </div>
   );
 }

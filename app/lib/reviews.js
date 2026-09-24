@@ -23,6 +23,10 @@
 
 /** @type {Review[]} */
 const REVIEWS = [
+  // The six "Minta" placeholders below are commented out on request
+  // (2026-09-24) so the review sections stay hidden in development too.
+  // Uncomment them to check the layout, or replace them with real reviews.
+  /*
   {
     id: 'sample-1',
     name: 'Minta Vásárló',
@@ -80,6 +84,7 @@ const REVIEWS = [
     source: 'Google',
     sample: true,
   },
+  */
 ];
 
 /** Reviews that may be shown: samples only while developing. */

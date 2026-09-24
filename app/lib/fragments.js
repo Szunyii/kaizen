@@ -229,11 +229,6 @@ export const HEADER_QUERY = `#graphql
 `;
 
 export const FOOTER_QUERY = `#graphql
-  fragment FooterPolicy on ShopPolicy {
-    id
-    handle
-    title
-  }
   query Footer(
     $country: CountryCode
     $footerMenuHandle: String!
@@ -241,17 +236,6 @@ export const FOOTER_QUERY = `#graphql
   ) @inContext(language: $language, country: $country) {
     menu(handle: $footerMenuHandle) {
       ...Menu
-    }
-    shop {
-      shippingPolicy {
-        ...FooterPolicy
-      }
-      privacyPolicy {
-        ...FooterPolicy
-      }
-      termsOfService {
-        ...FooterPolicy
-      }
     }
     products(first: 6, sortKey: CREATED_AT) {
       nodes {

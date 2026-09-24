@@ -1087,6 +1087,12 @@
 }
 /* PDF links come with inline color:#F00; keep them on the brand red. */
 .doc-prose a[target="_blank"]{ color:var(--red-bright) !important; }
+/* The vendor's embed widget (ASZF_SOURCE 'embed') brings its own layout: a
+   centred iframe of at most 1000px, 700px tall, scrolling inside. Only the
+   spacing around it is ours; the min-height holds the footer in place while
+   the widget loads. */
+.doc-embed{ padding-block:clamp(28px,4vw,56px) clamp(60px,8vw,110px); }
+.doc-embed-body{ min-height:730px; }
 
 /* =================== ERROR PAGE (root ErrorBoundary: 404 / 500) =================== */
 .err{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px;

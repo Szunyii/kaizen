@@ -316,23 +316,42 @@ function ProductGrid({products}) {
   );
 }
 
-/** Branded empty state for an empty filter result or empty collection. */
+/**
+ * Branded empty state. A collection with no products at all shows the logo
+ * and a "coming soon" note; an empty filter result keeps the reset button.
+ */
 function CollectionEmpty({onReset, filtered}) {
+  if (!filtered) {
+    return (
+      <div className="col-empty">
+        <img
+          className="col-empty-logo"
+          src="/kaizen-logo.png"
+          alt=""
+          width="500"
+          height="500"
+        />
+        <h2 className="col-empty-h display">Hamarosan érkeznek a termékek</h2>
+        <div className="col-empty-cta">
+          <Link className="btn" to="/#termekek">
+            Összes termék {I.arrow}
+          </Link>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="col-empty">
       <EnsoMark size={92} stroke={9} />
       <h2 className="col-empty-h display">Még nincs itt semmi</h2>
       <p className="col-empty-p">
-        {filtered
-          ? 'Ezekre a szűrőkre nincs találat. Próbálj másik kombinációt, vagy nézd meg a teljes kínálatot.'
-          : 'Ebben a kollekcióban még nincs termék. Nézd meg a teljes kínálatot.'}
+        Ezekre a szűrőkre nincs találat. Próbálj másik kombinációt, vagy nézd
+        meg a teljes kínálatot.
       </p>
       <div className="col-empty-cta">
-        {filtered ? (
-          <button type="button" className="btn btn-ghost" onClick={onReset}>
-            Szűrők törlése
-          </button>
-        ) : null}
+        <button type="button" className="btn btn-ghost" onClick={onReset}>
+          Szűrők törlése
+        </button>
         <Link className="btn" to="/#termekek">
           Összes termék {I.arrow}
         </Link>

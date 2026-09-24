@@ -1,7 +1,8 @@
-import {useEffect} from 'react';
+import {useEffect, useRef} from 'react';
 import {Link, useLoaderData} from 'react-router';
 import {BrushRibbon} from '~/components/kaizen/Brand';
 import {
+  FOGYASZTOBARAT_EMBED_LOADER,
   FOGYASZTOBARAT_ID,
   FOGYASZTOBARAT_ORIGIN,
   fetchFogyasztobaratDocument,
@@ -9,6 +10,23 @@ import {
 } from '~/lib/fogyasztobarat';
 
 const CONTACT_EMAIL = 'kaizentype@gmail.com';
+
+/**
+ * Which version of the page is shown:
+ * - 'embed': the vendor's embeddable widget, exactly as the vendor styles it
+ *   (only has content on kaizentype.com, see FOGYASZTOBARAT_EMBED_LOADER);
+ * - 'generated': the ÁSZF text fetched server-side and set in the site's
+ *   article styles.
+ * @type {'embed' | 'generated'}
+ */
+const ASZF_SOURCE = 'embed';
+
+/**
+ * Document type of the embed widget, as in the vendor's snippet. 'def' is the
+ * illustrated consumer information ("Képes fogyasztói tájékoztató"), 'aszf'
+ * the ÁSZF itself.
+ */
+const EMBED_TYPE = 'def';
 
 /**
  * @type {Route.MetaFunction}
@@ -30,10 +48,12 @@ export const meta = () => {
 /**
  * The document is generated and kept current in the Fogyasztóbarát system,
  * so it is fetched (and cached) server-side on every request instead of being
- * stored in Shopify.
+ * stored in Shopify. The embed loads in the browser and needs no data.
  * @param {Route.LoaderArgs} args
  */
 export async function loader({context}) {
+  if (ASZF_SOURCE === 'embed') return {generated: null};
+
   const doc = await fetchFogyasztobaratDocument(context, 'aszf');
   if (!doc) {
     throw new Response(
@@ -42,16 +62,56 @@ export async function loader({context}) {
     );
   }
   return {
-    html: doc.html,
-    effectiveDate: doc.effectiveDate,
-    effectiveLabel: formatEffectiveDate(doc.effectiveDate),
+    generated: {
+      html: doc.html,
+      effectiveDate: doc.effectiveDate,
+      effectiveLabel: formatEffectiveDate(doc.effectiveDate),
+    },
   };
 }
 
 export default function AszfPage() {
   /** @type {LoaderReturnData} */
-  const {html, effectiveDate, effectiveLabel} = useLoaderData();
+  const {generated} = useLoaderData();
+  return generated ? <GeneratedAszf {...generated} /> : <EmbeddedAszf />;
+}
 
+/**
+ * The vendor's embed snippet, run from an effect instead of pasted as an
+ * inline <script> (which would need the CSP nonce and would not run again on
+ * client-side navigation). e-api.js inserts the widget right after its own
+ * <script> tag and reads its settings from `#fbarat-embed`, so the tag is
+ * created inside the container the widget should fill.
+ */
+function EmbeddedAszf() {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    // StrictMode runs this twice in development; a second loader would take
+    // the vendor's "second widget on the page" branch and fail. No cleanup:
+    // everything the loader adds lives in the container and leaves with it.
+    if (!container || container.querySelector('#fbarat-embed')) return;
+    const script = document.createElement('script');
+    script.src = FOGYASZTOBARAT_EMBED_LOADER;
+    script.id = 'fbarat-embed';
+    script.dataset.id = FOGYASZTOBARAT_ID;
+    script.dataset.type = EMBED_TYPE;
+    container.appendChild(script);
+  }, []);
+
+  return (
+    <div className="doc-embed view-enter">
+      <h1 className="sr-only">ÁSZF és fogyasztói tájékoztató</h1>
+      <div ref={containerRef} className="wrap doc-embed-body" />
+    </div>
+  );
+}
+
+/**
+ * @param {NonNullable<LoaderReturnData['generated']>} props
+ */
+function GeneratedAszf({html, effectiveDate, effectiveLabel}) {
   useEffect(() => {
     // The vendor's embed snippet reports each view so the account shows the
     // document as live on the site; replay it without its jQuery wrapper.

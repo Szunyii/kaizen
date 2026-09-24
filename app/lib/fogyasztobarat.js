@@ -1,7 +1,7 @@
 /**
  * Fogyasztóbarát ("consumer friendly") integration: the trust badge loaded
- * from KaizenFooter and the generated legal documents served from
- * /pages/aszf.
+ * from KaizenFooter, and the embed widget or the generated legal documents
+ * served from /pages/aszf.
  *
  * Everything the vendor serves is licensed to a domain. Its badge script only
  * renders when `location.host` is on the account's allow-list, and `api.php`
@@ -15,6 +15,13 @@ export const FOGYASZTOBARAT_ID = 'R7FDJBKH';
 export const FOGYASZTOBARAT_ORIGIN = 'https://admin.fogyasztobarat.hu';
 /** Badge loader; it reads the widget id from the `#fbarat` element. */
 export const FOGYASZTOBARAT_LOADER = `${FOGYASZTOBARAT_ORIGIN}/h-api.js`;
+/**
+ * Embeddable document loader; it reads the id and document type from the
+ * `#fbarat-embed` element and renders the vendor's iframe right after it. The
+ * iframe is licensed by the page URL, so it only has content on the licensed
+ * site and shows "Hiba kód: 1002" elsewhere.
+ */
+export const FOGYASZTOBARAT_EMBED_LOADER = `${FOGYASZTOBARAT_ORIGIN}/e-api.js`;
 /** The site the badge and the documents are licensed to. */
 const LICENSED_SITE = 'https://kaizentype.com/';
 
