@@ -10,6 +10,7 @@ import {
   SearchFormPredictive,
 } from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
+import {SEARCH_TEXT} from '~/lib/text';
 
 /**
  * @param {PageLayoutProps}
@@ -39,7 +40,7 @@ export function PageLayout({
 function CartAside({cart}) {
   return (
     <Aside type="cart" heading="KOSÁR">
-      <Suspense fallback={<p>Loading cart ...</p>}>
+      <Suspense fallback={<p className="sd-note">Kosár betöltése…</p>}>
         <Await resolve={cart}>
           {(cart) => {
             return <CartMain cart={cart} layout="aside" />;
@@ -79,7 +80,7 @@ function SearchAside() {
                 name="q"
                 onChange={fetchResults}
                 onFocus={fetchResults}
-                placeholder="Search products"
+                placeholder={SEARCH_TEXT.placeholder}
                 ref={inputRef}
                 type="search"
                 list={queriesDatalistId}
@@ -87,7 +88,7 @@ function SearchAside() {
               <button
                 type="submit"
                 className="sd-go"
-                aria-label="View all results"
+                aria-label={SEARCH_TEXT.viewAll}
               >
                 {I.arrow}
               </button>
@@ -101,7 +102,7 @@ function SearchAside() {
               const {articles, collections, pages, products, queries} = items;
 
               if (state === 'loading' && term.current) {
-                return <p className="sd-note">Searching…</p>;
+                return <p className="sd-note">{SEARCH_TEXT.searching}</p>;
               }
 
               if (!total) {
@@ -142,7 +143,7 @@ function SearchAside() {
                         term.current,
                       )}`}
                     >
-                      View all results for <q>{term.current}</q>
+                      {SEARCH_TEXT.viewAll}: <q>{term.current}</q>
                       {I.arrow}
                     </Link>
                   ) : null}

@@ -1,11 +1,13 @@
 import {Link, useFetcher} from 'react-router';
-import {Image, Money} from '@shopify/hydrogen';
+import {Image} from '@shopify/hydrogen';
 import React, {useRef, useEffect} from 'react';
 import {
   getEmptyPredictiveSearchResult,
   urlWithTrackingParams,
 } from '~/lib/search';
 import {useAside} from './Aside';
+import {formatMoney} from '~/lib/money';
+import {SEARCH_TEXT} from '~/lib/text';
 
 /**
  * Component that renders predictive search results
@@ -59,7 +61,7 @@ function SearchResultsPredictiveArticles({term, articles, closeSearch}) {
 
   return (
     <div className="predictive-search-result" key="articles">
-      <h5>Articles</h5>
+      <h5>{SEARCH_TEXT.articles}</h5>
       <ul>
         {articles.map((article) => {
           const articleUrl = urlWithTrackingParams({
@@ -99,7 +101,7 @@ function SearchResultsPredictiveCollections({term, collections, closeSearch}) {
 
   return (
     <div className="predictive-search-result" key="collections">
-      <h5>Collections</h5>
+      <h5>{SEARCH_TEXT.collections}</h5>
       <ul>
         {collections.map((collection) => {
           const collectionUrl = urlWithTrackingParams({
@@ -139,7 +141,7 @@ function SearchResultsPredictivePages({term, pages, closeSearch}) {
 
   return (
     <div className="predictive-search-result" key="pages">
-      <h5>Pages</h5>
+      <h5>{SEARCH_TEXT.pages}</h5>
       <ul>
         {pages.map((page) => {
           const pageUrl = urlWithTrackingParams({
@@ -171,7 +173,7 @@ function SearchResultsPredictiveProducts({term, products, closeSearch}) {
 
   return (
     <div className="predictive-search-result" key="products">
-      <h5>Products</h5>
+      <h5>{SEARCH_TEXT.products}</h5>
       <ul>
         {products.map((product) => {
           const productUrl = urlWithTrackingParams({
@@ -195,7 +197,7 @@ function SearchResultsPredictiveProducts({term, products, closeSearch}) {
                 )}
                 <div>
                   <p>{product.title}</p>
-                  <small>{price && <Money data={price} />}</small>
+                  <small>{formatMoney(price)}</small>
                 </div>
               </Link>
             </li>
@@ -237,7 +239,7 @@ function SearchResultsPredictiveEmpty({term}) {
 
   return (
     <p>
-      No results found for <q>{term.current}</q>
+      {SEARCH_TEXT.noResults} <q>{term.current}</q>
     </p>
   );
 }

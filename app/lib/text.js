@@ -32,6 +32,20 @@ export const TEXT = {
   sortAlpha: 'Név: A–Z',
 };
 
+/** Search drawer, predictive results and the /search page. */
+export const SEARCH_TEXT = {
+  title: 'Keresés',
+  placeholder: 'Termékek keresése',
+  submit: 'Keresés',
+  viewAll: 'Összes találat',
+  searching: 'Keresés…',
+  noResults: 'Nincs találat erre:',
+  products: 'Termékek',
+  collections: 'Kollekciók',
+  pages: 'Oldalak',
+  articles: 'Írások',
+};
+
 /** Error page (root ErrorBoundary): 404 and everything else. */
 export const ERROR_TEXT = {
   notFoundKicker: 'Nem található',
