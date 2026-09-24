@@ -1078,3 +1078,17 @@
 }
 /* PDF links come with inline color:#F00; keep them on the brand red. */
 .doc-prose a[target="_blank"]{ color:var(--red-bright) !important; }
+
+/* =================== ERROR PAGE (root ErrorBoundary: 404 / 500) =================== */
+.err{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px;
+  padding:clamp(56px,9vw,120px) 0 clamp(64px,10vw,140px); }
+.err .kicker{ margin-top:8px; }
+.err-h{ max-width:16ch; font-size:clamp(34px,5.4vw,68px); color:var(--bone); }
+.err-p{ max-width:48ch; font:400 17px/1.7 var(--sans); color:var(--bone-mut); text-wrap:pretty; }
+.err-cta{ display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-top:14px; }
+.err-dev{ max-width:100%; margin-top:24px; padding:14px 16px; border:1px solid var(--line); border-radius:3px;
+  font:12px/1.5 ui-monospace, monospace; color:var(--bone-faint); text-align:left; white-space:pre-wrap; }
+@media (max-width:640px){
+  .err-cta{ flex-direction:column; align-self:stretch; }
+  .err-cta .btn{ justify-content:center; box-sizing:border-box; }
+}

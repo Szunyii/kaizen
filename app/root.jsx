@@ -1,5 +1,6 @@
 import {Analytics, getShopAnalytics, useNonce} from '@shopify/hydrogen';
 import {
+  Link,
   Outlet,
   useRouteError,
   isRouteErrorResponse,
@@ -21,6 +22,9 @@ import kaizenTokens from '~/styles/kaizen.css?url';
 import kaizenComponents from '~/styles/kaizen-components.css?url';
 import kaizenPages from '~/styles/kaizen-pages.css?url';
 import {PageLayout} from './components/PageLayout';
+import {EnsoMark} from '~/components/kaizen/Brand';
+import {I} from '~/components/kaizen/Icons';
+import {ERROR_TEXT} from '~/lib/text';
 
 /**
  * This is important to avoid re-fetching root queries on sub-navigations
@@ -39,6 +43,20 @@ export const shouldRevalidate = ({formMethod, currentUrl, nextUrl}) => {
   // line below to `return defaultShouldRevalidate` instead.
   // For more details see: https://remix.run/docs/en/main/route/should-revalidate
   return false;
+};
+
+/**
+ * Only the error page takes its title from root; every other route sets its own.
+ * @type {Route.MetaFunction}
+ */
+export const meta = ({error}) => {
+  if (!error) return [];
+  const notFound = isRouteErrorResponse(error) && error.status === 404;
+  return [
+    {
+      title: `${notFound ? ERROR_TEXT.notFoundKicker : ERROR_TEXT.errorKicker} — KaizenType`,
+    },
+  ];
 };
 
 /**
@@ -217,6 +235,8 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
+  /** @type {RootLoader | undefined} */
+  const data = useRouteLoaderData('root');
   let errorMessage = 'Unknown error';
   let errorStatus = 500;
 
@@ -227,16 +247,53 @@ export function ErrorBoundary() {
     errorMessage = error.message;
   }
 
+  const page = <RouteErrorPage status={errorStatus} message={errorMessage} />;
+
+  // Root data survives when a child route threw (unknown URL, missing product), so
+  // keep the header, drawers and footer: the visitor needs a way on from here.
+  if (!data) return page;
+
   return (
-    <div className="route-error">
-      <h1>Oops</h1>
-      <h2>{errorStatus}</h2>
-      {errorMessage && (
-        <fieldset>
-          <pre>{errorMessage}</pre>
-        </fieldset>
-      )}
-    </div>
+    <Analytics.Provider
+      cart={data.cart}
+      shop={data.shop}
+      consent={data.consent}
+    >
+      <PageLayout {...data}>{page}</PageLayout>
+    </Analytics.Provider>
+  );
+}
+
+/**
+ * @param {{status: number; message: string}}
+ */
+function RouteErrorPage({status, message}) {
+  const notFound = status === 404;
+
+  return (
+    <section className="err wrap">
+      <EnsoMark size={92} stroke={9} />
+      <p className="kicker">
+        {status} — {notFound ? ERROR_TEXT.notFoundKicker : ERROR_TEXT.errorKicker}
+      </p>
+      <h1 className="err-h display">
+        {notFound ? ERROR_TEXT.notFoundTitle : ERROR_TEXT.errorTitle}
+      </h1>
+      <p className="err-p">
+        {notFound ? ERROR_TEXT.notFoundLead : ERROR_TEXT.errorLead}
+      </p>
+      <div className="err-cta">
+        <Link className="btn" to="/#termekek">
+          {ERROR_TEXT.toProducts} {I.arrow}
+        </Link>
+        <Link className="btn btn-ghost" to={notFound ? '/' : '/pages/contact'}>
+          {notFound ? ERROR_TEXT.home : ERROR_TEXT.contact}
+        </Link>
+      </div>
+      {import.meta.env.DEV && !notFound && message ? (
+        <pre className="err-dev">{message}</pre>
+      ) : null}
+    </section>
   );
 }
 

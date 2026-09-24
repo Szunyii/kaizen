@@ -32,6 +32,21 @@ export const TEXT = {
   sortAlpha: 'Név: A–Z',
 };
 
+/** Error page (root ErrorBoundary): 404 and everything else. */
+export const ERROR_TEXT = {
+  notFoundKicker: 'Nem található',
+  notFoundTitle: 'Ezt az oldalt nem találjuk.',
+  notFoundLead:
+    'Lehet, hogy elgépelted a címet, vagy a link már nem él. A termékeket innen is eléred.',
+  errorKicker: 'Hiba',
+  errorTitle: 'Valami félrement.',
+  errorLead:
+    'Próbáld újra pár perc múlva. Ha nem múlik el, írj nekünk, és megnézzük.',
+  toProducts: 'Irány a kollekció',
+  home: 'Kezdőlap',
+  contact: 'Kapcsolat',
+};
+
 /**
  * Localised option names. Shopify option names are set in admin (often in
  * English); map the common ones so the UI reads Hungarian either way.
