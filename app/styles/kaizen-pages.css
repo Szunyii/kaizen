@@ -301,7 +301,7 @@
   padding:clamp(22px,3vw,30px) 0 clamp(22px,3vw,30px) clamp(16px,2.5vw,28px); background:none; border:0; text-align:left; cursor:pointer;
   color:var(--bone); transition:color .25s var(--ease-out); }
 .faq-n{ font-size:14px; letter-spacing:.08em; color:var(--bone-faint); transition:color .25s var(--ease-out); }
-.faq-q-t{ font-size:clamp(21px,2.4vw,28px); line-height:1.2; letter-spacing:-.005em; }
+.faq-q-t{ font-size:clamp(21px,2.4vw,28px); line-height:1.2; letter-spacing:-.005em; text-wrap:balance; }
 .faq-ic{ align-self:center; display:grid; place-items:center; width:36px; height:36px; border:1px solid var(--line); border-radius:999px;
   color:var(--bone-dim); transition:transform .45s var(--ease-out), background .25s var(--ease-out), color .25s var(--ease-out), border-color .25s var(--ease-out); }
 .faq-ic svg{ width:16px; height:16px; }
