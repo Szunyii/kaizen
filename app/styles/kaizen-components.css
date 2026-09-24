@@ -45,7 +45,11 @@
 }
 
 /* ---------- mobile nav drawer (Aside type="mobile") ---------- */
-.hd-mnav{ display:flex; flex-direction:column; padding:6px 4px 28px; }
+/* the drawer is a fixed panel over a scroll-locked page, so the menu scrolls itself;
+   in landscape (375px tall) the collections and account link were unreachable */
+.hd-mnav{ display:flex; flex-direction:column; padding:6px 4px 28px;
+  max-height:calc(100vh - var(--header-height)); overflow-y:auto; overscroll-behavior:contain; }
+@supports (height:100dvh){ .hd-mnav{ max-height:calc(100dvh - var(--header-height)); } }
 .hd-mnav-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding-right:12px; }
 .hd-mnav-search{ display:inline-flex; align-items:center; gap:8px; padding:12px 10px; min-height:44px;
   font:600 12px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase; color:var(--bone-dim); }
