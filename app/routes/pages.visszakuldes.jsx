@@ -187,7 +187,7 @@ export default function ReturnsPage() {
             <span className="kanji">返品</span>— Visszaküldés
           </p>
           <h1 className="rt-h display reveal reveal-d1">
-            Nem jött be?
+            Nem jött be?{' '}
             <br />
             <em className="rt-em">14 napon belül visszaküldheted.</em>
           </h1>
@@ -239,7 +239,7 @@ export default function ReturnsPage() {
               <span className="kanji">問</span>— Kérdések
             </p>
             <h2 className="sec-h sec-h-sm display reveal reveal-d1">
-              Amit még
+              Amit még{' '}
               <br />
               <em className="faq-em">tudni érdemes.</em>
             </h2>
