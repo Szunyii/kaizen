@@ -945,7 +945,8 @@
 .blg-news-p{ margin-top:16px; max-width:40ch; font:400 16px/1.6 var(--sans); color:var(--bone-dim); }
 .blg-form{ max-width:none; }
 .blg-news-note{ margin-top:14px; font:400 13.5px/1.5 var(--sans); color:var(--bone-faint); }
-@media (max-width:900px){ .blg-empty-grid{ grid-template-columns:1fr; } }
+/* minmax(0,…): a bare 1fr track grows to its content's min-content (the newsletter row) and ran past 320px */
+@media (max-width:900px){ .blg-empty-grid{ grid-template-columns:minmax(0,1fr); } }
 
 /* ---------- /blogs list ---------- */
 .blg-list{ padding-top:clamp(20px,3vw,36px); border-top:1px solid var(--line); }
