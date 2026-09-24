@@ -783,7 +783,9 @@
 
   /* pdp */
   .pdp-crumbs{ margin-bottom:18px; }
-  .pdp-thumb{ width:64px; }
+  /* five equal columns: 5 × 64px + gaps overflowed the 330px row and left one thumb alone */
+  .pdp-thumbs{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:8px; }
+  .pdp-thumb{ width:auto; }
   .product-options-item{ min-height:44px; }
 }
 
