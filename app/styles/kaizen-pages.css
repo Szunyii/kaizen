@@ -725,7 +725,8 @@
 
   /* value strip: icon and text on one row, left-aligned */
   .vstrip{ gap:14px; padding:22px 0; }
-  .vstrip-i{ display:grid; grid-template-columns:auto 1fr; gap:12px; text-align:left; justify-content:start;
+  /* baseline: a two-line item keeps its tick on the first line, not centred between them */
+  .vstrip-i{ display:grid; grid-template-columns:auto 1fr; gap:12px; text-align:left; justify-content:start; align-items:baseline;
     font-size:15px; }
 
   /* body copy one step down so headings keep the lead */
