@@ -88,7 +88,7 @@ Design-adósság a 2026-09-09-i design review-ból (`docs/superpowers/specs/2026
 - **What:** A `policies.$handle.jsx` töltse be szerveroldalon a Fogyasztóbarát dokumentumot, ahogy a `/pages/aszf` (`fetchFogyasztobaratDocument(context, type)`), és brandelt sablonnal, magyar címmel jelenítse meg.
 - **Why:** A Shopify policy body-kban csak a vendor beágyazó `<script>`-je van (`data-type "at"` = adatkezelési tájékoztató, `"dm"` = szállítás), amit a böngésző nem futtat (a CSP is blokkolja); a refund policy üres. Mindhárom footer-link üres, angol skeleton oldalra visz ("← Back to Policies"). Az üres adatkezelési tájékoztató jogi kockázat.
 - **Context:** A felhasználó 2026-09-24-én külön feladatnak döntötte (spec + teszt, mint az ÁSZF-nél). A `data-type` a policy body-ból regexszel kiolvasható.
-- **Update 2026-09-24:** a footer "Visszaküldés" linkje már a saját `/pages/visszakuldes` oldalra mutat (Customer Account API önkiszolgáló visszaküldés, spec: `docs/superpowers/specs/2026-09-24-returns-page-design.md`), a refund policy nincs linkelve; M1 az Adatkezelés + Szállítás oldalakra szűkül.
+- **Update 2026-09-24:** a footer "Visszaküldés" linkje egyelőre a `/pages/contact` oldalra mutat, a refund policy nincs linkelve; M1 az Adatkezelés + Szállítás oldalakra szűkül. Az önkiszolgáló visszaküldő oldal parkolva, lásd R1 lent.
 
 ### M2 Angol tartalom
 - **What:** `/pages/about` teljesen angol ("THE IDEA", "Shop the collection →"; sehonnan nincs linkelve); a Férfi kollekció leírása angol (Shopify admin: "Heavyweight tees, hoodies and pants").
@@ -111,3 +111,12 @@ Design-adósság a 2026-09-09-i design review-ból (`docs/superpowers/specs/2026
 ### M7 Toast mobilon
 - **What:** A `.toast` z-index 80, az overlay 100, és a kosár-fiók vele egy időben nyílik, így mobilon soha nem látszik; `white-space:nowrap` hosszú terméknévnél 320px fölé fut.
 
+
+## Későbbi kiadásra parkolt funkciók
+
+### R1 Önkiszolgáló visszaküldés oldal (`/pages/visszakuldes`)
+- **What:** Az `app/routes/pages.visszakuldes.jsx` route kész, de ki van kapcsolva az `app/routes.js` `ignoredRouteFiles` bejegyzésével (2026-09-24). A footer "Visszaküldés" linkje addig a `/pages/contact` oldalra visz.
+- **Why:** A felhasználó döntése: a visszaküldés folyamatát egy későbbi release-ben alakítjuk át. Felmerült a rendelésszám + e-mail alapú vendég lekérdezés, amihez Admin API-s app kellene (Dev Dashboard, client credentials token, `read_orders` + `write_returns`), és Basic csomagon az e-mail mező elérése bizonytalan.
+- **Kész részek:** Customer Account API dokumentumok (`CustomerReturnsQuery`, `OrderRequestReturnMutation`), `app/lib/returns.js` + tesztek, `.rt-*` CSS a `kaizen-pages.css` végén, spec és terv a `docs/superpowers/` alatt. A Hydrogen storefront Customer Account API jogai (`customer_read_orders`, `customer_write_customers`) be vannak kapcsolva.
+- **Visszakapcsolás:** töröld az `ignoredRouteFiles` bejegyzést az `app/routes.js`-ben, a `KaizenFooter.jsx` `RETURNS_LINK`-jét állítsd vissza `/pages/visszakuldes`-re, adminban Beállítások, Ügyfélfiókok, önkiszolgáló visszaküldés bekapcsolása, majd teszt egy teljesített rendeléssel.
+- **Depends on:** döntés a vendég útról (Admin API app) vagy az e-mail kódos belépés megtartása.

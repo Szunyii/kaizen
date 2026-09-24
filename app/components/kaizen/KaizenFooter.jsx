@@ -28,9 +28,10 @@ const FALLBACK_BLOG = {handle: 'hirek', title: 'Hírek'};
 // (app/routes/pages.aszf.jsx), not from a Shopify policy.
 const ASZF_LINK = ['ÁSZF', '/pages/aszf'];
 
-// Returns are handled on our own page (app/routes/pages.visszakuldes.jsx),
-// not by the Shopify refund policy, which is empty.
-const RETURNS_LINK = ['Visszaküldés', '/pages/visszakuldes'];
+// Returns go through the contact page for now: the self-serve returns page
+// (app/routes/pages.visszakuldes.jsx) is parked in app/routes.js until a
+// later release, and the Shopify refund policy is empty and not linked.
+const RETURNS_LINK = ['Visszaküldés', '/pages/contact'];
 
 // Used only if the Storefront API returns no policies for the shop.
 const FALLBACK_HELP = [

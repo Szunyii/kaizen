@@ -1,3 +1,11 @@
+/*
+ * PARKED (2026-09-24): this route is switched off in app/routes.js
+ * (`ignoredRouteFiles`) until the returns flow is reworked in a later
+ * release; the footer's "Visszaküldés" link goes to /pages/contact until
+ * then. To bring the page back, remove the ignore entry in app/routes.js and
+ * point RETURNS_LINK in app/components/kaizen/KaizenFooter.jsx here again.
+ * Spec: docs/superpowers/specs/2026-09-24-returns-page-design.md
+ */
 import {useState} from 'react';
 import {
   data as routeData,
