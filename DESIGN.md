@@ -81,7 +81,7 @@ Minta: kicker (opcionális kanji + gondolatjel) → display H2 → egy rövid be
 | `.voices` / `.voice` | vélemények: három egyforma idézet-kártya, csillagok + idézet + név, kép nélkül |
 | `.faq-i` | számozott kérdés, plusz ikon, piros bal él nyitva |
 | `.restock`, `.ft-form` | egy mezős űrlapok (értesítés, hírlevél): mező + piros gomb egy keretben, `role="status"` üzenet |
-| `.cart-*`, `.sd-*`, `.acct-*`, `.pdp-*`, `.col-*` | drawer és oldalak; ugyanazok a tokenek |
+| `.cart-*`, `.sd-*`, `.acct-*`, `.pdp-*`, `.col-*`, `.rt-*` | drawer és oldalak; ugyanazok a tokenek |
 | `KaizenSeal`, `EnsoMark`, `BrushRibbon`, `Wave` | kódban rajzolt brand SVG-k (`app/components/kaizen/Brand.jsx`) |
 
 ## Mozgás

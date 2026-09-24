@@ -88,6 +88,7 @@ Design-adósság a 2026-09-09-i design review-ból (`docs/superpowers/specs/2026
 - **What:** A `policies.$handle.jsx` töltse be szerveroldalon a Fogyasztóbarát dokumentumot, ahogy a `/pages/aszf` (`fetchFogyasztobaratDocument(context, type)`), és brandelt sablonnal, magyar címmel jelenítse meg.
 - **Why:** A Shopify policy body-kban csak a vendor beágyazó `<script>`-je van (`data-type "at"` = adatkezelési tájékoztató, `"dm"` = szállítás), amit a böngésző nem futtat (a CSP is blokkolja); a refund policy üres. Mindhárom footer-link üres, angol skeleton oldalra visz ("← Back to Policies"). Az üres adatkezelési tájékoztató jogi kockázat.
 - **Context:** A felhasználó 2026-09-24-én külön feladatnak döntötte (spec + teszt, mint az ÁSZF-nél). A `data-type` a policy body-ból regexszel kiolvasható.
+- **Update 2026-09-24:** a footer "Visszaküldés" linkje már a saját `/pages/visszakuldes` oldalra mutat (Customer Account API önkiszolgáló visszaküldés, spec: `docs/superpowers/specs/2026-09-24-returns-page-design.md`), a refund policy nincs linkelve; M1 az Adatkezelés + Szállítás oldalakra szűkül.
 
 ### M2 Angol tartalom
 - **What:** `/pages/about` teljesen angol ("THE IDEA", "Shop the collection →"; sehonnan nincs linkelve); a Férfi kollekció leírása angol (Shopify admin: "Heavyweight tees, hoodies and pants").

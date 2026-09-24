@@ -418,9 +418,6 @@ export type FooterQuery = {
     shippingPolicy?: StorefrontAPI.Maybe<
       Pick<StorefrontAPI.ShopPolicy, 'id' | 'handle' | 'title'>
     >;
-    refundPolicy?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.ShopPolicy, 'id' | 'handle' | 'title'>
-    >;
     privacyPolicy?: StorefrontAPI.Maybe<
       Pick<StorefrontAPI.ShopPolicy, 'id' | 'handle' | 'title'>
     >;
@@ -1543,7 +1540,7 @@ interface GeneratedQueryTypes {
     return: HeaderQuery;
     variables: HeaderQueryVariables;
   };
-  '#graphql\n  fragment FooterPolicy on ShopPolicy {\n    id\n    handle\n    title\n  }\n  query Footer(\n    $country: CountryCode\n    $footerMenuHandle: String!\n    $language: LanguageCode\n  ) @inContext(language: $language, country: $country) {\n    menu(handle: $footerMenuHandle) {\n      ...Menu\n    }\n    shop {\n      shippingPolicy {\n        ...FooterPolicy\n      }\n      refundPolicy {\n        ...FooterPolicy\n      }\n      privacyPolicy {\n        ...FooterPolicy\n      }\n      termsOfService {\n        ...FooterPolicy\n      }\n    }\n    products(first: 6, sortKey: CREATED_AT) {\n      nodes {\n        id\n        handle\n        title\n      }\n    }\n    blogs(first: 1) {\n      nodes {\n        id\n        handle\n        title\n      }\n    }\n    articles(first: 4, sortKey: PUBLISHED_AT, reverse: true) {\n      nodes {\n        id\n        handle\n        title\n        blog {\n          handle\n        }\n      }\n    }\n  }\n  #graphql\n  fragment MenuItem on MenuItem {\n    id\n    resourceId\n    tags\n    title\n    type\n    url\n  }\n  fragment ChildMenuItem on MenuItem {\n    ...MenuItem\n  }\n  fragment ParentMenuItem on MenuItem {\n    ...MenuItem\n    items {\n      ...ChildMenuItem\n    }\n  }\n  fragment Menu on Menu {\n    id\n    items {\n      ...ParentMenuItem\n    }\n  }\n\n': {
+  '#graphql\n  fragment FooterPolicy on ShopPolicy {\n    id\n    handle\n    title\n  }\n  query Footer(\n    $country: CountryCode\n    $footerMenuHandle: String!\n    $language: LanguageCode\n  ) @inContext(language: $language, country: $country) {\n    menu(handle: $footerMenuHandle) {\n      ...Menu\n    }\n    shop {\n      shippingPolicy {\n        ...FooterPolicy\n      }\n      privacyPolicy {\n        ...FooterPolicy\n      }\n      termsOfService {\n        ...FooterPolicy\n      }\n    }\n    products(first: 6, sortKey: CREATED_AT) {\n      nodes {\n        id\n        handle\n        title\n      }\n    }\n    blogs(first: 1) {\n      nodes {\n        id\n        handle\n        title\n      }\n    }\n    articles(first: 4, sortKey: PUBLISHED_AT, reverse: true) {\n      nodes {\n        id\n        handle\n        title\n        blog {\n          handle\n        }\n      }\n    }\n  }\n  #graphql\n  fragment MenuItem on MenuItem {\n    id\n    resourceId\n    tags\n    title\n    type\n    url\n  }\n  fragment ChildMenuItem on MenuItem {\n    ...MenuItem\n  }\n  fragment ParentMenuItem on MenuItem {\n    ...MenuItem\n    items {\n      ...ChildMenuItem\n    }\n  }\n  fragment Menu on Menu {\n    id\n    items {\n      ...ParentMenuItem\n    }\n  }\n\n': {
     return: FooterQuery;
     variables: FooterQueryVariables;
   };

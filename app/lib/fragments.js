@@ -246,9 +246,6 @@ export const FOOTER_QUERY = `#graphql
       shippingPolicy {
         ...FooterPolicy
       }
-      refundPolicy {
-        ...FooterPolicy
-      }
       privacyPolicy {
         ...FooterPolicy
       }
