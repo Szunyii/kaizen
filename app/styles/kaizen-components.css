@@ -42,6 +42,9 @@
   .hd-actions{ gap:0; }
   .hd-ic.hd-search{ display:none; }
   .hd-cart{ padding:0 4px; gap:6px; }
+  /* 44px hit areas; the -2px margin keeps the old 40px footprint so the bar still fits 320px */
+  .hd-ic{ width:44px; height:44px; margin:-2px; }
+  .hd-cart{ width:auto; }
 }
 
 /* ---------- mobile nav drawer (Aside type="mobile") ---------- */
@@ -55,21 +58,22 @@
   font:600 12px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase; color:var(--bone-dim); }
 .hd-mnav-search svg{ width:15px; height:15px; }
 .hd-mnav-search:hover{ color:var(--bone); }
-.hd-mnav-home{ display:inline-flex; align-items:center; gap:9px; padding:14px 20px;
+.hd-mnav-home{ display:inline-flex; align-items:center; gap:9px; padding:16px 20px;
   font:600 12px/1 var(--sans); letter-spacing:.18em; text-transform:uppercase; color:var(--red); }
 .hd-mnav-home svg{ width:15px; height:15px; }
-.hd-mnav-group{ border-top:1px solid var(--line); padding:20px 20px 8px; }
-.hd-mnav-h{ display:block; font-family:var(--serif); font-weight:500; font-size:30px; line-height:1;
-  color:var(--bone); letter-spacing:.01em; margin-bottom:14px; transition:color .2s var(--ease); }
+.hd-mnav-group{ border-top:1px solid var(--line); padding:13px 20px 8px; }
+/* every menu link is a 44px row (same 44px pitch the 30px text + 14px margin had) */
+.hd-mnav-h{ display:flex; align-items:center; min-height:44px; font-family:var(--serif); font-weight:500; font-size:30px; line-height:1;
+  color:var(--bone); letter-spacing:.01em; transition:color .2s var(--ease); }
 .hd-mnav-label{ display:block; font:700 11px/1 var(--sans); letter-spacing:.2em; text-transform:uppercase;
-  color:var(--red); margin-bottom:8px; }
+  color:var(--red); margin:7px 0 8px; }
 .hd-mnav-h:hover{ color:var(--red-bright); }
 .hd-mnav-sub{ display:flex; flex-direction:column; }
-.hd-mnav-sub a{ padding:9px 0; font:500 14px/1 var(--sans); letter-spacing:.02em; color:var(--bone-dim);
+.hd-mnav-sub a{ padding:15px 0; font:500 14px/1 var(--sans); letter-spacing:.02em; color:var(--bone-dim);
   transition:color .2s var(--ease); }
 .hd-mnav-sub a:hover{ color:var(--bone); }
 .hd-mnav-foot{ display:flex; flex-direction:column; border-top:1px solid var(--line); margin-top:8px; padding:14px 20px 0; }
-.hd-mnav-link{ padding:12px 0; font:600 12px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase;
+.hd-mnav-link{ padding:16px 0; font:600 12px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase;
   color:var(--bone-dim); transition:color .2s var(--ease); }
 .hd-mnav-link:hover{ color:var(--bone); }
 
@@ -183,6 +187,12 @@
   .ft-base{ margin-top:48px; padding:22px 0 30px; flex-direction:column; align-items:flex-start; gap:10px; font-size:14px; }
   .ft-base-links{ gap:24px; }
 }
+/* touch: 44px link rows; padding replaces the column gap. Kept after the ≤700px block,
+   whose .ft-col gap would otherwise win */
+@media (hover:none) and (pointer:coarse){
+  .ft-col{ gap:0; }
+  .ft-link, .ft-base-links a{ padding:12px 0; }
+}
 
 /* ============================================================
    CART — drawer (aside) + page, brand theme
@@ -206,7 +216,9 @@
   background:linear-gradient(180deg, var(--ink-800), var(--ink-850)); }
 .overlay aside header h3{ font-family:var(--sans); font-weight:600; font-size:13px;
   letter-spacing:.24em; text-transform:uppercase; color:var(--bone); }
-.overlay aside header .close{ font-size:26px; line-height:1; color:var(--bone-dim); width:auto; opacity:1;
+/* 44px square around the 26px glyph; the negative margin keeps the glyph on the 24px gutter */
+.overlay aside header .close{ font-size:26px; line-height:1; color:var(--bone-dim); opacity:1;
+  display:grid; place-items:center; width:44px; height:44px; margin-right:-10px;
   transition:color .2s var(--ease); }
 .overlay aside header .close:hover{ color:var(--red); }
 .overlay aside main{ margin:0; }
@@ -240,7 +252,9 @@
 .cart-line-price{ flex:none; margin-left:auto; white-space:nowrap; font:600 14px/1 var(--sans); color:var(--bone); }
 
 /* quantity stepper */
-.cart-line-quantity{ display:flex; align-items:center; gap:14px; }
+/* wraps at 320px so "Eltávolítás" drops under the stepper instead of past the drawer edge;
+   the 20px row gap keeps its enlarged touch hit area off the stepper */
+.cart-line-quantity{ display:flex; flex-wrap:wrap; align-items:center; gap:20px 14px; }
 .cart-stepper{ display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:3px;
   background:var(--ink-800); overflow:hidden; }
 .cart-step{ display:grid; place-items:center; width:30px; height:30px; color:var(--bone-dim); font-size:15px;
@@ -251,6 +265,11 @@
 .cart-remove{ font:600 11px/1 var(--sans); letter-spacing:.14em; text-transform:uppercase; color:var(--bone-mut);
   padding:0; }
 .cart-remove:hover{ color:var(--red); }
+/* touch: 44px stepper buttons; the remove link's hit area grows without moving the row */
+@media (hover:none) and (pointer:coarse){
+  .cart-step{ width:44px; height:44px; }
+  .cart-remove{ padding:17px 0; margin:-17px 0; }
+}
 
 /* summary */
 .cart-summary{ display:flex; flex-direction:column; gap:14px; }
