@@ -119,10 +119,14 @@
 .ft-brush svg{ display:block; width:100%; height:100%; }
 .ft-grid{ position:relative; max-width:var(--page-max); margin:0 auto; display:grid;
   grid-template-columns:minmax(0,2fr) repeat(4,minmax(0,1fr)); gap:48px 44px; }
-.ft-brand{ min-width:0; grid-column:1; }
+/* shrinks to the tagline's width so the logo centres over the text */
+.ft-brand{ min-width:0; grid-column:1; justify-self:start; display:flex; flex-direction:column; align-items:center; }
 .ft-logo{ display:block; width:190px; }
 .ft-logo img{ display:block; width:100%; height:auto; }
-.ft-tag{ margin-top:26px; max-width:340px; font:400 17px/1.6 var(--sans); color:var(--bone-mut); }
+/* echoes the hero film tagline: uppercase serif, wide tracking; the negative
+   right margin drops the last letter's trailing tracking so centring is true */
+.ft-tag{ margin:26px -.32em 0 0; max-width:340px; text-align:center; text-transform:uppercase; letter-spacing:.32em;
+  font:400 13px/1.8 var(--serif); color:var(--bone-mut); }
 .ft-col{ display:flex; flex-direction:column; align-items:flex-start; gap:16px; min-width:0; }
 .ft-h{ font:700 12px/1 var(--sans); letter-spacing:.24em; text-transform:uppercase; color:var(--bone); margin-bottom:8px; }
 .ft-link{ font:400 17px/1.3 var(--sans); color:var(--bone-mut); transition:color .25s; text-align:left; }
@@ -164,7 +168,7 @@
   .ft-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px 20px; }
   .ft-brand, .ft-news{ grid-column:1 / -1; }
   .ft-logo{ width:130px; }
-  .ft-tag{ margin-top:18px; font-size:15px; }
+  .ft-tag{ margin-top:18px; font-size:12px; }
   .ft-col{ gap:12px; }
   .ft-h{ font-size:11px; margin-bottom:4px; }
   .ft-link{ font-size:15px; }
@@ -202,6 +206,13 @@
   transition:color .2s var(--ease); }
 .overlay aside header .close:hover{ color:var(--red); }
 .overlay aside main{ margin:0; }
+/* iOS Safari's 100vh includes the strip under its toolbar, which hid the drawer's
+   bottom-pinned checkout button; dvh tracks the visible viewport */
+@supports (height:100dvh){
+  .overlay aside{ height:100dvh; }
+  .overlay .cart-main{ max-height:calc(100dvh - var(--cart-aside-summary-height)); }
+  .overlay .cart-main.with-discount{ max-height:calc(100dvh - var(--cart-aside-summary-height-with-discount)); }
+}
 
 /* line items */
 .cart-main{ scrollbar-width:thin; scrollbar-color:var(--bone-mut) transparent; }
@@ -239,8 +250,10 @@
 
 /* summary */
 .cart-summary{ display:flex; flex-direction:column; gap:14px; }
-.cart-summary-aside{ background:var(--ink-800); border-top:1px solid var(--line); width:var(--aside-width);
-  left:0; padding:22px 24px 24px; }
+/* spans the drawer, not var(--aside-width): on phones the drawer is 100vw and a
+   fixed 400px summary pushed the subtotal and checkout button off-screen */
+.cart-summary-aside{ background:var(--ink-800); border-top:1px solid var(--line); width:auto;
+  left:0; right:0; padding:22px 24px 24px; }
 .cart-summary-h{ color:var(--bone-mut); margin:0; }
 .cart-subtotal{ display:flex; align-items:baseline; justify-content:space-between; margin:0;
   font:500 14px/1 var(--sans); color:var(--bone-dim); }
