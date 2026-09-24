@@ -60,6 +60,11 @@ html{ scrollbar-color:var(--bone-mut) transparent; }
 :focus-visible{ outline:2px solid var(--red); outline-offset:3px; border-radius:2px; }
 .btn:focus-visible, .pcard-cta:focus-visible, .acct-tab.is-active:focus-visible{ outline-color:var(--bone); outline-offset:2px; }
 input:focus-visible, select:focus-visible, textarea:focus-visible{ outline:none; }
+/* iOS Safari zooms the page into any focused field under 16px; the body prefix outranks
+   component rules like .ft-form input and .col-sort select */
+@media (hover:none) and (pointer:coarse){
+  body :is(input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea){ font-size:16px; }
+}
 
 a{ color:inherit; text-decoration:none; }
 button{ font-family:inherit; cursor:pointer; background:none; border:none; color:inherit; }
