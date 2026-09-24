@@ -483,6 +483,258 @@ export type CustomerOrdersQuery = {
   };
 };
 
+export type ReturnsMoneyFragment = Pick<
+  CustomerAccountAPI.MoneyV2,
+  'amount' | 'currencyCode'
+>;
+
+export type ReturnsReasonFragment = Pick<
+  CustomerAccountAPI.ReturnReasonDefinition,
+  'id' | 'handle' | 'name'
+>;
+
+export type ReturnsLineItemFragment = Pick<
+  CustomerAccountAPI.LineItem,
+  'id' | 'name' | 'variantTitle' | 'quantity'
+> & {
+  price?: CustomerAccountAPI.Maybe<
+    Pick<CustomerAccountAPI.MoneyV2, 'amount' | 'currencyCode'>
+  >;
+  image?: CustomerAccountAPI.Maybe<
+    Pick<CustomerAccountAPI.Image, 'altText' | 'url' | 'width' | 'height'>
+  >;
+  suggestedReturnReasonDefinitions?: CustomerAccountAPI.Maybe<{
+    nodes: Array<
+      Pick<CustomerAccountAPI.ReturnReasonDefinition, 'id' | 'handle' | 'name'>
+    >;
+  }>;
+};
+
+export type ReturnsReturnFragment = Pick<
+  CustomerAccountAPI.Return,
+  'id' | 'name' | 'status' | 'createdAt'
+> & {
+  decline?: CustomerAccountAPI.Maybe<
+    Pick<CustomerAccountAPI.ReturnDecline, 'reason' | 'note'>
+  >;
+  returnLineItems: {
+    nodes: Array<
+      | (Pick<CustomerAccountAPI.ReturnLineItem, 'id' | 'quantity'> & {
+          lineItem: Pick<
+            CustomerAccountAPI.LineItem,
+            'id' | 'name' | 'variantTitle'
+          >;
+          returnReasonDefinition?: CustomerAccountAPI.Maybe<
+            Pick<
+              CustomerAccountAPI.ReturnReasonDefinition,
+              'id' | 'handle' | 'name'
+            >
+          >;
+        })
+      | (Pick<
+          CustomerAccountAPI.UnverifiedReturnLineItem,
+          'id' | 'quantity'
+        > & {
+          lineItem: Pick<
+            CustomerAccountAPI.LineItem,
+            'id' | 'name' | 'variantTitle'
+          >;
+          returnReasonDefinition?: CustomerAccountAPI.Maybe<
+            Pick<
+              CustomerAccountAPI.ReturnReasonDefinition,
+              'id' | 'handle' | 'name'
+            >
+          >;
+        })
+    >;
+  };
+};
+
+export type ReturnsOrderFragment = Pick<
+  CustomerAccountAPI.Order,
+  'id' | 'name' | 'number' | 'processedAt' | 'fulfillmentStatus'
+> & {
+  returnInformation: {
+    nonReturnableSummary?: CustomerAccountAPI.Maybe<
+      Pick<CustomerAccountAPI.OrderNonReturnableSummary, 'nonReturnableReasons'>
+    >;
+    returnableLineItems: {
+      nodes: Array<
+        Pick<CustomerAccountAPI.ReturnableLineItem, 'quantity'> & {
+          lineItem: Pick<
+            CustomerAccountAPI.LineItem,
+            'id' | 'name' | 'variantTitle' | 'quantity'
+          > & {
+            price?: CustomerAccountAPI.Maybe<
+              Pick<CustomerAccountAPI.MoneyV2, 'amount' | 'currencyCode'>
+            >;
+            image?: CustomerAccountAPI.Maybe<
+              Pick<
+                CustomerAccountAPI.Image,
+                'altText' | 'url' | 'width' | 'height'
+              >
+            >;
+            suggestedReturnReasonDefinitions?: CustomerAccountAPI.Maybe<{
+              nodes: Array<
+                Pick<
+                  CustomerAccountAPI.ReturnReasonDefinition,
+                  'id' | 'handle' | 'name'
+                >
+              >;
+            }>;
+          };
+        }
+      >;
+    };
+  };
+  returns: {
+    nodes: Array<
+      Pick<
+        CustomerAccountAPI.Return,
+        'id' | 'name' | 'status' | 'createdAt'
+      > & {
+        decline?: CustomerAccountAPI.Maybe<
+          Pick<CustomerAccountAPI.ReturnDecline, 'reason' | 'note'>
+        >;
+        returnLineItems: {
+          nodes: Array<
+            | (Pick<CustomerAccountAPI.ReturnLineItem, 'id' | 'quantity'> & {
+                lineItem: Pick<
+                  CustomerAccountAPI.LineItem,
+                  'id' | 'name' | 'variantTitle'
+                >;
+                returnReasonDefinition?: CustomerAccountAPI.Maybe<
+                  Pick<
+                    CustomerAccountAPI.ReturnReasonDefinition,
+                    'id' | 'handle' | 'name'
+                  >
+                >;
+              })
+            | (Pick<
+                CustomerAccountAPI.UnverifiedReturnLineItem,
+                'id' | 'quantity'
+              > & {
+                lineItem: Pick<
+                  CustomerAccountAPI.LineItem,
+                  'id' | 'name' | 'variantTitle'
+                >;
+                returnReasonDefinition?: CustomerAccountAPI.Maybe<
+                  Pick<
+                    CustomerAccountAPI.ReturnReasonDefinition,
+                    'id' | 'handle' | 'name'
+                  >
+                >;
+              })
+          >;
+        };
+      }
+    >;
+  };
+};
+
+export type CustomerReturnsQueryVariables = CustomerAccountAPI.Exact<{
+  language?: CustomerAccountAPI.InputMaybe<CustomerAccountAPI.LanguageCode>;
+}>;
+
+export type CustomerReturnsQuery = {
+  customer: {
+    orders: {
+      nodes: Array<
+        Pick<
+          CustomerAccountAPI.Order,
+          'id' | 'name' | 'number' | 'processedAt' | 'fulfillmentStatus'
+        > & {
+          returnInformation: {
+            nonReturnableSummary?: CustomerAccountAPI.Maybe<
+              Pick<
+                CustomerAccountAPI.OrderNonReturnableSummary,
+                'nonReturnableReasons'
+              >
+            >;
+            returnableLineItems: {
+              nodes: Array<
+                Pick<CustomerAccountAPI.ReturnableLineItem, 'quantity'> & {
+                  lineItem: Pick<
+                    CustomerAccountAPI.LineItem,
+                    'id' | 'name' | 'variantTitle' | 'quantity'
+                  > & {
+                    price?: CustomerAccountAPI.Maybe<
+                      Pick<
+                        CustomerAccountAPI.MoneyV2,
+                        'amount' | 'currencyCode'
+                      >
+                    >;
+                    image?: CustomerAccountAPI.Maybe<
+                      Pick<
+                        CustomerAccountAPI.Image,
+                        'altText' | 'url' | 'width' | 'height'
+                      >
+                    >;
+                    suggestedReturnReasonDefinitions?: CustomerAccountAPI.Maybe<{
+                      nodes: Array<
+                        Pick<
+                          CustomerAccountAPI.ReturnReasonDefinition,
+                          'id' | 'handle' | 'name'
+                        >
+                      >;
+                    }>;
+                  };
+                }
+              >;
+            };
+          };
+          returns: {
+            nodes: Array<
+              Pick<
+                CustomerAccountAPI.Return,
+                'id' | 'name' | 'status' | 'createdAt'
+              > & {
+                decline?: CustomerAccountAPI.Maybe<
+                  Pick<CustomerAccountAPI.ReturnDecline, 'reason' | 'note'>
+                >;
+                returnLineItems: {
+                  nodes: Array<
+                    | (Pick<
+                        CustomerAccountAPI.ReturnLineItem,
+                        'id' | 'quantity'
+                      > & {
+                        lineItem: Pick<
+                          CustomerAccountAPI.LineItem,
+                          'id' | 'name' | 'variantTitle'
+                        >;
+                        returnReasonDefinition?: CustomerAccountAPI.Maybe<
+                          Pick<
+                            CustomerAccountAPI.ReturnReasonDefinition,
+                            'id' | 'handle' | 'name'
+                          >
+                        >;
+                      })
+                    | (Pick<
+                        CustomerAccountAPI.UnverifiedReturnLineItem,
+                        'id' | 'quantity'
+                      > & {
+                        lineItem: Pick<
+                          CustomerAccountAPI.LineItem,
+                          'id' | 'name' | 'variantTitle'
+                        >;
+                        returnReasonDefinition?: CustomerAccountAPI.Maybe<
+                          Pick<
+                            CustomerAccountAPI.ReturnReasonDefinition,
+                            'id' | 'handle' | 'name'
+                          >
+                        >;
+                      })
+                  >;
+                };
+              }
+            >;
+          };
+        }
+      >;
+    };
+  };
+};
+
 export type CustomerUpdateMutationVariables = CustomerAccountAPI.Exact<{
   customer: CustomerAccountAPI.CustomerUpdateInput;
   language?: CustomerAccountAPI.InputMaybe<CustomerAccountAPI.LanguageCode>;
@@ -509,6 +761,25 @@ export type CustomerUpdateMutation = {
   }>;
 };
 
+export type OrderRequestReturnMutationVariables = CustomerAccountAPI.Exact<{
+  orderId: CustomerAccountAPI.Scalars['ID']['input'];
+  requestedLineItems:
+    | Array<CustomerAccountAPI.RequestedLineItemInput>
+    | CustomerAccountAPI.RequestedLineItemInput;
+  language?: CustomerAccountAPI.InputMaybe<CustomerAccountAPI.LanguageCode>;
+}>;
+
+export type OrderRequestReturnMutation = {
+  orderRequestReturn?: CustomerAccountAPI.Maybe<{
+    return?: CustomerAccountAPI.Maybe<
+      Pick<CustomerAccountAPI.Return, 'id' | 'name' | 'status'>
+    >;
+    userErrors: Array<
+      Pick<CustomerAccountAPI.ReturnUserError, 'field' | 'message' | 'code'>
+    >;
+  }>;
+};
+
 interface GeneratedQueryTypes {
   '#graphql\n  query CustomerDetails($language: LanguageCode) @inContext(language: $language) {\n    customer {\n      ...Customer\n    }\n  }\n  #graphql\n  fragment Customer on Customer {\n    id\n    firstName\n    lastName\n    emailAddress {\n      emailAddress\n    }\n    defaultAddress {\n      ...Address\n    }\n    addresses(first: 6) {\n      nodes {\n        ...Address\n      }\n    }\n  }\n  fragment Address on CustomerAddress {\n    id\n    formatted\n    firstName\n    lastName\n    company\n    address1\n    address2\n    territoryCode\n    zoneCode\n    city\n    zip\n    phoneNumber\n  }\n\n': {
     return: CustomerDetailsQuery;
@@ -521,6 +792,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  #graphql\n  fragment CustomerOrders on Customer {\n    orders(\n      sortKey: PROCESSED_AT,\n      reverse: true,\n      first: $first,\n      last: $last,\n      before: $startCursor,\n      after: $endCursor,\n      query: $query\n    ) {\n      nodes {\n        ...OrderItem\n      }\n      pageInfo {\n        hasPreviousPage\n        hasNextPage\n        endCursor\n        startCursor\n      }\n    }\n  }\n  #graphql\n  fragment OrderItem on Order {\n    totalPrice {\n      amount\n      currencyCode\n    }\n    financialStatus\n    fulfillmentStatus\n    fulfillments(first: 1) {\n      nodes {\n        status\n      }\n    }\n    id\n    number\n    confirmationNumber\n    processedAt\n  }\n\n\n  query CustomerOrders(\n    $endCursor: String\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $query: String\n    $language: LanguageCode\n  ) @inContext(language: $language) {\n    customer {\n      ...CustomerOrders\n    }\n  }\n': {
     return: CustomerOrdersQuery;
     variables: CustomerOrdersQueryVariables;
+  };
+  '#graphql\n  fragment ReturnsMoney on MoneyV2 {\n    amount\n    currencyCode\n  }\n  fragment ReturnsReason on ReturnReasonDefinition {\n    id\n    handle\n    name\n  }\n  fragment ReturnsLineItem on LineItem {\n    id\n    name\n    variantTitle\n    quantity\n    price {\n      ...ReturnsMoney\n    }\n    image {\n      altText\n      url\n      width\n      height\n    }\n    suggestedReturnReasonDefinitions(first: 8) {\n      nodes {\n        ...ReturnsReason\n      }\n    }\n  }\n  fragment ReturnsReturn on Return {\n    id\n    name\n    status\n    createdAt\n    decline {\n      reason\n      note\n    }\n    returnLineItems(first: 20) {\n      nodes {\n        id\n        quantity\n        lineItem {\n          id\n          name\n          variantTitle\n        }\n        returnReasonDefinition {\n          ...ReturnsReason\n        }\n      }\n    }\n  }\n  fragment ReturnsOrder on Order {\n    id\n    name\n    number\n    processedAt\n    fulfillmentStatus\n    returnInformation {\n      nonReturnableSummary {\n        nonReturnableReasons\n      }\n      returnableLineItems(first: 20) {\n        nodes {\n          quantity\n          lineItem {\n            ...ReturnsLineItem\n          }\n        }\n      }\n    }\n    returns(first: 5, sortKey: CREATED_AT, reverse: true) {\n      nodes {\n        ...ReturnsReturn\n      }\n    }\n  }\n  query CustomerReturns($language: LanguageCode)\n    @inContext(language: $language) {\n    customer {\n      orders(first: 10, sortKey: PROCESSED_AT, reverse: true) {\n        nodes {\n          ...ReturnsOrder\n        }\n      }\n    }\n  }\n': {
+    return: CustomerReturnsQuery;
+    variables: CustomerReturnsQueryVariables;
   };
 }
 
@@ -540,6 +815,10 @@ interface GeneratedMutationTypes {
   '#graphql\n  mutation customerUpdate(\n    $customer: CustomerUpdateInput!\n    $language: LanguageCode\n  ) @inContext(language: $language) {\n    customerUpdate(input: $customer) {\n      customer {\n        firstName\n        lastName\n        emailAddress {\n          emailAddress\n        }\n        phoneNumber {\n          phoneNumber\n        }\n      }\n      userErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n': {
     return: CustomerUpdateMutation;
     variables: CustomerUpdateMutationVariables;
+  };
+  '#graphql\n  mutation OrderRequestReturn(\n    $orderId: ID!\n    $requestedLineItems: [RequestedLineItemInput!]!\n    $language: LanguageCode\n  ) @inContext(language: $language) {\n    orderRequestReturn(\n      orderId: $orderId\n      requestedLineItems: $requestedLineItems\n    ) {\n      return {\n        id\n        name\n        status\n      }\n      userErrors {\n        field\n        message\n        code\n      }\n    }\n  }\n': {
+    return: OrderRequestReturnMutation;
+    variables: OrderRequestReturnMutationVariables;
   };
 }
 
