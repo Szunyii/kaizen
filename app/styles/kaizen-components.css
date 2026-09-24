@@ -312,6 +312,8 @@
    SEARCH — drawer (Aside type="search")
    ============================================================ */
 .sd{ display:flex; flex-direction:column; height:calc(100vh - var(--header-height)); }
+/* match the 100dvh drawer, or iOS puts the last results and "view all" under its toolbar */
+@supports (height:100dvh){ .sd{ height:calc(100dvh - var(--header-height)); } }
 
 /* search counter: borderless input, brand-red caret, and an underline that
    draws in on focus (the .ul motif) */
