@@ -1120,3 +1120,14 @@
   .srch-form{ margin-top:22px; padding-left:14px; }
   .srch-more{ width:100%; box-sizing:border-box; justify-content:center; }
 }
+
+/* =================== TOUCH: no sticky hover =================== */
+/* Touch browsers keep :hover on whatever was tapped last (and after back-navigation), so
+   the card CTA stayed over the photo and tapped chips stayed lifted. Kept last so it wins. */
+@media (hover:none){
+  .pcard:hover .pcard-img, .pcard:hover .studio, .show-media:hover img, .acard:hover .acard-img,
+  .fam-phone-wrap:hover .fam-phone, .voice:hover, .phil-card:hover, .show-thumb:hover, .pdp-thumb:hover,
+  .product-options-item:hover, .acct-tab:hover, .acct-card:hover, .acct-order:hover, .btn-danger:hover{ transform:none; }
+  .pcard:hover .pcard-cta{ transform:translateY(100%); }
+  a:hover{ text-decoration:none; }
+}
