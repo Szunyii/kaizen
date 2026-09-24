@@ -55,7 +55,8 @@ Minta: kicker (opcionális kanji + gondolatjel) → display H2 → egy rövid be
 
 ## Térköz és rács
 
-- Oldal: `--page-max: 1560px`, `--page-pad: clamp(20px, 3.5vw, 40px)`; `.wrap` = `min(1560px, 100vw - 2*pad)`, középre.
+- Oldal: `--page-max: 1560px`, `--page-pad: clamp(20px, 6vw, 96px)`; `.wrap` = `min(1560px, 100vw - 2*pad)`, középre.
+- Egyoszlopos mobil rács: `grid-template-columns: minmax(0,1fr)`, sosem puszta `1fr` (az a tartalom min-content szélességére nő, és 320px-en kilóg).
 - Szekció: `.section-pad` `clamp(70px, 9vw, 120px)`; szekción belül 22–32px a kicker/címsor/bekezdés között.
 - Rács: `auto-fit, minmax(…)` mindenhol; a hármas kártyarács nem alapértelmezés. Egy szekció = egy feladat, egy címsor, egy támogató mondat.
 - Header: `--header-h: 76px`, sticky, `rgba(8,6,5,.94)` + blur.
@@ -98,7 +99,9 @@ Minta: kicker (opcionális kanji + gondolatjel) → display H2 → egy rövid be
 ## Akadálymentesség
 
 - Törzsszöveg ≥ 15px, kontraszt ≥ 4.5:1 (`--bone-faint` 5.8:1, `--red-bright` kis szövegen).
-- Érintési cél mobilon ≥ 44px magas (gombok, mezők, chip-sorok).
+- Érintési cél mobilon ≥ 44px magas (gombok, mezők, chip-sorok, menü- és footer-linkek, fiók-bezárás). Ahol a layout nem nőhet, a találati felület negatív margóval nő (header ikonok, "Eltávolítás").
+- Érintőképernyőn (`hover:none` + `pointer:coarse`): minden szöveges mező, select és textarea ≥ 16px (különben iOS ráközelít), a mozgató hover-effektek kikapcsolnak (a koppintás után ragadnak).
+- A fiókok (`.overlay aside`) `100dvh` magasak, a tartalmuk maga görget; semmi ne legyen `100vh`-ból méretezve bennük.
 - Minden ikon-gomb `aria-label`, minden lenyíló `aria-expanded`, minden állapotüzenet `role="status"` + `aria-live`.
 - A hero film `aria-label`-lel; a nyitóoldal H1-e vizuálisan rejtett (`.sr-only`), de létezik.
 

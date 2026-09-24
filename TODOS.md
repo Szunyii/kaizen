@@ -75,8 +75,38 @@ Design-adósság a 2026-09-09-i design review-ból (`docs/superpowers/specs/2026
 ### 6.7 44px érintési célok mobilon
 - **What:** `.hd-ic`, `.chip`, `.product-options-item`, `.cart-step` `min-height:44px` mobilon.
 - **Why:** Ma 40px (stepper 30px).
+- **Fixed** by /design-review on main, 2026-09-24 (FINDING-010, `ddf8b1c`). Maradt 44px alatt: `.pdp-crumb` (12px), `.faq-contact` (23px), `.art-crumbs a` (16px), `.sd-go` (36px), fiókos oldalak linkjei (bejelentkezve nem ellenőrizve).
 
 ### 6.8 Drawer landmark-ok
 - **What:** Az `Aside` belső `<header>`/`<main>` → `div`, hogy egy header és egy main landmark maradjon.
 - **Why:** 4 `header` és 4 `main` landmark van az oldalon a három drawer miatt.
 - **Cons:** A sablon Aside CSS-e a header/main szelektorokra épül.
+
+## Mobil design review 2026-09-24 (`~/.gstack/projects/Szunyii-kaizen/designs/design-audit-20260924/design-audit-localhost-mobile.md`)
+
+### M1 Üres jogi oldalak: Adatkezelés, Szállítás, Visszaküldés (HIGH)
+- **What:** A `policies.$handle.jsx` töltse be szerveroldalon a Fogyasztóbarát dokumentumot, ahogy a `/pages/aszf` (`fetchFogyasztobaratDocument(context, type)`), és brandelt sablonnal, magyar címmel jelenítse meg.
+- **Why:** A Shopify policy body-kban csak a vendor beágyazó `<script>`-je van (`data-type "at"` = adatkezelési tájékoztató, `"dm"` = szállítás), amit a böngésző nem futtat (a CSP is blokkolja); a refund policy üres. Mindhárom footer-link üres, angol skeleton oldalra visz ("← Back to Policies"). Az üres adatkezelési tájékoztató jogi kockázat.
+- **Context:** A felhasználó 2026-09-24-én külön feladatnak döntötte (spec + teszt, mint az ÁSZF-nél). A `data-type` a policy body-ból regexszel kiolvasható.
+
+### M2 Angol tartalom
+- **What:** `/pages/about` teljesen angol ("THE IDEA", "Shop the collection →"; sehonnan nincs linkelve); a Férfi kollekció leírása angol (Shopify admin: "Heavyweight tees, hoodies and pants").
+- **Depends on:** magyar szöveg a csapattól.
+
+### M3 reset.css szivárgások (a 5.2 folytatása)
+- **What:** `section{padding:1rem 0 / 2rem}`, `input{margin:.25rem 0 .5rem}`, `a:hover{text-decoration:underline}` (0,1,1 specificitás, desktopon minden link aláhúzódik hoverre). Kaizen alapban: `section{padding:0} input{margin:0} a:hover{text-decoration:none}`.
+- **Cons:** A section padding ma elfed egy kosár-fiók eltérést: a `--cart-aside-summary-height` (188px) nem számol a 64px-es fiókfejléccel; eltávolításkor a `.cart-main` max-height-ot is igazítani kell.
+
+### M4 Breakpointok és a tablet scroll-lock
+- **What:** 13 különböző max-width érték (620/640/680/700/720/760/820/860/880/900/980/1100). Három szintre (640 / 900 / 1100) húzni, a DESIGN.md-ben rögzíteni.
+- **Bug:** a `html:has(.overlay.expanded){overflow:hidden}` csak ≤720px (app.css:81), a burger menü ≤860px-ig látszik, így 721–860px között (iPad mini / álló iPad) az oldal görget a nyitott fiók mögött.
+
+### M5 Szín- és térköz-tokenek
+- **What:** Egy második (`rgba(197,60,27,…)`, 10×) és harmadik (`rgba(140,42,18,…)`) piros a tokeneken kívül; `#1a0b07` panel-gradiens 5×; kártya belső padding hétféle (20–30px). Javasolt tokenek: `--red-line`, `--red-ghost`, `--panel-grad`, `--pad-card`, `--space-section`.
+
+### M6 Fókusz a hírlevél és az értesítő mezőn
+- **What:** `.ft-form-row` / `.restock-row` fókusza csak .18→.4 alfa-váltás (~1.3:1); a piros gombon piros fókuszkeret. `:focus-within{border-color:var(--bone-mut)}`, gombon `outline-color:var(--bone)`.
+
+### M7 Toast mobilon
+- **What:** A `.toast` z-index 80, az overlay 100, és a kosár-fiók vele egy időben nyílik, így mobilon soha nem látszik; `white-space:nowrap` hosszú terméknévnél 320px fölé fut.
+
