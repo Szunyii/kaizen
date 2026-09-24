@@ -1092,3 +1092,24 @@
   .err-cta{ flex-direction:column; align-self:stretch; }
   .err-cta .btn{ justify-content:center; box-sizing:border-box; }
 }
+
+/* =================== SEARCH PAGE (/search) =================== */
+/* same counter as the drawer (.sd-form), framed because it sits on the page */
+.srch-form{ max-width:640px; margin:28px 0 8px; padding:12px 12px 12px 18px;
+  border:1px solid var(--line); border-radius:2px; }
+.srch-note{ margin-top:12px; font:400 14px/1.6 var(--sans); color:var(--red-bright); }
+.srch-sec{ padding-top:clamp(28px,4vw,44px); }
+.srch-h{ margin-bottom:18px; font:700 12px/1 var(--sans); letter-spacing:.24em; text-transform:uppercase; color:var(--bone-mut); }
+.srch-grid{ padding-bottom:clamp(28px,4vw,48px); }
+.srch-more{ margin:0 0 28px; }
+.srch-list{ list-style:none; margin:0; padding:0; border-top:1px solid var(--line); }
+.srch-list li{ border-bottom:1px solid var(--line); }
+.srch-link{ display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:52px; padding:12px 0;
+  font:500 16px/1.4 var(--sans); color:var(--bone-dim); transition:color .2s var(--ease); }
+.srch-link svg{ flex:none; width:14px; height:14px; color:var(--red); }
+.srch-link:hover{ color:var(--bone); }
+.srch .col-h q{ color:var(--bone); }
+@media (max-width:640px){
+  .srch-form{ margin-top:22px; padding-left:14px; }
+  .srch-more{ width:100%; box-sizing:border-box; justify-content:center; }
+}

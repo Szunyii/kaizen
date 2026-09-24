@@ -44,6 +44,14 @@ export const SEARCH_TEXT = {
   collections: 'Kollekciók',
   pages: 'Oldalak',
   articles: 'Írások',
+  results: 'találat',
+  prev: 'Korábbi találatok',
+  more: 'További találatok',
+  loading: 'Betöltés…',
+  emptyTitle: 'Mit keresel?',
+  emptyLead: 'Írj be egy terméknevet vagy típust, például „póló”.',
+  noResultsLead: 'Próbálj rövidebb vagy másik szót, vagy nézd meg a teljes kollekciót.',
+  toProducts: 'Irány a kollekció',
 };
 
 /** Error page (root ErrorBoundary): 404 and everything else. */

@@ -9,17 +9,19 @@ import {TEXT} from '~/lib/text';
  * KAIZENTYPE product card. Links to the product detail route; the hover CTA
  * is a visual affordance that follows the same link. Renders the real
  * Storefront product image when available, otherwise the studio placeholder.
- * @param {{product: import('~/lib/kaizen-data').KaizenProduct & {image?: any}, idx?: number, sizes?: string}} props
+ * `to` overrides the link, e.g. to keep search tracking parameters.
+ * @param {{product: import('~/lib/kaizen-data').KaizenProduct & {image?: any}, idx?: number, sizes?: string, to?: string}} props
  */
 export function ProductCard({
   product,
   idx = 0,
   sizes = '(min-width: 980px) 33vw, 50vw',
+  to,
 }) {
   const delay = `reveal-d${(idx % 3) + 1}`;
   return (
     <Link
-      to={`/products/${product.handle}`}
+      to={to ?? `/products/${product.handle}`}
       className={`pcard reveal ${delay}`}
       aria-label={product.name}
     >

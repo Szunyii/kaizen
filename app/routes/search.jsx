@@ -2,13 +2,19 @@ import {useLoaderData} from 'react-router';
 import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
 import {SearchForm} from '~/components/SearchForm';
 import {SearchResults} from '~/components/SearchResults';
+import {BrushRibbon} from '~/components/kaizen/Brand';
+import {I} from '~/components/kaizen/Icons';
 import {getEmptyPredictiveSearchResult} from '~/lib/search';
+import {SEARCH_TEXT} from '~/lib/text';
 
 /**
  * @type {Route.MetaFunction}
  */
-export const meta = () => {
-  return [{title: `Hydrogen | Search`}];
+export const meta = ({data}) => {
+  const term = data?.term;
+  return [
+    {title: `${term ? `„${term}” — ` : ''}${SEARCH_TEXT.title} — KaizenType`},
+  ];
 };
 
 /**
@@ -37,38 +43,64 @@ export default function SearchPage() {
   const {type, term, result, error} = useLoaderData();
   if (type === 'predictive') return null;
 
+  const total = result?.total ?? 0;
+
   return (
-    <div className="search">
-      <h1>Search</h1>
-      <SearchForm>
-        {({inputRef}) => (
-          <>
-            <input
-              defaultValue={term}
-              name="q"
-              placeholder="Search…"
-              ref={inputRef}
-              type="search"
-            />
-            &nbsp;
-            <button type="submit">Search</button>
-          </>
-        )}
-      </SearchForm>
-      {error && <p style={{color: 'red'}}>{error}</p>}
-      {!term || !result?.total ? (
-        <SearchResults.Empty />
-      ) : (
-        <SearchResults result={result} term={term}>
-          {({articles, pages, products, term}) => (
-            <div>
-              <SearchResults.Products products={products} term={term} />
-              <SearchResults.Pages pages={pages} term={term} />
-              <SearchResults.Articles articles={articles} term={term} />
-            </div>
+    <div className="srch view-enter">
+      <section className="col-head">
+        <div className="wrap col-head-inner">
+          <p className="kicker">{SEARCH_TEXT.title}</p>
+          <h1 className="col-h display">
+            {term ? <q>{term}</q> : SEARCH_TEXT.title}
+          </h1>
+          {term ? (
+            <p className="col-sub">
+              {total} {SEARCH_TEXT.results}
+            </p>
+          ) : null}
+        </div>
+        <div className="col-head-brush" aria-hidden="true">
+          <BrushRibbon opacity={0.7} />
+        </div>
+      </section>
+      <div className="wrap">
+        <SearchForm className="sd-form srch-form">
+          {({inputRef}) => (
+            <>
+              <span className="sd-ic">{I.search}</span>
+              <input
+                aria-label={SEARCH_TEXT.title}
+                defaultValue={term}
+                name="q"
+                placeholder={SEARCH_TEXT.placeholder}
+                ref={inputRef}
+                type="search"
+              />
+              <button
+                type="submit"
+                className="sd-go"
+                aria-label={SEARCH_TEXT.submit}
+              >
+                {I.arrow}
+              </button>
+            </>
           )}
-        </SearchResults>
-      )}
+        </SearchForm>
+        {error ? <p className="srch-note">{error}</p> : null}
+        {!term || !total ? (
+          <SearchResults.Empty term={term} />
+        ) : (
+          <SearchResults result={result} term={term}>
+            {({articles, pages, products, term}) => (
+              <>
+                <SearchResults.Products products={products} term={term} />
+                <SearchResults.Pages pages={pages} term={term} />
+                <SearchResults.Articles articles={articles} term={term} />
+              </>
+            )}
+          </SearchResults>
+        )}
+      </div>
       <Analytics.SearchView data={{searchTerm: term, searchResults: result}} />
     </div>
   );
