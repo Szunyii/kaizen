@@ -757,7 +757,7 @@
   .fam-feat-p{ margin-top:6px; font-size:15px; }
   .fam-cta{ margin-top:28px; gap:12px; }
   .fam-cta-row{ width:100%; flex-direction:column; gap:10px; }
-  .fam-cta .btn{ width:100%; justify-content:center; }
+  .fam-cta .btn{ width:100%; box-sizing:border-box; justify-content:center; }
   .fam-note{ font-size:14px; }
   .fam-phone{ width:min(250px,100%); aspect-ratio:9/14; border-width:8px; border-radius:36px; }
   .fam-app{ padding:30px 18px 22px; gap:20px; }
