@@ -457,9 +457,13 @@
 /* description */
 .pdp-details{ margin-top:clamp(26px,3.5vw,38px); padding-top:clamp(24px,3vw,32px); border-top:1px solid var(--line); }
 .pdp-details-head{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
-.pdp-prose{ font:400 15px/1.75 var(--sans); color:var(--bone-dim); max-width:60ch; text-wrap:pretty; }
-.pdp-prose p{ margin-bottom:14px; }
+.pdp-prose{ font:400 16px/1.7 var(--sans); color:var(--bone-dim); max-width:60ch; text-wrap:pretty; }
+/* font:inherit beats reset.css p{line-height:1.4}, which squeezed paragraphs next to the 1.7 lists */
+.pdp-prose p{ margin-bottom:14px; font:inherit; }
 .pdp-prose p:last-child{ margin-bottom:0; }
+.pdp-prose h2, .pdp-prose h3, .pdp-prose h4{ margin:26px 0 10px; font:600 16px/1.4 var(--sans); color:var(--bone); text-wrap:balance; }
+.pdp-prose h2{ font-size:19px; line-height:1.35; }
+.pdp-prose > :first-child{ margin-top:0; }
 .pdp-prose strong{ color:var(--bone); font-weight:600; }
 .pdp-prose a{ color:var(--red); text-decoration:underline; text-underline-offset:3px; }
 .pdp-prose ul, .pdp-prose ol{ margin:0 0 14px 1.1em; }
