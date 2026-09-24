@@ -19,34 +19,8 @@ export const BLOG_TEXT = {
   older: 'Korábbiak',
   loading: 'Töltés…',
   back: 'Vissza a naplóhoz',
-  emptyTitle: 'Hamarosan itt az első írás',
-  emptyLead:
-    'A naplót most nyitjuk. Ide kerülnek a műhelyből származó jegyzetek: anyagok, szabásminták, és a Kaizen Family körül történő dolgok.',
-  emptyNewsletterH: 'Ne maradj le az elsőről',
-  emptyNewsletterP:
-    'Heti egy rövid levél. Az új írásokról és az új darabokról elsőként ott szólunk.',
-  emptyTopicsH: 'Miről fogunk írni',
-  shop: 'Addig nézd meg a darabokat',
+  emptyTitle: 'Hamarosan',
 };
-
-/** What the journal will cover — shown while the blog has no articles yet. */
-export const BLOG_TOPICS = [
-  [
-    '素材',
-    'Anyag',
-    'Miért nehéz pamut, mit bír ki egy 240 g/m²-es kötés, és hogyan viselkedik a tizedik mosás után.',
-  ],
-  [
-    '工房',
-    'Műhely',
-    'Szabásminta, első minták, elvetett próbák. Ami a kész darab mögött van.',
-  ],
-  [
-    '改善',
-    'Kaizen',
-    'A napi egy százalék gyakorlatban: edzés, fegyelem, és a közösség, ami mögötte áll.',
-  ],
-];
 
 /** Fields every article card needs. */
 export const ARTICLE_CARD_FRAGMENT = `#graphql

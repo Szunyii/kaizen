@@ -1,17 +1,10 @@
-import {Link, useLoaderData} from 'react-router';
+import {useLoaderData} from 'react-router';
 import {Pagination, getPaginationVariables} from '@shopify/hydrogen';
 import {ArticleCard} from '~/components/kaizen/ArticleCard';
-import {NewsletterForm} from '~/components/kaizen/NewsletterForm';
-import {BrushRibbon, EnsoMark} from '~/components/kaizen/Brand';
-import {I} from '~/components/kaizen/Icons';
+import {BrushRibbon} from '~/components/kaizen/Brand';
 import {useReveal} from '~/lib/useReveal';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
-import {
-  ARTICLE_CARD_FRAGMENT,
-  BLOG_TEXT,
-  BLOG_TOPICS,
-  toArticleCard,
-} from '~/lib/blog';
+import {ARTICLE_CARD_FRAGMENT, BLOG_TEXT, toArticleCard} from '~/lib/blog';
 
 /**
  * @type {Route.MetaFunction}
@@ -123,9 +116,11 @@ function BlogHead({blog, count}) {
           <span className="kanji">{BLOG_TEXT.kanji}</span>— {BLOG_TEXT.kicker}
         </p>
         <h1 className="blg-h display reveal reveal-d1">{blog.title}</h1>
-        <p className="blg-sub reveal reveal-d2">
-          {blog.seo?.description || BLOG_TEXT.lead}
-        </p>
+        {count ? (
+          <p className="blg-sub reveal reveal-d2">
+            {blog.seo?.description || BLOG_TEXT.lead}
+          </p>
+        ) : null}
         {count ? (
           <p className="blg-count reveal reveal-d3">
             {BLOG_TEXT.latest} — {count} bejegyzés
@@ -188,56 +183,11 @@ function ArticleFeed({connection}) {
   );
 }
 
-/**
- * Shown while the blog has no posts yet. It says so plainly and still
- * gives the page a reason to exist: what the journal will cover, and the
- * newsletter that announces the first post.
- */
+/** Shown while the blog has no posts yet: one word, nothing else. */
 function BlogEmpty() {
   return (
     <section className="blg-empty">
-      <div className="blg-empty-lead reveal">
-        <EnsoMark size={92} stroke={9} />
-        <h2 className="blg-empty-h display">{BLOG_TEXT.emptyTitle}</h2>
-        <p className="blg-empty-p">{BLOG_TEXT.emptyLead}</p>
-      </div>
-
-      <div className="blg-empty-grid">
-        <div className="blg-topics reveal reveal-d1">
-          <h3 className="blg-topics-h">{BLOG_TEXT.emptyTopicsH}</h3>
-          <ul className="blg-topic-list">
-            {BLOG_TOPICS.map(([kanji, label, note]) => (
-              <li className="blg-topic" key={label}>
-                <span className="blg-topic-kanji" aria-hidden="true">
-                  {kanji}
-                </span>
-                <div>
-                  <span className="blg-topic-label">{label}</span>
-                  <p className="blg-topic-note">{note}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <Link className="btn btn-ghost blg-empty-cta" to="/collections/all">
-            {BLOG_TEXT.shop} {I.arrow}
-          </Link>
-        </div>
-
-        <section className="blg-news reveal reveal-d2">
-          <p className="kicker">
-            <span className="kanji">改善</span>— Hírlevél
-          </p>
-          <h3 className="blg-news-h display">{BLOG_TEXT.emptyNewsletterH}</h3>
-          <p className="blg-news-p">{BLOG_TEXT.emptyNewsletterP}</p>
-          <NewsletterForm
-            className="blg-form"
-            label="Hírlevél feliratkozás a naplóban"
-          />
-          <p className="blg-news-note">
-            Bármikor leiratkozhatsz egy kattintással.
-          </p>
-        </section>
-      </div>
+      <p className="blg-empty-h display reveal">{BLOG_TEXT.emptyTitle}</p>
     </section>
   );
 }
