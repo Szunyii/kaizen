@@ -10,7 +10,8 @@
   padding:0 max(var(--page-pad), (100vw - var(--page-max)) / 2); }
 .hd-left{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
 .hd-logo{ display:inline-flex; align-items:center; gap:12px; color:var(--bone-soft); }
-.hd-mark{ display:block; width:36px; height:36px; object-fit:contain; }
+/* the logo file is cropped tight (no built-in padding), so it is sized by height */
+.hd-mark{ display:block; width:auto; height:31px; }
 .hd-word{ font-family:var(--serif); font-weight:400; font-size:clamp(18px,2vw,25px); letter-spacing:.12em;
   text-transform:uppercase; line-height:1; white-space:nowrap; }
 .hd-logo-k{ color:var(--red); }
@@ -32,7 +33,7 @@
 @media (max-width:860px){
   .hd-ic.hd-burger{ display:grid; }
   .hd-nav{ display:none; }
-  .hd-mark{ width:30px; height:30px; }
+  .hd-mark{ height:26px; }
   /* keep the bar inside a 360-390px viewport: tighter gaps, denser wordmark,
      and the search icon lives in the menu drawer instead */
   .hd-bar{ gap:10px; padding:0 12px; }
@@ -129,7 +130,7 @@
   grid-template-columns:minmax(0,2fr) repeat(4,minmax(0,1fr)); gap:48px 44px; }
 /* shrinks to the tagline's width so the logo centres over the text */
 .ft-brand{ min-width:0; grid-column:1; justify-self:start; display:flex; flex-direction:column; align-items:center; }
-.ft-logo{ display:block; width:190px; }
+.ft-logo{ display:block; width:140px; }
 .ft-logo img{ display:block; width:100%; height:auto; }
 /* echoes the hero film tagline: uppercase serif, wide tracking; the negative
    right margin drops the last letter's trailing tracking so centring is true */
@@ -175,7 +176,7 @@
   /* two link columns side by side; brand and newsletter span the row */
   .ft-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px 20px; }
   .ft-brand, .ft-news{ grid-column:1 / -1; }
-  .ft-logo{ width:130px; }
+  .ft-logo{ width:96px; }
   .ft-tag{ margin-top:18px; font-size:12px; }
   .ft-col{ gap:12px; }
   .ft-h{ font-size:11px; margin-bottom:4px; }
@@ -307,7 +308,7 @@
 /* empty state */
 .cart-empty{ display:flex; flex-direction:column; align-items:center; gap:16px; padding:48px 24px; text-align:center; }
 .cart-empty[hidden]{ display:none; }
-.cart-empty-logo{ display:block; width:140px; height:auto; }
+.cart-empty-logo{ display:block; width:104px; height:auto; }
 .cart-empty-h{ font-size:26px; line-height:1.1; color:var(--bone); }
 .cart-empty .btn{ margin-top:6px; }
 

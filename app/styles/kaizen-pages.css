@@ -555,7 +555,7 @@
 /* empty state */
 .col-empty{ display:flex; flex-direction:column; align-items:center; text-align:center;
   gap:16px; padding:clamp(50px,8vw,100px) 0 clamp(70px,10vw,120px); }
-.col-empty-logo{ display:block; width:clamp(120px,16vw,180px); height:auto; }
+.col-empty-logo{ display:block; width:clamp(88px,11.75vw,132px); height:auto; }
 .col-empty-h{ font-size:clamp(26px,3.4vw,42px); color:var(--bone); }
 .col-empty-p{ font:400 15px/1.65 var(--sans); color:var(--bone-dim); max-width:40ch; text-wrap:pretty; }
 .col-empty-cta{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:8px; }

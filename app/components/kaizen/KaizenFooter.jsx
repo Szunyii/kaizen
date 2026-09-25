@@ -109,8 +109,8 @@ function FooterShell({
             <img
               src="/kaizen-logo.png"
               alt="KaizenType"
-              width="190"
-              height="190"
+              width="140"
+              height="163"
             />
           </Link>
           <p className="ft-tag">{BRAND_TAGLINE}</p>

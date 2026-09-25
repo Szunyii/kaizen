@@ -38,8 +38,8 @@ export function KaizenHeader({cart, isLoggedIn}) {
               className="hd-mark"
               src="/kaizen-logo.png"
               alt=""
-              width="36"
-              height="36"
+              width="27"
+              height="31"
             />
             <span className="hd-word">
               <span className="hd-logo-k">Kaizen</span>type

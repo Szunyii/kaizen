@@ -328,8 +328,8 @@ function CollectionEmpty({onReset, filtered}) {
           className="col-empty-logo"
           src="/kaizen-logo.png"
           alt=""
-          width="500"
-          height="500"
+          width="132"
+          height="154"
         />
         <h2 className="col-empty-h display">Hamarosan érkeznek a termékek</h2>
         <div className="col-empty-cta">

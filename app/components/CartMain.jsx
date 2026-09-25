@@ -96,8 +96,8 @@ function CartEmpty({hidden = false}) {
         className="cart-empty-logo"
         src="/kaizen-logo.png"
         alt="KaizenType"
-        width="140"
-        height="140"
+        width="104"
+        height="121"
       />
       <p className="cart-empty-h display">
         Jelenleg üres a kosarad, nézd meg kollekciónkat.
