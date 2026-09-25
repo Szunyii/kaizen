@@ -1030,20 +1030,14 @@ function Family() {
           aria-label="Kaizen Family app megnyitása"
         >
           <div className="fam-phone" aria-hidden="true">
-            <div className="fam-app">
-              <div className="fam-app-top">
-                <span className="fam-app-kanji">改善</span>
-                <span>Napi 1%</span>
-              </div>
-              <div className="fam-app-ring">
-                <span>1%</span>
-              </div>
-              <div className="fam-app-list">
-                <div className="fam-app-row is-done">Reggeli meditáció</div>
-                <div className="fam-app-row is-done">30 perc mozgás</div>
-                <div className="fam-app-row">Esti jegyzet</div>
-              </div>
-            </div>
+            <img
+              src="/kaizen-app.jpg"
+              alt=""
+              width="900"
+              height="1728"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
         </a>
       </div>
