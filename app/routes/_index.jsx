@@ -1062,7 +1062,7 @@ function About() {
       <div className="wrap about-grid">
         <div className="about-media reveal">
           <img
-            src="/owners.jpg"
+            src="/founders.jpg"
             alt="A KaizenType alapítói"
             width="1800"
             height="1200"
