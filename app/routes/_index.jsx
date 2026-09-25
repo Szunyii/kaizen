@@ -1013,16 +1013,8 @@ function Family() {
           </div>
           <div className="fam-cta reveal reveal-d3">
             <div className="fam-cta-row">
-              <a
-                className="btn"
-                href={APP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Belépés az appba {I.arrow}
-              </a>
-              <Link className="btn btn-ghost" to="/#termekek">
-                Vásárlás a hozzáféréshez
+              <Link className="btn" to="/#termekek">
+                Vásárlás a hozzáféréshez {I.arrow}
               </Link>
             </div>
             <span className="fam-note">
