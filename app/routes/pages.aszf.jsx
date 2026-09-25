@@ -22,11 +22,11 @@ const CONTACT_EMAIL = 'kaizentype@gmail.com';
 const ASZF_SOURCE = 'embed';
 
 /**
- * Document type of the embed widget, as in the vendor's snippet. 'def' is the
- * illustrated consumer information ("Képes fogyasztói tájékoztató"), 'aszf'
- * the ÁSZF itself.
+ * Document type of the embed widget, as in the vendor's snippet
+ * (`data-type`): 'aszf' is the ÁSZF itself, 'def' the illustrated consumer
+ * information ("Képes fogyasztói tájékoztató").
  */
-const EMBED_TYPE = 'def';
+const EMBED_TYPE = 'aszf';
 
 /**
  * @type {Route.MetaFunction}
@@ -81,7 +81,9 @@ export default function AszfPage() {
  * inline <script> (which would need the CSP nonce and would not run again on
  * client-side navigation). e-api.js inserts the widget right after its own
  * <script> tag and reads its settings from `#fbarat-embed`, so the tag is
- * created inside the container the widget should fill.
+ * created inside the container the widget should fill. The container is
+ * deliberately unstyled: the page shows the widget exactly as the vendor
+ * lays it out, with none of the site's article chrome around it.
  */
 function EmbeddedAszf() {
   const containerRef = useRef(null);
@@ -101,10 +103,10 @@ function EmbeddedAszf() {
   }, []);
 
   return (
-    <div className="doc-embed view-enter">
-      <h1 className="sr-only">ÁSZF és fogyasztói tájékoztató</h1>
-      <div ref={containerRef} className="wrap doc-embed-body" />
-    </div>
+    <>
+      <h1 className="sr-only">Általános szerződési feltételek</h1>
+      <div ref={containerRef} />
+    </>
   );
 }
 
