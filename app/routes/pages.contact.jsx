@@ -87,8 +87,7 @@ export default function ContactPage() {
             <span className="kanji">連絡</span>— Kapcsolat
           </p>
           <h1 className="ct-h display reveal reveal-d1">
-            Írj nekünk.{' '}
-            <br />
+            Írj nekünk. <br />
             <em className="ct-em">Egy munkanapon belül válaszolunk.</em>
           </h1>
 
@@ -109,7 +108,9 @@ export default function ContactPage() {
                 <div className="ct-row">
                   <dt className="ct-label">Válaszidő</dt>
                   <dd className="ct-value">
-                    <span className="ct-plain">Hétköznap, egy munkanapon belül</span>
+                    <span className="ct-plain">
+                      Hétköznap, egy munkanapon belül
+                    </span>
                     <p className="ct-note">
                       Hétvégén érkezett levelekre hétfőn válaszolunk.
                     </p>
@@ -119,9 +120,7 @@ export default function ContactPage() {
                   <dt className="ct-label">Műhely</dt>
                   <dd className="ct-value">
                     <span className="ct-plain">Budapest, Magyarország</span>
-                    <p className="ct-note">
-                      Itt készülnek a darabok.
-                    </p>
+                    <p className="ct-note">Itt készülnek a darabok.</p>
                   </dd>
                 </div>
               </dl>
@@ -140,8 +139,8 @@ export default function ContactPage() {
                 Semmi zaj.
               </h2>
               <p className="ct-news-p">
-                Rövid írás a fegyelemről és a mesterségről, és elsőként tudsz
-                az új darabokról meg az újratöltésekről.
+                Nem küldünk sok hírlevelet, amit küldünk, az igazán hasznos lesz
+                számodra.
               </p>
               <NewsletterForm
                 className="ct-form"
@@ -177,8 +176,8 @@ export default function ContactPage() {
               <em className="faq-em">megvan a válasz.</em>
             </h2>
             <p className="faq-lead reveal reveal-d2">
-              Méret, szállítás, csere, rendeléskövetés és az app-hozzáférés.
-              Ha itt nincs meg, írj a fenti címre.
+              Méret, szállítás, csere, rendeléskövetés és az app-hozzáférés. Ha
+              itt nincs meg, írj a fenti címre.
             </p>
             <Link className="faq-contact reveal reveal-d3" to="/account">
               Rendeléseim {I.arrow}
